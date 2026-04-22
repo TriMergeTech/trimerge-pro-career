@@ -21,6 +21,4 @@ This repository is organized as a modern monorepo for a professional web applica
 - Use the `packages/shared` folder for code reused across apps
 - Document changes in the `docs` folder
 
-## License
 
-This project is licensed under the MIT License.

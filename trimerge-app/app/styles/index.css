@@ -1,0 +1,37 @@
+/* Hide scrollbars but keep scrolling enabled for job list/details panels */
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+
+@import "./tailwind.css";
+
+
+@keyframes slideMenu {
+  0%{
+    transform: translateX(100%)
+  }
+  100%{
+    transform: translateX(0)
+  }
+}
+@keyframes closeMenu {
+  0%{
+    transform: translateX(0)
+  }
+  100%{
+    transform: translateX(120%)
+  }
+}
+
+.animate-slideMenu{
+  animation: slideMenu 0.3s ease-in forwards;
+}
+
+.close-slideMenu{
+  animation: closeMenu 0.3s ease-in forwards;
+}

@@ -8,7 +8,7 @@
 - Zod
 - JWT
 - bcryptjs
-- Mailgun (integration started, currently blocked by Mailgun `Forbidden` response)
+- Mailgun (integrated and working for OTP and password reset email delivery)
 
 ## Completed Backend Flows
 - Registration for employer and talent users

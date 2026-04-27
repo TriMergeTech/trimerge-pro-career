@@ -10,7 +10,6 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
   }
 };
 
-
 export const verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await authService.verifyOtp(req.body);
@@ -20,7 +19,6 @@ export const verifyOtp = async (req: Request, res: Response, next: NextFunction)
   }
 };
 
-
 export const resendOtp = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await authService.resendOtp(req.body);
@@ -29,7 +27,6 @@ export const resendOtp = async (req: Request, res: Response, next: NextFunction)
     next(error);
   }
 };
-
 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -52,6 +49,24 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await authService.resetPassword(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await authService.refreshToken(req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const me = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await authService.me(req.user!.userId);
     res.status(200).json(result);
   } catch (error) {
     next(error);

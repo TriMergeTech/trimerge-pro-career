@@ -3,6 +3,7 @@ import { UserModel } from '../users/user.model';
 import { OtpCodeModel } from './otp-code.model';
 import { RegisterInput } from './auth.schemas';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
 import { generateOtp } from '../../utils/generate-otp';
 import { generateTokens } from '../../utils/generate-tokens';
@@ -266,5 +267,69 @@ export const authService = {
     );
 
     return { message: 'Password reset successfully.' };
+  },
+
+  async refreshToken(input: { refreshToken: string }) {
+    let decoded: { userId: string; email: string; accountType: 'EMPLOYER' | 'TALENT' };
+
+    try {
+      decoded = jwt.verify(input.refreshToken, env.JWT_REFRESH_SECRET) as {
+        userId: string;
+        email: string;
+        accountType: 'EMPLOYER' | 'TALENT';
+      };
+    } catch {
+      throw new AppError('Invalid refresh token', 401);
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(input.refreshToken).digest('hex');
+
+    const storedToken = await RefreshTokenModel.findOne({
+      userId: decoded.userId,
+      tokenHash,
+    });
+
+    if (!storedToken || storedToken.revokedAt || storedToken.expiresAt < new Date()) {
+      throw new AppError('Invalid refresh token', 401);
+    }
+
+    const accessToken = jwt.sign(
+      {
+        userId: decoded.userId,
+        email: decoded.email,
+        accountType: decoded.accountType,
+      },
+      env.JWT_ACCESS_SECRET,
+      { expiresIn: env.JWT_ACCESS_EXPIRES_IN }
+    );
+
+    return {
+      message: 'Token refreshed successfully.',
+      accessToken,
+    };
+  },
+
+  async me(userId: string) {
+    const user = await UserModel.findById(userId).select(
+      '_id email accountType isVerified status profile lastLoginAt createdAt updatedAt'
+    );
+
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    return {
+      user: {
+        id: user._id,
+        email: user.email,
+        accountType: user.accountType,
+        isVerified: user.isVerified,
+        status: user.status,
+        profile: user.profile,
+        lastLoginAt: user.lastLoginAt,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    };
   },
 };

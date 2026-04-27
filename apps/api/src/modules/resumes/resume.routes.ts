@@ -1,0 +1,53 @@
+import fs from 'fs';
+import path from 'path';
+import { Router } from 'express';
+import multer from 'multer';
+import { requireAuth } from '../../middleware/auth';
+import { requireRole } from '../../middleware/roles';
+import { AppError } from '../../utils/app-error';
+import { uploadResume } from './resume.controller';
+
+const router = Router();
+
+const uploadDir = path.join(process.cwd(), 'uploads', 'resumes');
+fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const safeOriginalName = file.originalname.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.\-_]/g, '');
+    const uniqueName = `${req.user?.userId}-${Date.now()}-${safeOriginalName}`;
+    cb(null, uniqueName);
+  },
+});
+
+const allowedMimeTypes = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+  fileFilter: (_req, file, cb) => {
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      return cb(new AppError('Only PDF, DOC, and DOCX files are allowed', 400));
+    }
+    cb(null, true);
+  },
+});
+
+router.post(
+  '/upload',
+  requireAuth,
+  requireRole('TALENT'),
+  upload.single('resume'),
+  uploadResume
+);
+
+export default router;

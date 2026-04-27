@@ -1,0 +1,24 @@
+import { Document, Types } from 'mongoose';
+
+export type JobStatus = 'OPEN' | 'CLOSED' | 'DRAFT';
+export type EmploymentType = 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP';
+
+export interface Job {
+  employerId: Types.ObjectId;
+  title: string;
+  description: string;
+  requirements?: string;
+  location?: string;
+  employmentType: EmploymentType;
+  salaryMin?: number;
+  salaryMax?: number;
+  currency?: string;
+  skills: string[];
+  status: JobStatus;
+}
+
+export interface JobDocument extends Job, Document {
+  _id: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}

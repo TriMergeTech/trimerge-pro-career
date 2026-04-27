@@ -37,9 +37,14 @@ export const resetPasswordSchema = z.object({
   newPassword: z.string().min(12),
 });
 
+export const refreshTokenSchema = z.object({
+  refreshToken: z.string().min(1),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
 export type ResendOtpInput = z.infer<typeof resendOtpSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;

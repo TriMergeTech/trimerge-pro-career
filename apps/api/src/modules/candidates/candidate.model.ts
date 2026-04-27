@@ -1,0 +1,22 @@
+import { Schema, model } from 'mongoose';
+import { CandidateProfileDocument } from './candidate.types';
+
+const candidateProfileSchema = new Schema<CandidateProfileDocument>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+    headline: { type: String, trim: true },
+    skills: { type: [String], default: [] },
+    experienceLevel: { type: String, trim: true },
+    location: { type: String, trim: true },
+    bio: { type: String, trim: true },
+    resumeUrl: { type: String, trim: true },
+    portfolioUrl: { type: String, trim: true },
+    linkedinUrl: { type: String, trim: true },
+    githubUrl: { type: String, trim: true },
+  },
+  { timestamps: true }
+);
+
+candidateProfileSchema.index({ userId: 1 }, { unique: true });
+
+export const CandidateProfileModel = model<CandidateProfileDocument>('CandidateProfile', candidateProfileSchema);

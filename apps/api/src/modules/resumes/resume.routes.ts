@@ -42,6 +42,34 @@ const upload = multer({
   },
 });
 
+/**
+ * @swagger
+ * /api/v1/resumes/upload:
+ *   post:
+ *     summary: Upload candidate resume
+ *     tags: [Resumes]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - resume
+ *             properties:
+ *               resume:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Resume uploaded successfully
+ *       400:
+ *         description: Invalid file or missing file
+ *       403:
+ *         description: Forbidden
+ */
 router.post(
   '/upload',
   requireAuth,

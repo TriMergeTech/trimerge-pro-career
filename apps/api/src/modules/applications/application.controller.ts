@@ -12,7 +12,9 @@ export const createApplication = async (req: Request, res: Response, next: NextF
 
 export const getMyApplications = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await applicationService.getMyApplications(req.user!.userId);
+    const page = Number(req.query.page ?? 1);
+    const limit = Number(req.query.limit ?? 10);
+    const result = await applicationService.getMyApplications(req.user!.userId, page, limit);
     res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -21,7 +23,14 @@ export const getMyApplications = async (req: Request, res: Response, next: NextF
 
 export const getApplicationsForJob = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await applicationService.getApplicationsForJob(req.user!.userId, req.params.jobId);
+    const page = Number(req.query.page ?? 1);
+    const limit = Number(req.query.limit ?? 10);
+    const result = await applicationService.getApplicationsForJob(
+      req.user!.userId,
+      req.params.jobId,
+      page,
+      limit
+    );
     res.status(200).json(result);
   } catch (error) {
     next(error);

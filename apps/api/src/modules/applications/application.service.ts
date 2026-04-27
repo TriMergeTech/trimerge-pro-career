@@ -44,13 +44,26 @@ export const applicationService = {
     return { application };
   },
 
-  async getMyApplications(candidateId: string) {
-    const applications = await ApplicationModel.find({ candidateId }).sort({ createdAt: -1 });
+  async getMyApplications(candidateId: string, page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
 
-    return { applications };
+    const [applications, total] = await Promise.all([
+      ApplicationModel.find({ candidateId }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      ApplicationModel.countDocuments({ candidateId }),
+    ]);
+
+    return {
+      applications,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   },
 
-  async getApplicationsForJob(employerId: string, jobId: string) {
+  async getApplicationsForJob(employerId: string, jobId: string, page = 1, limit = 10) {
     const job = await JobModel.findById(jobId);
 
     if (!job) {
@@ -61,9 +74,22 @@ export const applicationService = {
       throw new AppError('Forbidden', 403);
     }
 
-    const applications = await ApplicationModel.find({ jobId }).sort({ createdAt: -1 });
+    const skip = (page - 1) * limit;
 
-    return { applications };
+    const [applications, total] = await Promise.all([
+      ApplicationModel.find({ jobId }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      ApplicationModel.countDocuments({ jobId }),
+    ]);
+
+    return {
+      applications,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   },
 
   async updateStatus(employerId: string, applicationId: string, input: UpdateApplicationStatusInput) {

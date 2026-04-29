@@ -13,6 +13,10 @@ const candidateProfileSchema = new Schema<CandidateProfileDocument>(
     portfolioUrl: { type: String, trim: true },
     linkedinUrl: { type: String, trim: true },
     githubUrl: { type: String, trim: true },
+    phoneNumber: { type: String, trim: true },
+    jobTitleOrDesiredRole: { type: String, trim: true },
+    yearsOfExperience: { type: String, trim: true },
+    professionalSummary: { type: String, trim: true },
   },
   { timestamps: true }
 );

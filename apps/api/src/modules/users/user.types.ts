@@ -19,6 +19,10 @@ export interface User {
   status: UserStatus;
   profile: UserProfile;
   lastLoginAt?: Date;
+  agreedToTermsAt?: Date;
+  receiveUpdates?: boolean;
+  onboardingStep?: number;
+  onboardingCompleted?: boolean;
 }
 
 export interface UserDocument extends User, Document {

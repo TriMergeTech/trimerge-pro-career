@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authRouter from '../modules/auth/auth.routes';
+import onboardingRouter from '../modules/onboarding/onboarding.routes';
 import employerRouter from '../modules/employers/employer.routes';
 import candidateRouter from '../modules/candidates/candidate.routes';
 import jobRouter from '../modules/jobs/job.routes';
@@ -14,6 +15,7 @@ router.get('/health', (req, res) => {
 });
 
 router.use('/api/v1/auth', authRouter);
+router.use('/api/v1/onboarding', onboardingRouter);
 router.use('/api/v1/employers', employerRouter);
 router.use('/api/v1/candidates', candidateRouter);
 router.use('/api/v1/jobs', jobRouter);

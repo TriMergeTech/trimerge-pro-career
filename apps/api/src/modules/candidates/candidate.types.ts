@@ -11,6 +11,10 @@ export interface CandidateProfile {
   portfolioUrl?: string;
   linkedinUrl?: string;
   githubUrl?: string;
+  phoneNumber?: string;
+  jobTitleOrDesiredRole?: string;
+  yearsOfExperience?: string;
+  professionalSummary?: string;
 }
 
 export interface CandidateProfileDocument extends CandidateProfile, Document {

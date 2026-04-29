@@ -12,6 +12,11 @@ const employerProfileSchema = new Schema<EmployerProfileDocument>(
     about: { type: String, trim: true },
     contactEmail: { type: String, trim: true, lowercase: true },
     contactPhone: { type: String, trim: true },
+    yourRole: { type: String, trim: true },
+    jobTitle: { type: String, trim: true },
+    companyOverview: { type: String, trim: true },
+    benefitsAndOpportunities: { type: String, trim: true },
+    primaryHiringNeeds: { type: String, trim: true },
   },
   { timestamps: true }
 );

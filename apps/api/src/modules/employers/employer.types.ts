@@ -10,6 +10,11 @@ export interface EmployerProfile {
   about?: string;
   contactEmail?: string;
   contactPhone?: string;
+  yourRole?: string;
+  jobTitle?: string;
+  companyOverview?: string;
+  benefitsAndOpportunities?: string;
+  primaryHiringNeeds?: string;
 }
 
 export interface EmployerProfileDocument extends EmployerProfile, Document {

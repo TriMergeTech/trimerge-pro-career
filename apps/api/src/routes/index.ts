@@ -5,6 +5,7 @@ import candidateRouter from '../modules/candidates/candidate.routes';
 import jobRouter from '../modules/jobs/job.routes';
 import applicationRouter from '../modules/applications/application.routes';
 import resumeRouter from '../modules/resumes/resume.routes';
+import bookmarkRouter from '../modules/bookmarks/bookmark.routes';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/api/v1/candidates', candidateRouter);
 router.use('/api/v1/jobs', jobRouter);
 router.use('/api/v1/applications', applicationRouter);
 router.use('/api/v1/resumes', resumeRouter);
+router.use('/api/v1/bookmarks', bookmarkRouter);
 
 export default router;

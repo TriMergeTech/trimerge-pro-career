@@ -6,7 +6,7 @@ import { AppError } from '../utils/app-error';
 interface AuthTokenPayload {
   userId: string;
   email: string;
-  accountType: 'EMPLOYER' | 'TALENT';
+  accountType: 'EMPLOYER' | 'TALENT' | 'ADMIN';
   iat?: number;
   exp?: number;
 }

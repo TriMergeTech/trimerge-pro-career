@@ -3,6 +3,10 @@ import { UserModel } from '../users/user.model';
 import { JobModel } from '../jobs/job.model';
 import { ApplicationModel } from './application.model';
 import { CreateApplicationInput, UpdateApplicationStatusInput } from './application.schemas';
+import {
+  sendApplicationStatusUpdatedEmail,
+  sendNewApplicationNotificationEmail,
+} from '../../lib/mailgun';
 
 export const applicationService = {
   async create(candidateId: string, input: CreateApplicationInput) {
@@ -40,6 +44,20 @@ export const applicationService = {
       coverLetter: input.coverLetter,
       status: 'PENDING',
     });
+
+    try {
+      const employer = await UserModel.findById(job.employerId);
+
+      if (employer?.email) {
+        await sendNewApplicationNotificationEmail({
+          to: employer.email,
+          jobTitle: job.title,
+          candidateEmail: user.email,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send new application notification email:', error);
+    }
 
     return { application };
   },
@@ -111,6 +129,20 @@ export const applicationService = {
 
     application.status = input.status;
     await application.save();
+
+    try {
+      const candidate = await UserModel.findById(application.candidateId);
+
+      if (candidate?.email) {
+        await sendApplicationStatusUpdatedEmail({
+          to: candidate.email,
+          jobTitle: job.title,
+          status: input.status,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send application status update email:', error);
+    }
 
     return { application };
   },

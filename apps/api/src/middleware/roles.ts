@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/app-error';
 
-type Role = 'EMPLOYER' | 'TALENT';
+type Role = 'EMPLOYER' | 'TALENT' | 'ADMIN';
 
 export function requireRole(...allowedRoles: Role[]) {
   return (req: Request, _res: Response, next: NextFunction) => {

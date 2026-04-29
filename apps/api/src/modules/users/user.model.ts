@@ -16,7 +16,7 @@ const userSchema = new Schema<UserDocument>(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
-    accountType: { type: String, enum: ['EMPLOYER', 'TALENT'], required: true },
+    accountType: { type: String, enum: ['EMPLOYER', 'TALENT', 'ADMIN'], required: true },
     isVerified: { type: Boolean, default: false },
     status: {
       type: String,

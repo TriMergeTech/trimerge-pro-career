@@ -1,6 +1,6 @@
 import { Document, Types } from 'mongoose';
 
-export type AccountType = 'EMPLOYER' | 'TALENT';
+export type AccountType = 'EMPLOYER' | 'TALENT' | 'ADMIN';
 export type UserStatus = 'PENDING_VERIFICATION' | 'ACTIVE' | 'SUSPENDED';
 
 export interface UserProfile {

@@ -29,7 +29,10 @@ function Page() {
             alignItems: 'center',
             justifyContent: 'start ',
         }}>
-            <Image src="warning.svg" alt="Warning Illustration" style={{ width: 'fit-content', height: '80px' }}/>
+            <Image src="warning.svg" alt="Warning Illustration"
+                width={200}
+                height={200}
+                style={{ width: 'fit-content', height: '80px' }}/>
             <h1 style={{
                 fontSize: '1rem',
                 fontWeight: 'bold',
@@ -40,10 +43,34 @@ function Page() {
             }}>
                 Invalid or Expired Verification Link
             </h1>
-            <div>
+            <div style={{
+                fontSize: '0.875rem',
+                color: '#6b7280',
+                textAlign: 'center',
+                width: '40%',
+                textAlignLast: 'center',
+                marginTop: '1rem',
+            }}>
                 This verification link has expired or is invalid. Click the button below to request a new one—we’ll send it to your email address.
             </div>
-            <span>
+            <span style={{
+                display: 'flex',
+                width: '80%',
+                justifyContent: 'space-around',
+            }}
+                >
+                
+                <button style={{
+                    backgroundColor: '#1e3a8a',
+                    color: 'white',
+                    padding: '0.75rem 1.5rem', 
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    marginTop: '2rem',
+                }}>
+                    Resend Verification Link
+                </button>   
                 
                 <button style={{
                     backgroundColor: '#1e3a8a',

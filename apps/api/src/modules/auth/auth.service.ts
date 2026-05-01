@@ -3,7 +3,7 @@ import { UserModel } from '../users/user.model';
 import { OtpCodeModel } from './otp-code.model';
 import { RegisterInput } from './auth.schemas';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { env } from '../../config/env';
 import { generateOtp } from '../../utils/generate-otp';
 import { generateTokens } from '../../utils/generate-tokens';
@@ -270,13 +270,13 @@ export const authService = {
   },
 
   async refreshToken(input: { refreshToken: string }) {
-    let decoded: { userId: string; email: string; accountType: 'EMPLOYER' | 'TALENT' };
+    let decoded: { userId: string; email: string; accountType: 'EMPLOYER' | 'TALENT' | 'ADMIN' };
 
     try {
-      decoded = jwt.verify(input.refreshToken, env.JWT_REFRESH_SECRET) as {
+      decoded = jwt.verify(input.refreshToken, env.JWT_REFRESH_SECRET as Secret) as {
         userId: string;
         email: string;
-        accountType: 'EMPLOYER' | 'TALENT';
+        accountType: 'EMPLOYER' | 'TALENT' | 'ADMIN';
       };
     } catch {
       throw new AppError('Invalid refresh token', 401);
@@ -293,14 +293,18 @@ export const authService = {
       throw new AppError('Invalid refresh token', 401);
     }
 
+    const accessOptions: SignOptions = {
+      expiresIn: env.JWT_ACCESS_EXPIRES_IN as SignOptions['expiresIn'],
+    };
+
     const accessToken = jwt.sign(
       {
         userId: decoded.userId,
         email: decoded.email,
         accountType: decoded.accountType,
       },
-      env.JWT_ACCESS_SECRET,
-      { expiresIn: env.JWT_ACCESS_EXPIRES_IN }
+      env.JWT_ACCESS_SECRET as Secret,
+      accessOptions
     );
 
     return {

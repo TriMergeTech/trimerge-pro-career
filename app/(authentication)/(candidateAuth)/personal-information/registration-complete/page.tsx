@@ -8,7 +8,7 @@ function Page() {
         display: 'flex',
         position: 'relative',
         flexDirection: 'column',
-        backgroundColor: 'white',
+        backgroundColor: '#0b1f3a',
         padding: '2rem',
         rowGap: '1rem',
         alignItems: 'center',
@@ -19,7 +19,7 @@ function Page() {
             flexDirection: 'column',
             position: 'absolute',
             top: '0%',
-            paddingTop: '7rem',
+            paddingTop: '1rem',
             width: '80%',
             height: '90%',
             borderBottomLeftRadius: '0.5rem',
@@ -28,25 +28,44 @@ function Page() {
             borderTop: 'none',
             alignItems: 'center',
             justifyContent: 'start ',
+            backgroundColor: 'white',
         }}>
             <Image
-                src="success.svg"
+                src="/pop.svg"
                 alt="Success Illustration"
-                width={400}
+                width={200}
                 height={200}
-                style={{ marginTop: '3rem' }}
             />
             <div style={{
-                fontSize: '1.25rem',
+                fontSize: '2rem',
                 fontWeight: 'bold',
                 textAlign: 'center',
                 marginTop: '2rem',
                 width: '70%',
                 textAlignLast: 'center',
             }}>
-                Your password has been updated successfully. You’re all set—go ahead and log in with your new credentials.
+                You are all Set!
             </div>
-
+            <div style={{
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                marginTop: '2rem',
+                width: '60%',
+                textAlignLast: 'center',
+            }}>
+                Your candidate profile is complete. You can now explore opportunities, connect with recruiters, and manage your job search through TriMergePRO.
+            </div>
+            <img 
+                src="/Logo.png" 
+                alt="TriMergePro Logo" 
+                style={{ 
+                    objectFit: 'contain', 
+                    height: '6rem', 
+                    width: '300px',
+                    marginBottom: '1rem' 
+                }} 
+                />
             <button style={{
                 backgroundColor: '#1e3a8a',
                 color: 'white',
@@ -56,7 +75,7 @@ function Page() {
                 cursor: 'pointer',
                 marginTop: '2rem',
             }}>
-                Back to Sign in
+                Back to Dashboard
             </button>   
         </div>
         

@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { Router } from 'express';
 import multer from 'multer';
 import { requireAuth } from '../../middleware/auth';
@@ -9,20 +7,6 @@ import { uploadResume } from './resume.controller';
 
 const router = Router();
 
-const uploadDir = path.join(process.cwd(), 'uploads', 'resumes');
-fs.mkdirSync(uploadDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const safeOriginalName = file.originalname.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9.\-_]/g, '');
-    const uniqueName = `${req.user?.userId}-${Date.now()}-${safeOriginalName}`;
-    cb(null, uniqueName);
-  },
-});
-
 const allowedMimeTypes = [
   'application/pdf',
   'application/msword',
@@ -30,7 +14,7 @@ const allowedMimeTypes = [
 ];
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024,
   },

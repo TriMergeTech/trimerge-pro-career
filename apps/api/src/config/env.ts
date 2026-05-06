@@ -17,6 +17,7 @@ const envSchema = z.object({
   MAILGUN_API_KEY: z.string().min(1, 'MAILGUN_API_KEY is required'),
   MAILGUN_DOMAIN: z.string().min(1, 'MAILGUN_DOMAIN is required'),
   MAILGUN_SENDER: z.string().min(1, 'MAILGUN_SENDER is required'),
+  CLOUDINARY_URL: z.string().min(1, 'CLOUDINARY_URL is required'),
 });
 
 const _env = envSchema.safeParse(process.env);

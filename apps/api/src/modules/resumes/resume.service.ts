@@ -14,6 +14,13 @@ type CloudinaryUploadResult = {
   original_filename?: string;
 };
 
+function sanitizeOriginalName(filename: string) {
+  return filename
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9.\-_]/g, '');
+}
+
 function uploadBufferToCloudinary(file: Express.Multer.File): Promise<CloudinaryUploadResult> {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -59,6 +66,10 @@ export const resumeService = {
       throw new AppError('Resume file is required', 400);
     }
 
+    if (!file.buffer || file.buffer.length === 0) {
+      throw new AppError('Uploaded file is empty or invalid', 400);
+    }
+
     const profile = await CandidateProfileModel.findOne({ userId });
 
     if (!profile) {
@@ -69,7 +80,7 @@ export const resumeService = {
 
     try {
       uploadedFile = await uploadBufferToCloudinary(file);
-    } catch (error) {
+    } catch (_error) {
       throw new AppError('Failed to upload resume to cloud storage', 500);
     }
 
@@ -79,7 +90,7 @@ export const resumeService = {
     return {
       message: 'Resume uploaded successfully.',
       resume: {
-        originalName: file.originalname,
+        originalName: sanitizeOriginalName(file.originalname),
         mimeType: file.mimetype,
         size: file.size,
         resumeUrl: uploadedFile.secure_url,

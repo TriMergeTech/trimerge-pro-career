@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
+import path from 'path';
 import { requireAuth } from '../../middleware/auth';
 import { requireRole } from '../../middleware/roles';
 import { AppError } from '../../utils/app-error';
@@ -13,15 +14,31 @@ const allowedMimeTypes = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
+const allowedExtensions = ['.pdf', '.doc', '.docx'];
+
+function sanitizeOriginalName(filename: string) {
+  return filename
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-zA-Z0-9.\-_]/g, '');
+}
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 5 * 1024 * 1024,
   },
   fileFilter: (_req, file, cb) => {
-    if (!allowedMimeTypes.includes(file.mimetype)) {
+    const extension = path.extname(file.originalname).toLowerCase();
+
+    const isMimeAllowed = allowedMimeTypes.includes(file.mimetype);
+    const isExtensionAllowed = allowedExtensions.includes(extension);
+
+    if (!isMimeAllowed || !isExtensionAllowed) {
       return cb(new AppError('Only PDF, DOC, and DOCX files are allowed', 400));
     }
+
+    file.originalname = sanitizeOriginalName(file.originalname);
     cb(null, true);
   },
 });
@@ -58,7 +75,23 @@ router.post(
   '/upload',
   requireAuth,
   requireRole('TALENT'),
-  upload.single('resume'),
+  (req, res, next) => {
+    upload.single('resume')(req, res, (err: any) => {
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return next(new AppError('Resume file must be 5 MB or smaller', 400));
+        }
+
+        return next(new AppError(`Upload error: ${err.message}`, 400));
+      }
+
+      if (err) {
+        return next(err);
+      }
+
+      next();
+    });
+  },
   uploadResume
 );
 

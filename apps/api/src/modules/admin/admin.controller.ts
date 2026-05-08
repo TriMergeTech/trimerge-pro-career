@@ -25,6 +25,15 @@ export const updateAdminUserStatus = async (req: Request, res: Response, next: N
   }
 };
 
+export const deleteAdminUser = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await adminService.deleteUser(req.params.id);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const listAdminJobs = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const query = {

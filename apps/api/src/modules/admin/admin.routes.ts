@@ -9,6 +9,7 @@ import {
   updateAdminUserStatusSchema,
 } from './admin.schemas';
 import {
+  deleteAdminUser,
   listAdminJobs,
   listAdminUsers,
   updateAdminJobStatus,
@@ -99,6 +100,36 @@ router.patch(
   requireRole('ADMIN'),
   validateRequest(updateAdminUserStatusSchema),
   updateAdminUserStatus
+);
+
+/**
+ * @swagger
+ * /api/v1/admin/users/{id}:
+ *   delete:
+ *     summary: Delete a user and related testing data
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       403:
+ *         description: Admin accounts cannot be deleted through this endpoint
+ *       404:
+ *         description: User not found
+ */
+router.delete(
+  '/users/:id',
+  requireAuth,
+  requireRole('ADMIN'),
+  deleteAdminUser
 );
 
 /**

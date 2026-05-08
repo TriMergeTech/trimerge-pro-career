@@ -1,6 +1,12 @@
 import { AppError } from '../../utils/app-error';
 import { UserModel } from '../users/user.model';
 import { JobModel } from '../jobs/job.model';
+import { CandidateProfileModel } from '../candidates/candidate.model';
+import { EmployerProfileModel } from '../employers/employer.model';
+import { OtpCodeModel } from '../auth/otp-code.model';
+import { RefreshTokenModel } from '../auth/refresh-token.model';
+import { BookmarkModel } from '../bookmarks/bookmark.model';
+import { ApplicationModel } from '../applications/application.model';
 import {
   ListAdminJobsQuery,
   ListAdminUsersQuery,
@@ -62,6 +68,55 @@ export const adminService = {
         email: user.email,
         accountType: user.accountType,
         status: user.status,
+      },
+    };
+  },
+
+  async deleteUser(userId: string) {
+    const user = await UserModel.findById(userId);
+
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+
+    if (user.accountType === 'ADMIN') {
+      throw new AppError('Admin accounts cannot be deleted through this endpoint', 403);
+    }
+
+    if (user.accountType === 'TALENT') {
+      await Promise.all([
+        CandidateProfileModel.deleteOne({ userId }),
+        BookmarkModel.deleteMany({ userId }),
+        ApplicationModel.deleteMany({ candidateId: userId }),
+      ]);
+    }
+
+    if (user.accountType === 'EMPLOYER') {
+      const jobs = await JobModel.find({ employerId: userId }).select('_id');
+      const jobIds = jobs.map((job) => job._id);
+
+      await Promise.all([
+        EmployerProfileModel.deleteOne({ userId }),
+        BookmarkModel.deleteMany({ userId }),
+        JobModel.deleteMany({ employerId: userId }),
+        jobIds.length > 0
+          ? ApplicationModel.deleteMany({ jobId: { $in: jobIds } })
+          : Promise.resolve(),
+      ]);
+    }
+
+    await Promise.all([
+      OtpCodeModel.deleteMany({ userId }),
+      RefreshTokenModel.deleteMany({ userId }),
+      UserModel.findByIdAndDelete(userId),
+    ]);
+
+    return {
+      message: 'User and related data deleted successfully.',
+      deletedUser: {
+        id: user._id,
+        email: user.email,
+        accountType: user.accountType,
       },
     };
   },

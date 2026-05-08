@@ -6,7 +6,9 @@ import { UserModel } from '../users/user.model';
 import { OtpCodeModel } from '../auth/otp-code.model';
 import { CandidateProfileModel } from '../candidates/candidate.model';
 import { EmployerProfileModel } from '../employers/employer.model';
+import { RefreshTokenModel } from '../auth/refresh-token.model';
 import { generateOtp } from '../../utils/generate-otp';
+import { generateTokens } from '../../utils/generate-tokens';
 import { sendVerificationOtpEmail } from '../../lib/mailgun';
 import {
   CandidateStep2Input,
@@ -34,6 +36,25 @@ function hashOtp(otp: string): string {
 
 function getOtpExpiryDate(): Date {
   return new Date(Date.now() + Number(env.OTP_EXPIRES_MINUTES) * 60000);
+}
+
+function getRefreshTokenExpiryDate(): Date {
+  let expiresMs = 0;
+  const match = /^([0-9]+)([smhd])$/.exec(env.JWT_REFRESH_EXPIRES_IN);
+
+  if (match) {
+    const value = parseInt(match[1], 10);
+    const unit = match[2];
+
+    if (unit === 's') expiresMs = value * 1000;
+    else if (unit === 'm') expiresMs = value * 60 * 1000;
+    else if (unit === 'h') expiresMs = value * 60 * 60 * 1000;
+    else if (unit === 'd') expiresMs = value * 24 * 60 * 60 * 1000;
+  } else {
+    expiresMs = Number(env.JWT_REFRESH_EXPIRES_IN) * 1000;
+  }
+
+  return new Date(Date.now() + expiresMs);
 }
 
 async function invalidateUnusedVerificationOtps(userId: string | object): Promise<void> {
@@ -125,10 +146,42 @@ export const onboardingService = {
     user.onboardingStep = Math.max(user.onboardingStep ?? 1, 1);
     await user.save();
 
+    const tokens = generateTokens({
+      userId: user._id.toString(),
+      email: user.email,
+      accountType: user.accountType,
+    });
+
+    const refreshTokenHash = crypto.createHash('sha256').update(tokens.refreshToken).digest('hex');
+    const expiresAt = getRefreshTokenExpiryDate();
+
+    await RefreshTokenModel.create({
+      userId: user._id,
+      tokenHash: refreshTokenHash,
+      expiresAt,
+    });
+
+    user.lastLoginAt = new Date();
+    await user.save();
+
     return {
       message: 'Email verified successfully. You can continue onboarding.',
       onboardingStep: user.onboardingStep,
       accountType: user.accountType,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        accountType: user.accountType,
+        isVerified: user.isVerified,
+        status: user.status,
+        onboardingStep: user.onboardingStep ?? 1,
+        onboardingCompleted: user.onboardingCompleted ?? false,
+        receiveUpdates: user.receiveUpdates ?? false,
+        agreedToTermsAt: user.agreedToTermsAt,
+        profile: user.profile,
+      },
     };
   },
 
@@ -160,7 +213,7 @@ export const onboardingService = {
 
   async getStatus(userId: string) {
     const user = await UserModel.findById(userId).select(
-      '_id email accountType isVerified status onboardingStep onboardingCompleted receiveUpdates agreedToTermsAt'
+      '_id email accountType isVerified status onboardingStep onboardingCompleted receiveUpdates agreedToTermsAt profile'
     );
 
     if (!user) {
@@ -178,6 +231,7 @@ export const onboardingService = {
         onboardingCompleted: user.onboardingCompleted ?? false,
         receiveUpdates: user.receiveUpdates ?? false,
         agreedToTermsAt: user.agreedToTermsAt,
+        profile: user.profile,
       },
     };
   },

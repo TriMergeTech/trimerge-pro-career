@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import multer from 'multer';
+import path from 'path';
+import { AppError } from '../../utils/app-error';
 import { validateRequest } from '../../middleware/validate-request';
 import { requireAuth } from '../../middleware/auth';
 import { requireRole } from '../../middleware/roles';
@@ -23,6 +26,32 @@ import {
 } from './onboarding.controller';
 
 const router = Router();
+
+const allowedResumeMimeTypes = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
+const allowedResumeExtensions = ['.pdf', '.doc', '.docx'];
+
+const optionalResumeUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+  fileFilter: (_req, file, cb) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    const isMimeAllowed = allowedResumeMimeTypes.includes(file.mimetype);
+    const isExtensionAllowed = allowedResumeExtensions.includes(extension);
+
+    if (!isMimeAllowed || !isExtensionAllowed) {
+      return cb(new AppError('Only PDF, DOC, and DOCX files are allowed', 400));
+    }
+
+    cb(null, true);
+  },
+});
 
 /**
  * @swagger
@@ -133,7 +162,7 @@ router.get('/status', requireAuth, getOnboardingStatus);
  * /api/v1/onboarding/candidate/step-2:
  *   post:
  *     summary: Save candidate onboarding step 2
- *     description: Save the candidate profile data for step 2. Resume upload is optional and handled separately through /api/v1/resumes/upload when the user wants to add it.
+ *     description: Save the candidate profile data for step 2. Resume upload is optional and can be sent in this request as multipart/form-data or uploaded separately through /api/v1/resumes/upload.
  *     tags: [Onboarding]
  *     security:
  *       - bearerAuth: []
@@ -161,6 +190,28 @@ router.get('/status', requireAuth, getOnboardingStatus);
  *               resumeUrl:
  *                 type: string
  *                 description: Optional resume URL returned by the resume upload endpoint
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - location
+ *               - jobTitleOrDesiredRole
+ *               - yearsOfExperience
+ *             properties:
+ *               phoneNumber:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *               jobTitleOrDesiredRole:
+ *                 type: string
+ *               yearsOfExperience:
+ *                 type: string
+ *               linkedinUrl:
+ *                 type: string
+ *               resume:
+ *                 type: string
+ *                 format: binary
+ *                 description: Optional resume file (PDF, DOC, DOCX)
  *     responses:
  *       200:
  *         description: Candidate onboarding step 2 saved successfully. Resume upload is optional.
@@ -169,6 +220,23 @@ router.post(
   '/candidate/step-2',
   requireAuth,
   requireRole('TALENT'),
+  (req, res, next) => {
+    optionalResumeUpload.single('resume')(req, res, (err: any) => {
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return next(new AppError('Resume file must be 5 MB or smaller', 400));
+        }
+
+        return next(new AppError(`Upload error: ${err.message}`, 400));
+      }
+
+      if (err) {
+        return next(err);
+      }
+
+      next();
+    });
+  },
   validateRequest(candidateStep2Schema),
   saveCandidateStep2
 );

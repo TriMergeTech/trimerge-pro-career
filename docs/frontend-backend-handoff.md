@@ -4,6 +4,9 @@
 - Base URL: `http://localhost:4000`
 - Swagger Docs: `http://localhost:4000/api-docs`
 
+## Environments and CORS
+The API allows requests from multiple origins configured in `CORS_ORIGIN`. For local development, the `.env.example` shows how to add multiple origins separated by commas. Update `CORS_ORIGIN` in production and development environments to include your frontend URL and any testing URLs (e.g., Render preview, Swagger UI).
+
 ## Auth Flow
 ### Core endpoints
 - `POST /api/v1/auth/register`

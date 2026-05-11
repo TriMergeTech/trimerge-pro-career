@@ -13,6 +13,10 @@ export const swaggerSpec = swaggerJsdoc({
         url: 'http://localhost:4000',
         description: 'Local development server',
       },
+      {
+        url: 'https://trimerge-pro-career-uaun.onrender.com',
+        description: 'Production server (Render)',
+      },
     ],
     components: {
       securitySchemes: {

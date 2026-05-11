@@ -48,6 +48,7 @@ const upload = multer({
  * /api/v1/resumes/upload:
  *   post:
  *     summary: Upload candidate resume
+ *     description: Uploads a resume file to cloud storage and saves its URL on the candidate profile. Can be used before or after onboarding step 2.
  *     tags: [Resumes]
  *     security:
  *       - bearerAuth: []

@@ -29,9 +29,14 @@ Use:
 3. `POST /api/v1/auth/login`
 4. `GET /api/v1/onboarding/status`
 5. `POST /api/v1/onboarding/candidate/step-2`
-6. Upload resume through `POST /api/v1/resumes/upload` if needed
-7. `POST /api/v1/onboarding/candidate/step-3`
-8. `GET /api/v1/onboarding/status`
+6. `POST /api/v1/onboarding/candidate/step-3`
+7. `GET /api/v1/onboarding/status`
+8. Upload resume later through `POST /api/v1/resumes/upload` when the user has the file ready
+
+### Resume upload
+- The resume upload endpoint stores the Cloudinary URL in the candidate profile.
+- It is optional and can happen after onboarding is complete.
+- The frontend should send JSON to onboarding step 2, not multipart form data.
 
 ### Recruiter
 1. `POST /api/v1/onboarding/register`

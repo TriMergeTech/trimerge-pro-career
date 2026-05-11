@@ -133,6 +133,7 @@ router.get('/status', requireAuth, getOnboardingStatus);
  * /api/v1/onboarding/candidate/step-2:
  *   post:
  *     summary: Save candidate onboarding step 2
+ *     description: Save the candidate profile data for step 2. Resume upload is optional and handled separately through /api/v1/resumes/upload when the user wants to add it.
  *     tags: [Onboarding]
  *     security:
  *       - bearerAuth: []
@@ -159,9 +160,10 @@ router.get('/status', requireAuth, getOnboardingStatus);
  *                 type: string
  *               resumeUrl:
  *                 type: string
+ *                 description: Optional resume URL returned by the resume upload endpoint
  *     responses:
  *       200:
- *         description: Candidate onboarding step 2 saved successfully
+ *         description: Candidate onboarding step 2 saved successfully. Resume upload is optional.
  */
 router.post(
   '/candidate/step-2',

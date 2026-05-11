@@ -70,12 +70,6 @@ export const resumeService = {
       throw new AppError('Uploaded file is empty or invalid', 400);
     }
 
-    const profile = await CandidateProfileModel.findOne({ userId });
-
-    if (!profile) {
-      throw new AppError('Candidate profile not found', 404);
-    }
-
     let uploadedFile: CloudinaryUploadResult;
 
     try {
@@ -84,8 +78,15 @@ export const resumeService = {
       throw new AppError('Failed to upload resume to cloud storage', 500);
     }
 
-    profile.resumeUrl = uploadedFile.secure_url;
-    await profile.save();
+    const profile = await CandidateProfileModel.findOneAndUpdate(
+      { userId },
+      {
+        $set: {
+          resumeUrl: uploadedFile.secure_url,
+        },
+      },
+      { new: true, upsert: true }
+    );
 
     return {
       message: 'Resume uploaded successfully.',

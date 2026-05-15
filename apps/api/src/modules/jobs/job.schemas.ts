@@ -1,11 +1,14 @@
 import { z } from 'zod';
 
+const departmentEnum = z.enum(['ENGINEERING', 'MARKETING', 'HR', 'SALES', 'DESIGN']);
+
 export const createJobSchema = z.object({
   title: z.string().trim().min(1),
   description: z.string().trim().min(1),
   requirements: z.string().trim().optional(),
   location: z.string().trim().optional(),
   employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP']),
+  department: departmentEnum,
   salaryMin: z.number().nonnegative().optional(),
   salaryMax: z.number().nonnegative().optional(),
   currency: z.string().trim().optional(),
@@ -19,6 +22,7 @@ export const updateJobSchema = z.object({
   requirements: z.string().trim().optional(),
   location: z.string().trim().optional(),
   employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP']).optional(),
+  department: departmentEnum.optional(),
   salaryMin: z.number().nonnegative().optional(),
   salaryMax: z.number().nonnegative().optional(),
   currency: z.string().trim().optional(),
@@ -31,6 +35,7 @@ export const listJobsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).default(10),
   status: z.enum(['OPEN', 'CLOSED', 'DRAFT']).optional(),
   employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP']).optional(),
+  department: departmentEnum.optional(),
   location: z.string().trim().optional(),
   search: z.string().trim().optional(),
 });

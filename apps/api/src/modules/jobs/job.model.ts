@@ -13,6 +13,12 @@ const jobSchema = new Schema<JobDocument>(
       enum: ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'INTERNSHIP'],
       required: true,
     },
+    department: {
+      type: String,
+      enum: ['ENGINEERING', 'MARKETING', 'HR', 'SALES', 'DESIGN'],
+      required: true,
+      index: true,
+    },
     salaryMin: { type: Number },
     salaryMax: { type: Number },
     currency: { type: String, trim: true, default: 'USD' },
@@ -27,6 +33,6 @@ const jobSchema = new Schema<JobDocument>(
 );
 
 jobSchema.index({ employerId: 1, createdAt: -1 });
-jobSchema.index({ status: 1, employmentType: 1, createdAt: -1 });
+jobSchema.index({ status: 1, employmentType: 1, department: 1, createdAt: -1 });
 
 export const JobModel = model<JobDocument>('Job', jobSchema);

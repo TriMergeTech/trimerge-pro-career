@@ -2,6 +2,7 @@ import { Document, Types } from 'mongoose';
 
 export type JobStatus = 'OPEN' | 'CLOSED' | 'DRAFT';
 export type EmploymentType = 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP';
+export type JobDepartment = 'ENGINEERING' | 'MARKETING' | 'HR' | 'SALES' | 'DESIGN';
 
 export interface Job {
   employerId: Types.ObjectId;
@@ -10,6 +11,7 @@ export interface Job {
   requirements?: string;
   location?: string;
   employmentType: EmploymentType;
+  department: JobDepartment;
   salaryMin?: number;
   salaryMax?: number;
   currency?: string;

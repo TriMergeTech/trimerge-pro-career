@@ -8,6 +8,8 @@ import applicationRouter from '../modules/applications/application.routes';
 import resumeRouter from '../modules/resumes/resume.routes';
 import bookmarkRouter from '../modules/bookmarks/bookmark.routes';
 import adminRouter from '../modules/admin/admin.routes';
+import dashboardRouter from '../modules/dashboard/dashboard.routes';
+import settingsRouter from '../modules/settings/settings.routes';
 
 const router = Router();
 
@@ -24,5 +26,7 @@ router.use('/api/v1/applications', applicationRouter);
 router.use('/api/v1/resumes', resumeRouter);
 router.use('/api/v1/bookmarks', bookmarkRouter);
 router.use('/api/v1/admin', adminRouter);
+router.use('/api/v1/dashboard', dashboardRouter);
+router.use('/api/v1/settings', settingsRouter);
 
 export default router;

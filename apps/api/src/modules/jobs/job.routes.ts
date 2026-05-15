@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { requireAuth } from '../../middleware/auth';
 import { requireRole } from '../../middleware/roles';
 import { validateRequest } from '../../middleware/validate-request';
-import { createJobSchema, updateJobSchema } from './job.schemas';
+import { createJobSchema, updateJobSchema, listJobsQuerySchema } from './job.schemas';
 import {
   createJob,
   listJobs,
@@ -33,6 +33,7 @@ const router = Router();
  *               - title
  *               - description
  *               - employmentType
+ *               - department
  *             properties:
  *               title:
  *                 type: string
@@ -45,6 +46,9 @@ const router = Router();
  *               employmentType:
  *                 type: string
  *                 enum: [FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP]
+ *               department:
+ *                 type: string
+ *                 enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN]
  *               salaryMin:
  *                 type: number
  *               salaryMax:
@@ -98,6 +102,11 @@ router.post(
  *           type: string
  *           enum: [FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP]
  *       - in: query
+ *         name: department
+ *         schema:
+ *           type: string
+ *           enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN]
+ *       - in: query
  *         name: location
  *         schema:
  *           type: string
@@ -109,7 +118,12 @@ router.post(
  *       200:
  *         description: Jobs listed successfully
  */
-router.get('/', requireAuth, listJobs);
+router.get(
+  '/',
+  requireAuth,
+  validateRequest(listJobsQuerySchema),
+  listJobs
+);
 
 /**
  * @swagger
@@ -204,6 +218,9 @@ router.get('/:id', requireAuth, getJobById);
  *               employmentType:
  *                 type: string
  *                 enum: [FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP]
+ *               department:
+ *                 type: string
+ *                 enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN]
  *               salaryMin:
  *                 type: number
  *               salaryMax:

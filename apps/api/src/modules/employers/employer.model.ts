@@ -17,6 +17,7 @@ const employerProfileSchema = new Schema<EmployerProfileDocument>(
     companyOverview: { type: String, trim: true },
     benefitsAndOpportunities: { type: String, trim: true },
     primaryHiringNeeds: { type: String, trim: true },
+    logoUrl: { type: String, trim: true },
   },
   { timestamps: true }
 );

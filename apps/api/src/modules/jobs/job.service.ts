@@ -25,12 +25,13 @@ export const jobService = {
   },
 
   async list(query: ListJobsQuery) {
-    const { page, limit, status, employmentType, location, search } = query;
+    const { page, limit, status, employmentType, department, location, search } = query;
 
     const filter: any = {};
 
     if (status) filter.status = status;
     if (employmentType) filter.employmentType = employmentType;
+    if (department) filter.department = department;
     if (location) filter.location = { $regex: location, $options: 'i' };
     if (search) {
       filter.$or = [

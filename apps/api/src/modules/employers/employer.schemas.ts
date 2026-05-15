@@ -9,6 +9,12 @@ export const createEmployerProfileSchema = z.object({
   about: z.string().trim().optional(),
   contactEmail: z.string().email().trim().toLowerCase().optional(),
   contactPhone: z.string().trim().optional(),
+  yourRole: z.string().trim().optional(),
+  jobTitle: z.string().trim().optional(),
+  companyOverview: z.string().trim().optional(),
+  benefitsAndOpportunities: z.string().trim().optional(),
+  primaryHiringNeeds: z.string().trim().optional(),
+  logoUrl: z.string().url().optional(),
 });
 
 export const updateEmployerProfileSchema = z.object({
@@ -20,6 +26,12 @@ export const updateEmployerProfileSchema = z.object({
   about: z.string().trim().optional(),
   contactEmail: z.string().email().trim().toLowerCase().optional(),
   contactPhone: z.string().trim().optional(),
+  yourRole: z.string().trim().optional(),
+  jobTitle: z.string().trim().optional(),
+  companyOverview: z.string().trim().optional(),
+  benefitsAndOpportunities: z.string().trim().optional(),
+  primaryHiringNeeds: z.string().trim().optional(),
+  logoUrl: z.string().url().optional(),
 });
 
 export type CreateEmployerProfileInput = z.infer<typeof createEmployerProfileSchema>;

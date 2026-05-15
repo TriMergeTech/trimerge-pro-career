@@ -8,6 +8,7 @@ import {
 } from './employer.schemas';
 import {
   createEmployerProfile,
+  getEmployerProfileById,
   getMyEmployerProfile,
   updateMyEmployerProfile,
 } from './employer.controller';
@@ -125,6 +126,33 @@ router.put(
   requireRole('EMPLOYER'),
   validateRequest(updateEmployerProfileSchema),
   updateMyEmployerProfile
+);
+
+/**
+ * @swagger
+ * /api/v1/employers/{id}:
+ *   get:
+ *     summary: Get employer profile by ID
+ *     tags: [Employers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Employer profile ID
+ *     responses:
+ *       200:
+ *         description: Employer profile returned successfully
+ *       404:
+ *         description: Employer profile not found
+ */
+router.get(
+  '/:id',
+  requireAuth,
+  getEmployerProfileById
 );
 
 export default router;

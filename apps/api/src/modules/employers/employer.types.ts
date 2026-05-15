@@ -15,6 +15,7 @@ export interface EmployerProfile {
   companyOverview?: string;
   benefitsAndOpportunities?: string;
   primaryHiringNeeds?: string;
+  logoUrl?: string;
 }
 
 export interface EmployerProfileDocument extends EmployerProfile, Document {

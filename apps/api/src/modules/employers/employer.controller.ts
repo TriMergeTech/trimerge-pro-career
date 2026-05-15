@@ -27,3 +27,12 @@ export const updateMyEmployerProfile = async (req: Request, res: Response, next:
     next(error);
   }
 };
+
+export const getEmployerProfileById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await employerService.getById(req.params.id);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};

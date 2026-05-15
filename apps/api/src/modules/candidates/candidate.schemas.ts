@@ -10,6 +10,10 @@ export const createCandidateProfileSchema = z.object({
   portfolioUrl: z.string().url().optional(),
   linkedinUrl: z.string().url().optional(),
   githubUrl: z.string().url().optional(),
+  phoneNumber: z.string().trim().optional(),
+  jobTitleOrDesiredRole: z.string().trim().optional(),
+  yearsOfExperience: z.string().trim().optional(),
+  professionalSummary: z.string().trim().optional(),
 });
 
 export const updateCandidateProfileSchema = z.object({
@@ -22,6 +26,10 @@ export const updateCandidateProfileSchema = z.object({
   portfolioUrl: z.string().url().optional(),
   linkedinUrl: z.string().url().optional(),
   githubUrl: z.string().url().optional(),
+  phoneNumber: z.string().trim().optional(),
+  jobTitleOrDesiredRole: z.string().trim().optional(),
+  yearsOfExperience: z.string().trim().optional(),
+  professionalSummary: z.string().trim().optional(),
 });
 
 export type CreateCandidateProfileInput = z.infer<typeof createCandidateProfileSchema>;

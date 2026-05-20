@@ -10,11 +10,10 @@ const router = Router();
 
 const allowedMimeTypes = [
   'application/pdf',
-  'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-const allowedExtensions = ['.pdf', '.doc', '.docx'];
+const allowedExtensions = ['.pdf', '.docx'];
 
 function sanitizeOriginalName(filename: string) {
   return filename
@@ -35,7 +34,7 @@ const upload = multer({
     const isExtensionAllowed = allowedExtensions.includes(extension);
 
     if (!isMimeAllowed || !isExtensionAllowed) {
-      return cb(new AppError('Only PDF, DOC, and DOCX files are allowed', 400));
+      return cb(new AppError('Only PDF and DOCX files are allowed', 400));
     }
 
     file.originalname = sanitizeOriginalName(file.originalname);
@@ -48,7 +47,7 @@ const upload = multer({
  * /api/v1/resumes/upload:
  *   post:
  *     summary: Upload candidate resume
- *     description: Uploads a resume file to cloud storage and saves its URL on the candidate profile. Can be used before or after onboarding step 2.
+*     description: Uploads a PDF or DOCX resume file to cloud storage and saves its URL and extracted text on the candidate profile. Can be used before or after onboarding step 2.
  *     tags: [Resumes]
  *     security:
  *       - bearerAuth: []

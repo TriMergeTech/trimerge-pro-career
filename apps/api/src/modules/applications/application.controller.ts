@@ -3,7 +3,12 @@ import { applicationService } from './application.service';
 
 export const createApplication = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await applicationService.create(req.user!.userId, req.body);
+    const result = await applicationService.create(
+      req.user!.userId,
+      req.body,
+      req.file as Express.Multer.File | undefined
+    );
+
     res.status(201).json(result);
   } catch (error) {
     next(error);
@@ -25,12 +30,40 @@ export const getApplicationsForJob = async (req: Request, res: Response, next: N
   try {
     const page = Number(req.query.page ?? 1);
     const limit = Number(req.query.limit ?? 10);
+
     const result = await applicationService.getApplicationsForJob(
       req.user!.userId,
       req.params.jobId,
-      page,
-      limit
+      {
+        page,
+        limit,
+        sortBy: String(req.query.sortBy ?? 'newest'),
+        recommendation: req.query.recommendation
+          ? String(req.query.recommendation)
+          : undefined,
+        confidenceLevel: req.query.confidenceLevel
+          ? String(req.query.confidenceLevel)
+          : undefined,
+        aiMatchStatus: req.query.aiMatchStatus
+          ? String(req.query.aiMatchStatus)
+          : undefined,
+        staleOnly: String(req.query.staleOnly ?? 'false') === 'true',
+      }
     );
+
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const retryApplicationAiMatch = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await applicationService.retryAiMatch(req.user!.userId, req.params.id);
     res.status(200).json(result);
   } catch (error) {
     next(error);

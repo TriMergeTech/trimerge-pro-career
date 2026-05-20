@@ -48,6 +48,10 @@ const router = Router();
  *                 type: string
  *               contactPhone:
  *                 type: string
+ *               primaryHiringNeeds:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       201:
  *         description: Employer profile created successfully
@@ -114,6 +118,10 @@ router.get(
  *                 type: string
  *               contactPhone:
  *                 type: string
+ *               primaryHiringNeeds:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Employer profile updated successfully

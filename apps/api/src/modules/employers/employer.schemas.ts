@@ -13,7 +13,17 @@ export const createEmployerProfileSchema = z.object({
   jobTitle: z.string().trim().optional(),
   companyOverview: z.string().trim().optional(),
   benefitsAndOpportunities: z.string().trim().optional(),
-  primaryHiringNeeds: z.string().trim().optional(),
+  primaryHiringNeeds: z
+    .preprocess((value) => {
+      if (typeof value === 'string') {
+        return value
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+
+      return value;
+    }, z.array(z.string().trim().min(1)).optional()),
   logoUrl: z.string().url().optional(),
 });
 
@@ -30,7 +40,17 @@ export const updateEmployerProfileSchema = z.object({
   jobTitle: z.string().trim().optional(),
   companyOverview: z.string().trim().optional(),
   benefitsAndOpportunities: z.string().trim().optional(),
-  primaryHiringNeeds: z.string().trim().optional(),
+  primaryHiringNeeds: z
+    .preprocess((value) => {
+      if (typeof value === 'string') {
+        return value
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+
+      return value;
+    }, z.array(z.string().trim().min(1)).optional()),
   logoUrl: z.string().url().optional(),
 });
 

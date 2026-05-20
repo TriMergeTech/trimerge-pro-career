@@ -56,7 +56,17 @@ export const recruiterStep2Schema = z.object({
 export const recruiterStep3Schema = z.object({
   companyOverview: z.string().trim().min(1).max(800),
   benefitsAndOpportunities: z.string().trim().min(1).max(800),
-  primaryHiringNeeds: z.string().trim().min(1),
+  primaryHiringNeeds: z
+    .preprocess((value) => {
+      if (typeof value === 'string') {
+        return value
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+
+      return value;
+    }, z.array(z.string().trim().min(1)).min(1)),
 });
 
 export type OnboardingRegisterInput = z.infer<typeof onboardingRegisterSchema>;

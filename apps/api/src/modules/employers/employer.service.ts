@@ -5,6 +5,21 @@ import { JobModel } from '../jobs/job.model';
 import { ApplicationModel } from '../applications/application.model';
 import { CreateEmployerProfileInput, UpdateEmployerProfileInput } from './employer.schemas';
 
+function normalizePrimaryHiringNeeds(primaryHiringNeeds?: string | string[]): string[] | undefined {
+  if (primaryHiringNeeds === undefined) {
+    return undefined;
+  }
+
+  if (Array.isArray(primaryHiringNeeds)) {
+    return primaryHiringNeeds.map((item) => item.trim()).filter(Boolean);
+  }
+
+  return primaryHiringNeeds
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export const employerService = {
   async create(userId: string, input: CreateEmployerProfileInput) {
     const user = await UserModel.findById(userId);
@@ -25,6 +40,7 @@ export const employerService = {
     const profile = await EmployerProfileModel.create({
       userId,
       ...input,
+      primaryHiringNeeds: normalizePrimaryHiringNeeds(input.primaryHiringNeeds),
     });
 
     return { profile };
@@ -37,13 +53,27 @@ export const employerService = {
       throw new AppError('Employer profile not found', 404);
     }
 
-    return { profile };
+    return {
+      profile: {
+        ...profile.toObject(),
+        primaryHiringNeeds: normalizePrimaryHiringNeeds(
+          profile.primaryHiringNeeds as unknown as string | string[]
+        ),
+      },
+    };
   },
 
   async updateMe(userId: string, input: UpdateEmployerProfileInput) {
+    const normalizedInput = {
+      ...input,
+      ...(input.primaryHiringNeeds !== undefined
+        ? { primaryHiringNeeds: normalizePrimaryHiringNeeds(input.primaryHiringNeeds) }
+        : {}),
+    };
+
     const profile = await EmployerProfileModel.findOneAndUpdate(
       { userId },
-      { $set: input },
+      { $set: normalizedInput },
       { new: true }
     );
 
@@ -102,7 +132,12 @@ export const employerService = {
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
-      employerProfile: profile,
+      employerProfile: {
+        ...profile.toObject(),
+        primaryHiringNeeds: normalizePrimaryHiringNeeds(
+          profile.primaryHiringNeeds as unknown as string | string[]
+        ),
+      },
       jobSummary: {
         totalJobs,
         openJobs,

@@ -57,6 +57,21 @@ function getRefreshTokenExpiryDate(): Date {
   return new Date(Date.now() + expiresMs);
 }
 
+function normalizePrimaryHiringNeeds(primaryHiringNeeds?: string | string[]): string[] {
+  if (!primaryHiringNeeds) {
+    return [];
+  }
+
+  if (Array.isArray(primaryHiringNeeds)) {
+    return primaryHiringNeeds.map((item) => item.trim()).filter(Boolean);
+  }
+
+  return primaryHiringNeeds
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 async function invalidateUnusedVerificationOtps(userId: string | object): Promise<void> {
   await OtpCodeModel.updateMany(
     { userId, type: 'VERIFY_EMAIL', usedAt: { $exists: false } },
@@ -344,7 +359,7 @@ export const onboardingService = {
         $set: {
           companyOverview: input.companyOverview,
           benefitsAndOpportunities: input.benefitsAndOpportunities,
-          primaryHiringNeeds: input.primaryHiringNeeds,
+          primaryHiringNeeds: normalizePrimaryHiringNeeds(input.primaryHiringNeeds),
           about: input.companyOverview,
         },
       },

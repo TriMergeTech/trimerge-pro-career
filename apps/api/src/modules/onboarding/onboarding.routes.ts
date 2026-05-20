@@ -349,7 +349,9 @@ router.post(
  *               benefitsAndOpportunities:
  *                 type: string
  *               primaryHiringNeeds:
- *                 type: string
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Recruiter onboarding completed successfully

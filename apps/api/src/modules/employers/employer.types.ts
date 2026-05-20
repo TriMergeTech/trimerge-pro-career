@@ -14,7 +14,7 @@ export interface EmployerProfile {
   jobTitle?: string;
   companyOverview?: string;
   benefitsAndOpportunities?: string;
-  primaryHiringNeeds?: string;
+  primaryHiringNeeds?: string[];
   logoUrl?: string;
 }
 

@@ -308,6 +308,7 @@ export const onboardingService = {
       {
         $set: {
           companyName: input.companyName,
+          contactPhone: input.phoneNumber,
           companyWebsite: input.companyWebsite,
           industry: input.industry,
           companySize: input.companySize,
@@ -321,6 +322,7 @@ export const onboardingService = {
 
     user.onboardingStep = Math.max(user.onboardingStep ?? 1, 2);
     user.profile.companyName = input.companyName;
+    user.profile.phone = input.phoneNumber ?? user.profile.phone;
     await user.save();
 
     return {

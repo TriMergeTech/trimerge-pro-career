@@ -311,6 +311,8 @@ router.post(
  *                 type: string
  *               jobTitle:
  *                 type: string
+ *               phoneNumber:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Recruiter onboarding step 2 saved successfully

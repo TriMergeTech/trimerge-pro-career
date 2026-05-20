@@ -44,6 +44,7 @@ export const candidateStep3Schema = z.object({
 
 export const recruiterStep2Schema = z.object({
   companyName: z.string().trim().min(1),
+  phoneNumber: z.string().trim().optional(),
   companyWebsite: z.string().url().optional(),
   industry: z.string().trim().min(1),
   companySize: z.string().trim().optional(),

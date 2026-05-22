@@ -1,100 +1,178 @@
 "use client"
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { JobCard } from '@/app/components/ui/JobCard';
 import { JobDetailDrawer } from '@/app/components/ui/JobDetailDrawer';
 import { Tag } from 'lucide-react';
+import { useGetJobs } from '@/hooks/useGetJobs';
+import { useCreateJob } from '@/hooks/useCreateJob';
+import { useUser } from '@/contexts/userContext/userContext';
 
 function BrowseJobs() {
+  const {state} = useUser()
+
+
+
+  // Job shape coming from the API - using the fields you specified
   interface Job {
-    id: number;
+    id: number | string;
     title: string;
-    department: string;
-    location: string;
-    isNew: boolean;
     description: string;
+    requirements?: string;
+    location?: string;
+    employmentType?: string;
+    salaryMin?: number;
+    salaryMax?: number;
+    currency?: string;
+    skills?: string[];
+    status?: string;
+    // department will be shown with a default for now
+    department?: string;
+    // Optional display fields used by the detail drawer
+    isNew?: boolean;
     salary?: string;
     postedDate?: string;
+    fullDescription?: string;
   }
 
-  const mockJobs: Job[] = [
-    {
-      id: 1,
-      title: 'Senior Frontend Engineer',
-      department: 'Engineering',
-      location: 'Remote',
-      isNew: true,
-      description: 'Build beautiful user interfaces using React and TypeScript. Work with a talented team to create exceptional user experiences.',
-      salary: '$120k - $160k',
-      postedDate: 'Today',
-    },
-    {
-      id: 2,
-      title: 'Product Marketing Manager',
-      department: 'Marketing',
-      location: 'Hybrid',
-      isNew: true,
-      description: 'Drive product launches and market strategy. Collaborate with product and sales teams to achieve business goals.',
-      salary: '$100k - $140k',
-      postedDate: '1 day ago',
-    },
-    {
-      id: 3,
-      title: 'UX Designer',
-      department: 'Design',
-      location: 'On-site',
-      isNew: false,
-      description: 'Create intuitive and delightful user experiences. Conduct user research and translate insights into compelling designs.',
-      salary: '$90k - $130k',
-      postedDate: '3 days ago',
-    },
-    {
-      id: 4,
-      title: 'HR Business Partner',
-      department: 'HR',
-      location: 'On-site',
-      isNew: false,
-      description: 'Partner with business leaders to develop and execute people strategies that drive organizational success.',
-      salary: '$85k - $115k',
-      postedDate: '5 days ago',
-    },
-    {
-      id: 5,
-      title: 'Data Analyst',
-      department: 'Engineering',
-      location: 'Remote',
-      isNew: false,
-      description: 'Transform data into actionable insights. Build dashboards and reports to support data-driven decision making.',
-      salary: '$95k - $125k',
-      postedDate: '1 week ago',
-    },
-    {
-      id: 6,
-      title: 'Sales Development Rep',
-      department: 'Sales',
-      location: 'Hybrid',
-      isNew: false,
-      description: 'Generate new business opportunities and build relationships with potential customers.',
-      salary: '$60k - $80k + commission',
-      postedDate: '1 week ago',
-    },
-  ];
+  // Type for the detail drawer (subset/overlap of API job)
+  type DrawerJob = {
+    _id?: string;
+    id?: number | string;
+    employerId?: string;
+    title?: string;
+    department?: string;
+    location?: string;
+    status?: string;
+    description?: string;
+    fullDescription?: string;
+    requirements?: string;
+    employmentType?: string;
+    salary?: string;
+    salaryMin?: number;
+    salaryMax?: number;
+    currency?: string;
+    skills?: string[];
+    createdAt?: string;
+    updatedAt?: string;
+  };
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDepartment, setSelectedDepartment] = useState('All Departments');
-  const [selectedLocation, setSelectedLocation] = useState('All Locations');
+  // department/location filters reserved for later
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [activeCategory, setActiveCategory] = useState('All');
+  const { fetchJobs } = useGetJobs()
+
+  const [jobs, setJobs] = useState<Job[] | null>(null)
+  const [loadingJobs, setLoadingJobs] = useState(true)
+  const { createJob, loading: creating, error: createError, setError: setCreateError } = useCreateJob()
+  const [showCreateModal, setShowCreateModal] = useState(false)
+
+  // form state for create job
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [requirements, setRequirements] = useState('')
+  const [locationInput, setLocationInput] = useState('')
+  const [employmentType, setEmploymentType] = useState<'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP' | string>('FULL_TIME')
+  const [salaryMin, setSalaryMin] = useState<string>('')
+  const [salaryMax, setSalaryMax] = useState<string>('')
+  const [currency, setCurrency] = useState('USD')
+  const [departmentInput, setDepartmentInput] = useState('')
+  // skillsInput removed; using managed skills array instead
+  const [skills, setSkills] = useState<string[]>([])
+  const [newSkill, setNewSkill] = useState('')
+  const [showSkillInput, setShowSkillInput] = useState(false)
+  const [statusInput, setStatusInput] = useState<'OPEN' | 'CLOSED' | 'DRAFT' | string>('OPEN')
+
+  useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      const res = await fetchJobs({ page: 1, limit: 50 })
+      if (!mounted) return
+      if (!res) return
+
+      // backend may return array or { data: [...] } or { jobs: [...] }
+      console.log(res.jobs)
+      const payload = res.jobs
+      if (Array.isArray(payload)) setJobs(payload as Job[])
+      setLoadingJobs(false)
+    }
+    load()
+    return () => { mounted = false }
+  }, [])
+
+  const closeCreateModal = () => {
+    setShowCreateModal(false)
+    // reset form
+    setTitle('')
+    setDescription('')
+    setRequirements('')
+    setLocationInput('')
+  setDepartmentInput('')
+    setEmploymentType('FULL_TIME')
+    setSalaryMin('')
+    setSalaryMax('')
+    setCurrency('USD')
+    setSkills([])
+    setNewSkill('')
+    setStatusInput('OPEN')
+    setCreateError(null)
+  }
+
+  const addSkill = () => {
+    const s = newSkill.trim();
+    if (!s) return;
+    if (skills.includes(s)) {
+      setNewSkill('');
+      setShowSkillInput(false);
+      return;
+    }
+    // prepend so newest appears first
+    setSkills(prev => [s, ...prev]);
+    setNewSkill('');
+    setShowSkillInput(false);
+  }
+
+  const removeSkill = (s: string) => {
+    setSkills(prev => prev.filter(x => x !== s));
+  }
+
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+  const skillsArray = skills.map(s => String(s).trim()).filter(Boolean)
+    const payload = {
+      title,
+      description,
+      department: departmentInput,
+      requirements,
+      location: locationInput,
+      employmentType,
+      salaryMin: typeof salaryMin === 'number' ? salaryMin : Number(salaryMin) || 0,
+      salaryMax: typeof salaryMax === 'number' ? salaryMax : Number(salaryMax) || 0,
+      currency,
+      skills: skillsArray,
+      status: statusInput,
+    }
+
+    const res = await createJob(payload)
+    if (res) {
+      // refresh jobs
+      const refreshed = await fetchJobs({ page: 1, limit: 50 })
+      const payloadJobs = refreshed?.data ?? refreshed?.jobs ?? refreshed?.items ?? refreshed
+      if (Array.isArray(payloadJobs)) setJobs(payloadJobs as Job[])
+      closeCreateModal()
+    }
+  }
 
   const categories = ['All', 'Engineering', 'Marketing', 'HR', 'Sales', 'Design', 'Operations'];
 
-  const filteredJobs = mockJobs.filter((job) => {
-    const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDepartment = selectedDepartment === 'All Departments' || job.department === selectedDepartment;
-    const matchesLocation = selectedLocation === 'All Locations' || job.location === selectedLocation;
-    const matchesCategory = activeCategory === 'All' || job.department === activeCategory;
+  const filteredJobs = (jobs ?? []).filter((job) => {
+    const matchesSearch = (job.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (job.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDepartment = true; // department filter not wired yet
+    const matchesLocation = true; // location filter not wired yet
+    const matchesCategory = activeCategory === 'All' || (job.department ?? 'General') === activeCategory;
 
     return matchesSearch && matchesDepartment && matchesLocation && matchesCategory;
   });
@@ -157,9 +235,26 @@ function BrowseJobs() {
           </div>
 
           <div className="flex gap-10 flex-col overflow-y-scroll max-h-[70vh] hide-scrollbar" style={{ rowGap: 20 }}>
-            {filteredJobs.map((job) => (
-              <JobCard key={job.id} {...job} onClick={() => setSelectedJob(job)} fullWidth />
-            ))}
+            {loadingJobs ? (
+              <div style={{ padding: 32, textAlign: 'center', color: '#64748B' }}>Loading jobs...</div>
+            ) : filteredJobs.length === 0 ? (
+              <div style={{ padding: 32, textAlign: 'center', color: '#64748B' }}>No jobs found</div>
+            ) : (
+              filteredJobs.map((job) => (
+                // Map the API job object to the JobCard props. JobCard expects a few fields; ensure defaults.
+                <JobCard
+                  key={String(job.id)}
+                  id={Number(job.id) || 0}
+                  title={job.title}
+                  department={job.department ?? 'General'}
+                  location={job.location ?? 'Remote'}
+                  isNew={job.status === 'OPEN'}
+                  description={job.description}
+                  onClick={() => setSelectedJob(job as Job)}
+                  fullWidth
+                />
+              ))
+            )}
           </div>
 
           {filteredJobs.length === 0 && (
@@ -182,10 +277,143 @@ function BrowseJobs() {
         {/* If a job is selected, show the details in a floating drawer (for now, you can later refactor to show inline) */}
         {selectedJob && (
           <div className="hide-scrollbar" style={{ flex: '0 0 48%', minWidth: 0, maxWidth: '48%', overflowY: 'auto', height: '83vh' }}>
-            <JobDetailDrawer job={selectedJob} onClose={() => setSelectedJob(null)} />
+            {
+              // Map the selected job into the shape expected by JobDetailDrawer
+            }
+            <JobDetailDrawer
+              job={selectedJob as DrawerJob}
+              onClose={() => setSelectedJob(null)}
+            />
           </div>
         )}
       </div>
+      {state.user?.accountType === "EMPLOYER" && (
+        <div style={{ position: 'fixed', right: 32, bottom: 32 }}>
+          <button onClick={() => setShowCreateModal(true)} style={{ background: '#FF5F1F', color: 'white', padding: '12px 18px', borderRadius: 8 }}>
+            Create Job Posting
+          </button>
+        </div>
+      )}
+
+      {showCreateModal && (
+        <div style={{ position: 'fixed', top: '80px', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid gray' }}>
+          <div style={{ width: 720, background: 'white', borderRadius: 8, padding: 32, maxHeight: '90vh', overflowY: 'auto' }}>
+            <h2 style={{ marginTop: 0 }}>Create Job Posting</h2>
+            <form onSubmit={handleCreateSubmit}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                {/* shared styles for unfocused inputs */}
+                {/** We'll inline focus handlers to switch background color */}
+                <div style={{ gridColumn: '1 / span 2' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>
+                    Job Title
+                  </label>
+                  <input required placeholder=' Job Title' value={title} onChange={e => setTitle(e.target.value)}
+                    onFocus={e => (e.currentTarget.style.background = '#fff')}
+                    onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
+                    style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
+                  />
+                </div>
+                <div style={{ gridColumn: '1 / span 2' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>
+                    Location
+                  </label>
+                  <input required placeholder='Location' value={locationInput} onChange={e => setLocationInput(e.target.value)}
+                    onFocus={e => (e.currentTarget.style.background = '#fff')}
+                    onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
+                    style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+                  <div style={{ gridColumn: '1 / span 2' }}>
+                    <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>
+                      Department
+                    </label>
+                    <input placeholder='Department' value={departmentInput} onChange={e => setDepartmentInput(e.target.value)}
+                      onFocus={e => (e.currentTarget.style.background = '#fff')}
+                      onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
+                      style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
+                    />
+                  </div>
+                  <select value={employmentType} onChange={e => setEmploymentType(e.target.value)} style={{ border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6, background: '#f7f7fa' }}>
+                    <option value='FULL_TIME'>Full time</option>
+                    <option value='PART_TIME'>Part time</option>
+                    <option value='CONTRACT'>Contract</option>
+                    <option value='INTERNSHIP'>Internship</option>
+                  </select>
+                </div>
+                <div style={{ gridColumn: '1 / span 2' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>
+                    Salary Range
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input placeholder='Salary min' value={salaryMin} onChange={e => setSalaryMin(e.target.value)}
+                      onFocus={e => (e.currentTarget.style.background = '#fff')}
+                      onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
+                      style={{ marginRight: 8, background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
+                    />
+                    <input placeholder='Salary max' value={salaryMax} onChange={e => setSalaryMax(e.target.value)}
+                      onFocus={e => (e.currentTarget.style.background = '#fff')}
+                      onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
+                      style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
+                    />
+                  </div>
+                </div>
+                <div style={{ gridColumn: '1 / span 2' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>
+                    Job Description
+                  </label>
+                  <input required placeholder='Job Description' value={description} onChange={e => setDescription(e.target.value)}
+                    onFocus={e => (e.currentTarget.style.background = '#fff')}
+                    onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
+                    style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
+                  />
+                </div>
+                <div style={{ gridColumn: '1 / span 2' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>Skills</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                      {skills.map((s) => (
+                        <div key={s} style={{ background: '#F1F5F9', padding: '6px 10px', borderRadius: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <span style={{ fontSize: 13 }}>{s}</span>
+                          <button type='button' onClick={() => removeSkill(s)} style={{ background: 'transparent', border: 'none', color: '#ff5f1f', cursor: 'pointer' }}>×</button>
+                        </div>
+                      ))}
+
+                      {/* plus button to show inline input */}
+                      {!showSkillInput && (
+                        <button type='button' onClick={() => setShowSkillInput(true)} style={{ background: '#fff', border: '1px dashed #CBD5E1', padding: '6px 10px', borderRadius: 8, cursor: 'pointer' }}>+</button>
+                      )}
+
+                      {showSkillInput && (
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                          <input autoFocus placeholder='New skill' value={newSkill} onChange={e => setNewSkill(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }}
+                            style={{ padding: '6px 8px', borderRadius: 6, background: '#fff', border: '1px solid #E2E8F0' }}
+                          />
+                          <button type='button' onClick={addSkill} style={{ padding: '6px 10px', borderRadius: 6, background: '#1e3a8a', color: 'white' }}>Add</button>
+                          <button type='button' onClick={() => { setShowSkillInput(false); setNewSkill(''); }} style={{ padding: '6px 8px', borderRadius: 6, background: 'transparent', border: '1px solid #e5e7eb' }}>Cancel</button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              <div style={{ marginTop: 12 }}>
+                <textarea placeholder='Requirements' value={requirements} onChange={e => setRequirements(e.target.value)} style={{ width: '100%', minHeight: 80, border: '1px solid #E2E8F0', padding: 8, borderRadius: 6 }} />
+              </div>
+
+              {createError && <div style={{ color: 'red' }}>{createError}</div>}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
+                <button type='button' onClick={closeCreateModal}>Cancel</button>
+                <button type='submit' style={{ background: '#1e3a8a', color: 'white', padding: '8px 12px', borderRadius: 6 }}>{creating ? 'Creating...' : 'Create Job'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import "./styles/index.css";
 
 
 import React, { ReactNode } from 'react'
+import { UserProvider } from "@/contexts/userContext/userContext";
 
 
 
@@ -12,12 +13,13 @@ function Layout({children} : {children: ReactNode}) {
   return (
    <html lang="en">
       <body className="overflow-x-hidden">
-        <Navbar/>
-        <main> {children} </main>
-        <Footer/>
-        </body>
-    </html>
-    
+        <UserProvider>
+          <Navbar/>
+          <main> {children} </main>
+          <Footer/>
+        </UserProvider>
+      </body>
+   </html>
   )
 }
 

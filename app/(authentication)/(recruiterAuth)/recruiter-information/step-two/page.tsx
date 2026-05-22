@@ -1,10 +1,28 @@
+"use client"
 import Image from 'next/image'
-import Link from 'next/link'
-import React from 'react'
+// Link removed (unused)
+import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useRecruiterOnboardingStepThree } from '@/hooks/useRecruiterOnboardingStepThree'
 
 function Page() {
-  return (
-    <div style={{
+    const router = useRouter()
+        const { submit, loading, error } = useRecruiterOnboardingStepThree()
+    const [companyOverview, setCompanyOverview] = useState('')
+    const [benefitsAndOpportunities, setBenefitsAndOpportunities] = useState('')
+    const [primaryHiringNeeds, setPrimaryHiringNeeds] = useState('')
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        const payload = { companyOverview, benefitsAndOpportunities, primaryHiringNeeds }
+        const result = await submit(payload)
+        if (result) {
+            router.push('/')
+        }
+    }
+
+    return (
+        <div style={{
         minHeight: '90vh',
         display: 'flex',
         paddingTop: '2rem',
@@ -28,7 +46,7 @@ function Page() {
              width={300}
              height={200}
             />
-        <form style={{
+        <form onSubmit={handleSubmit} style={{
             height: '83vh',
             paddingBottom: '2rem',
             display: 'flex',
@@ -65,62 +83,72 @@ function Page() {
                 rowGap: '1rem',
                 width: '80%',
             }}>
-                <h1 style={{ marginTop: '3rem' }}>
-                    Company Overview
-                </h1>
-                <textarea name='skills' placeholder="
-                Briefly describe your company, mission, and workplace culture (max 800 characters).
-                " style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    height: '5rem',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                    resize: 'none',
-                }}></textarea>
+                                <h1 style={{ marginTop: '3rem' }}>Company Overview</h1>
+                                <textarea
+                                    value={companyOverview}
+                                    onChange={(e) => setCompanyOverview(e.target.value)}
+                                    name='companyOverview'
+                                    placeholder='Briefly describe your company, mission, and workplace culture (max 800 characters).'
+                                    style={{
+                                        padding: '0.75rem',
+                                        border: '1px solid #D1D5DB',
+                                        width: '90%',
+                                        height: '6rem',
+                                        borderRadius: '0.375rem',
+                                        backgroundColor: 'white',
+                                        resize: 'vertical',
+                                    }}
+                                />
 
-                <h1>
-                    Benefits & Opportunities
-                </h1>
-                <textarea name='skills' placeholder="
-                e.g. Software Engineers, IT Consultants, Cybersecurity Specialists
-                " style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    height: '5rem',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                    resize: 'none',
-                }}></textarea>
-                <h1>
-                    Primary Hiring Needs
-                </h1>
-                <textarea name='skills' placeholder="Search or add skills (e.g., Python, AutoCAD, Project Management)" style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    height: '5rem',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                    resize: 'none',
-                }}></textarea>
+                                <h1>Benefits & Opportunities</h1>
+                                <textarea
+                                    value={benefitsAndOpportunities}
+                                    onChange={(e) => setBenefitsAndOpportunities(e.target.value)}
+                                    name='benefitsAndOpportunities'
+                                    placeholder='e.g. Flexible PTO, Health benefits, Remote options, Career growth'
+                                    style={{
+                                        padding: '0.75rem',
+                                        border: '1px solid #D1D5DB',
+                                        width: '90%',
+                                        height: '5rem',
+                                        borderRadius: '0.375rem',
+                                        backgroundColor: 'white',
+                                        resize: 'vertical',
+                                    }}
+                                />
+
+                                <h1>Primary Hiring Needs</h1>
+                                <textarea
+                                    value={primaryHiringNeeds}
+                                    onChange={(e) => setPrimaryHiringNeeds(e.target.value)}
+                                    name='primaryHiringNeeds'
+                                    placeholder='Search or add skills (e.g., Python, AutoCAD, Project Management)'
+                                    style={{
+                                        padding: '0.75rem',
+                                        border: '1px solid #D1D5DB',
+                                        width: '90%',
+                                        height: '5rem',
+                                        borderRadius: '0.375rem',
+                                        backgroundColor: 'white',
+                                        resize: 'vertical',
+                                    }}
+                                />
              
             </span>
-            <button style={{
-                backgroundColor: '#1e3a8a',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                border: 'none',
-                borderRadius: '0.375rem',
-                cursor: 'pointer',
-                width: '60%',
-                marginTop: '2rem',
-                alignSelf: 'center',
-            }}>
-                Save and Continue 
-            </button>
+                        <button disabled={loading} style={{
+                                backgroundColor: '#1e3a8a',
+                                color: 'white',
+                                padding: '0.75rem 1.5rem',
+                                border: 'none',
+                                borderRadius: '0.375rem',
+                                cursor: 'pointer',
+                                width: '60%',
+                                marginTop: '2rem',
+                                alignSelf: 'center',
+                        }}>
+                                {loading ? 'Saving...' : 'Save and Continue'}
+                        </button>
+                        {error && <div style={{ color: 'red', marginTop: '0.5rem' }}>{error}</div>}
         </form>
     </div>
   )

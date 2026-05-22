@@ -1,9 +1,37 @@
 "use client"
 
+import { useUser } from '@/contexts/userContext/userContext';
+import { useLogin } from '@/hooks/useLogin';
 import  Link  from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 function LoginPage() {
+  const { login, loading, error, setError } = useLogin(); 
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const {state} = useUser()
+  useEffect(()=>{
+    console.log(state)
+  }, [])
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, setError]);
+
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const user = await login({ email, password });
+
+    if(!error){
+      alert("You have logged in")
+      console.log(state)
+    }
+  }
   // Colors from your colors.json reference
   const colors = {
     primary: '#3B82F6',
@@ -45,6 +73,7 @@ function LoginPage() {
 
       {/* Login Form Container */}
       <form 
+      onSubmit={onSubmit}
         style={{
           width: '50%',
           maxWidth: '50rem', // max-w-sm
@@ -99,6 +128,7 @@ function LoginPage() {
             Email
           </label>
           <input
+          onChange={(e) => setEmail(e.target.value)}
             type="email"
             id="email"
             placeholder="you@email.com"
@@ -132,6 +162,7 @@ function LoginPage() {
             Password
           </label>
           <input
+          onChange={(e)=>{setPassword(e.target.value)}}
             type="password"
             id="password"
             placeholder="••••••••"
@@ -149,7 +180,11 @@ function LoginPage() {
             }}
           />
         </div>
-
+          {error && (
+            <div style={{ color: 'red', marginBottom: '1rem' }}>
+              {error}
+            </div>
+          )}
         {/* Submit Button */}
         <button
           type="submit"
@@ -163,11 +198,11 @@ function LoginPage() {
             fontWeight: 600,
             borderRadius: '0.375rem',
             border: 'none',
-            cursor: 'pointer',
+            cursor: `${loading ? 'not-allowed' : 'pointer'}`,
             transition: 'background-color 0.2s'
           }}
         >
-          Log In
+          {loading ? 'Logging in...' : 'Log In'}
         </button>
         <Link href="/forgot-password" style={{ marginTop: '1rem',width: '40%', display: 'block', textAlign: 'left', color: colors.primary, textDecoration: 'underline', textDecorationColor: colors.formBorder }}>
           Forgot Password?

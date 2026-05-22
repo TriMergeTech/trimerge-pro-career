@@ -1,10 +1,34 @@
+"use client"
+
 import Image from 'next/image'
-import Link from 'next/link'
 import React from 'react'
+import { useRouter } from 'next/navigation'
+import { useCandidateOnboardingStepThree } from '@/hooks/useCandidateOnboardingStepThree'
 
 function Page() {
-  return (
-    <div style={{
+    const router = useRouter()
+    const { submit, loading, error } = useCandidateOnboardingStepThree()
+    const [skillsText, setSkillsText] = React.useState('')
+    const [professionalSummary, setProfessionalSummary] = React.useState('')
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        // convert skills string to array by comma and always send an array
+        const skillsPayload = (skillsText || '').split(',').map(s => s.trim()).filter(Boolean)
+        const payload = {
+            skills: skillsPayload,
+            professionalSummary,
+        }
+
+        const result = await submit(payload)
+        if (result) {
+            // navigate to home or dashboard after successful onboarding
+            router.replace('/')
+        }
+    }
+
+    return (
+        <div style={{
         minHeight: '90vh',
         display: 'flex',
         paddingTop: '2rem',
@@ -17,7 +41,7 @@ function Page() {
             style={{
                 marginTop: '3rem',
                 borderRadius: '0.5rem',
-                width: '70%',
+                width: '50%',
                 height: '80%',
                 left: '10%',
                 bottom: '0',
@@ -68,7 +92,7 @@ function Page() {
                 <h1 style={{ marginTop: '3rem' }}>
                     Skills
                 </h1>
-                <textarea name='skills' placeholder="Search or add skills (e.g., Python, AutoCAD, Project Management)" style={{
+                <textarea name='skills' value={skillsText} onChange={(e) => setSkillsText(e.target.value)} placeholder="Search or add skills (e.g., Python, AutoCAD, Project Management)" style={{
                     padding: '0.75rem',
                     border: '1px solid #D1D5DB',
                     width: '90%',
@@ -81,7 +105,7 @@ function Page() {
                 <h1>
                     Professional Summary
                 </h1>
-                <textarea name='professionalSummary' placeholder="Professional Summary *" style={{
+                <textarea name='professionalSummary' value={professionalSummary} onChange={(e) => setProfessionalSummary(e.target.value)} placeholder="Professional Summary *" style={{
                     padding: '0.75rem',
                     border: '1px solid #D1D5DB',
                     width: '90%',
@@ -93,18 +117,19 @@ function Page() {
 
              
             </span>
-            <button style={{
+            {error && <div style={{ color: '#fecaca', marginTop: 8 }}>{error}</div>}
+            <button onClick={handleSubmit} disabled={loading} style={{
                 backgroundColor: '#1e3a8a',
                 color: 'white',
                 padding: '0.75rem 1.5rem',
                 border: 'none',
                 borderRadius: '0.375rem',
-                cursor: 'pointer',
+                cursor: loading ? 'not-allowed' : 'pointer',
                 width: '60%',
                 marginTop: '2rem',
                 alignSelf: 'center',
             }}>
-                Save and Continue 
+                {loading ? 'Saving…' : 'Save and Continue'}
             </button>
         </form>
     </div>

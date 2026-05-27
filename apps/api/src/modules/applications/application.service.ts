@@ -401,6 +401,7 @@ export const applicationService = {
                 yearsOfExperience: profile.yearsOfExperience,
                 professionalSummary: profile.professionalSummary,
                 resumeParsingStatus: profile.resumeParsingStatus,
+                resumeParsingError: profile.resumeParsingError,
                 resumeUploadedAt: profile.resumeUploadedAt,
               }
             : null,

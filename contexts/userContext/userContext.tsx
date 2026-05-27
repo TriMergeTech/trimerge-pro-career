@@ -95,17 +95,9 @@ type UserContextType = {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  // Synchronously read persisted user so child components see it on first render
-  let initialUser: User | null = null;
-  try {
-    const raw = localStorage.getItem('tm_user');
-    if (raw) initialUser = JSON.parse(raw) as User;
-  } catch (e) {
-    // swallow parse errors and leave initialUser null
-    console.warn('Failed to parse tm_user during init', e);
-  }
-
-  const [state, dispatch] = useReducer(reducer, { ...initialState, user: initialUser });
+  // Do not access localStorage synchronously to avoid SSR/runtime errors.
+  // Restore session on the client inside useEffect below.
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   // Restore session from localStorage (simple example)
   useEffect(() => {

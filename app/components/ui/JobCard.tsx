@@ -9,24 +9,52 @@ interface JobCardProps {
   description: string;
   onClick: () => void;
   fullWidth?: boolean;
+  matchScore?: number;
+  isTopMatch?: boolean;
 }
 
-export function JobCard({ title, department, location, isNew, description, onClick, fullWidth }: JobCardProps) {
+export function JobCard({ title, department, location, isNew, description, onClick, fullWidth, matchScore, isTopMatch }: JobCardProps) {
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-xl shadow-sm hover:shadow-lg transition-all cursor-pointer border border-gray-100 group${fullWidth ? ' w-full' : ' max-w-[70rem]'}`}
+      className={`bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer border border-gray-100 group${fullWidth ? ' w-full' : ' max-w-[70rem]'}`}
       style={{
         padding: 24,
         position: 'relative',
         width: fullWidth ? '100%' : undefined,
         maxWidth: fullWidth ? 'none' : 1120,
-        background: 'linear-gradient(135deg, #f8fafc 0%, #fff 100%)',
-        border: '1.5px solid #e5e7eb',
-        boxShadow: '0 2px 8px rgba(30,58,138,0.03)',
-        borderRadius: "1rem"
+        background: isTopMatch
+          ? 'linear-gradient(135deg, rgba(255,95,31,0.06) 0%, #ffffff 34%, #ffffff 100%)'
+          : 'linear-gradient(135deg, #f8fafc 0%, #fff 100%)',
+        border: isTopMatch ? '1.5px solid rgba(255,95,31,0.22)' : '1.5px solid #e5e7eb',
+        boxShadow: isTopMatch
+          ? '0 12px 30px rgba(255,95,31,0.10)'
+          : '0 2px 8px rgba(30,58,138,0.03)',
+        borderRadius: '1.25rem',
+        transform: 'translateY(0)',
       }}
     >
+      {typeof matchScore === 'number' && isTopMatch && (
+        <span
+          style={{
+            background: 'linear-gradient(135deg, #FF5F1F 0%, #FB923C 100%)',
+            color: '#fff',
+            borderRadius: 9999,
+            fontSize: '0.78rem',
+            paddingLeft: 12,
+            paddingRight: 12,
+            paddingTop: 5,
+            paddingBottom: 5,
+            position: 'absolute',
+            top: 16,
+            left: 16,
+            boxShadow: '0 8px 16px rgba(255,95,31,0.18)',
+            letterSpacing: '0.02em',
+          }}
+        >
+          Top match · {matchScore}%
+        </span>
+      )}
       {isNew && (
         <span
           style={{ background: '#FF5F1F', color: '#fff', borderRadius: 9999, fontSize: '0.75rem', paddingLeft: 12, paddingRight: 12, paddingTop: 4, paddingBottom: 4, position: 'absolute', top: 16, right: 16, boxShadow: '0 2px 8px rgba(255,95,31,0.10)' }}
@@ -37,7 +65,7 @@ export function JobCard({ title, department, location, isNew, description, onCli
       <h3
         style={{
           marginBottom: 12,
-          paddingRight: 96,
+          paddingRight: isNew ? 128 : 112,
           transition: 'color 0.2s',
           fontSize: 22,
           fontWeight: 700,
@@ -51,7 +79,7 @@ export function JobCard({ title, department, location, isNew, description, onCli
         {title}
       </h3>
       <div
-        style={{ color: '#4B5563', fontSize: '0.95rem', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16 }}
+        style={{ color: '#4B5563', fontSize: '0.95rem', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Briefcase className="w-4 h-4" />
@@ -69,7 +97,7 @@ export function JobCard({ title, department, location, isNew, description, onCli
           e.stopPropagation();
           onClick();
         }}
-        style={{ width: '100%', background: '#FF5F1F', color: '#fff', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12, gap: 8, transition: 'background 0.2s', fontWeight: 600, fontSize: '1rem', boxShadow: '0 1px 4px rgba(255,95,31,0.07)' }}
+        style={{ width: '100%', background: 'linear-gradient(135deg, #FF5F1F 0%, #FB7A33 100%)', color: '#fff', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 24, paddingRight: 24, paddingTop: 13, paddingBottom: 13, gap: 8, transition: 'transform 0.2s ease, box-shadow 0.2s ease, background 0.2s', fontWeight: 600, fontSize: '1rem', boxShadow: '0 10px 22px rgba(255,95,31,0.18)' }}
         className="group-hover:bg-[#E55519]"
       >
         Apply Now

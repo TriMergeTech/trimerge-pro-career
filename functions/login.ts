@@ -30,11 +30,12 @@ export const handler = async (event: any) => {
             statusCode: 200,
             body: JSON.stringify(data),
         };
-    } catch (error) {
+    } catch (error: unknown) {
         console.log(error)
+        const message = error instanceof Error ? error.message : String(error)
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error.message }),
+            body: JSON.stringify({ error: message }),
         };
     }
 };

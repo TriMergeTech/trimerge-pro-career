@@ -58,6 +58,47 @@ function BrowseJobs() {
     updatedAt?: string;
   };
 
+  type RankedJob = Job & {
+    matchScore?: number;
+    isTopMatch?: boolean;
+  };
+
+  const extractCandidateSkills = (profile: unknown): string[] => {
+    if (!profile || typeof profile !== 'object') return [];
+    const record = profile as Record<string, unknown>;
+    const rawSkills = record.skills ?? record.skillset ?? record.stack;
+
+    if (Array.isArray(rawSkills)) {
+      return rawSkills
+        .map((skill) => String(skill).trim())
+        .filter(Boolean);
+    }
+
+    if (typeof rawSkills === 'string') {
+      return rawSkills
+        .split(',')
+        .map((skill) => skill.trim())
+        .filter(Boolean);
+    }
+
+    return [];
+  };
+
+  const normalizeSkill = (value: string) => value.trim().toLowerCase();
+
+  const calculateMatchScore = (job: Job, candidateSkills: string[]) => {
+    const jobSkills = Array.isArray(job.skills) ? job.skills : [];
+    if (candidateSkills.length === 0 || jobSkills.length === 0) return 0;
+
+    const candidateSet = new Set(candidateSkills.map(normalizeSkill));
+    const matchedSkills = jobSkills.filter((skill) => candidateSet.has(normalizeSkill(String(skill))));
+    const uniqueJobSkills = new Set(jobSkills.map((skill) => normalizeSkill(String(skill))));
+
+    if (uniqueJobSkills.size === 0) return 0;
+
+    return Math.round((matchedSkills.length / uniqueJobSkills.size) * 100);
+  };
+
   const [searchTerm, setSearchTerm] = useState('');
   // department/location filters reserved for later
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -90,13 +131,32 @@ function BrowseJobs() {
     const load = async () => {
       const res = await fetchJobs({ page: 1, limit: 50 })
       if (!mounted) return
-      if (!res) return
 
-      // backend may return array or { data: [...] } or { jobs: [...] }
-      console.log(res.jobs)
-      const payload = res.jobs
-      if (Array.isArray(payload)) setJobs(payload as Job[])
-      setLoadingJobs(false)
+      // Be defensive about response shape. Backend may return array directly
+      // or an envelope like { data: [...] }, { jobs: [...] }, { items: [...] }
+      try {
+        if (!res) {
+          setJobs([])
+          return
+        }
+
+        let payload: unknown = null
+        if (Array.isArray(res)) payload = res
+        else if (Array.isArray((res as any).data)) payload = (res as any).data
+        else if (Array.isArray((res as any).jobs)) payload = (res as any).jobs
+        else if (Array.isArray((res as any).items)) payload = (res as any).items
+        else if (Array.isArray((res as any).results)) payload = (res as any).results
+
+        if (Array.isArray(payload)) {
+          setJobs(payload as Job[])
+        } else {
+          const maybeArray = (res as any).data?.jobs ?? (res as any).data?.items ?? null
+          if (Array.isArray(maybeArray)) setJobs(maybeArray as Job[])
+          else setJobs([])
+        }
+      } finally {
+        setLoadingJobs(false)
+      }
     }
     load()
     return () => { mounted = false }
@@ -167,7 +227,14 @@ function BrowseJobs() {
 
   const categories = ['All', 'Engineering', 'Marketing', 'HR', 'Sales', 'Design', 'Operations'];
 
-  const filteredJobs = (jobs ?? []).filter((job) => {
+  const candidateSkills = extractCandidateSkills(state.user?.profile);
+
+  const rankedJobs: RankedJob[] = (jobs ?? []).map((job) => ({
+    ...job,
+    matchScore: calculateMatchScore(job, candidateSkills),
+  }));
+
+  const filteredJobs = rankedJobs.filter((job) => {
     const matchesSearch = (job.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (job.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDepartment = true; // department filter not wired yet
@@ -176,6 +243,20 @@ function BrowseJobs() {
 
     return matchesSearch && matchesDepartment && matchesLocation && matchesCategory;
   });
+
+  const topMatchIndex = candidateSkills.length > 0
+    ? filteredJobs.reduce<{ index: number; score: number }>((best, job, index) => {
+        const score = job.matchScore ?? 0;
+        if (index === 0 || score > best.score) return { index, score };
+        return best;
+      }, { index: -1, score: -1 }).index
+    : -1;
+
+  const displayedJobs = topMatchIndex > -1
+    ? [filteredJobs[topMatchIndex], ...filteredJobs.filter((_, index) => index !== topMatchIndex)]
+    : filteredJobs;
+
+  const topMatch = displayedJobs[0];
 
   return (
     <div className="flex-1 bg-[#F4F4F9] overflow-hidden h-[90vh]">
@@ -235,12 +316,34 @@ function BrowseJobs() {
           </div>
 
           <div className="flex gap-10 flex-col overflow-y-scroll max-h-[70vh] hide-scrollbar" style={{ rowGap: 20 }}>
+            {candidateSkills.length > 0 && topMatch && typeof topMatch.matchScore === 'number' && (
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, #fff7f2 0%, #ffffff 100%)',
+                  border: '1px solid #fed7c3',
+                  borderRadius: 16,
+                  padding: '16px 18px',
+                  marginBottom: 4,
+                  boxShadow: '0 6px 18px rgba(255,95,31,0.08)',
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#FF5F1F', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
+                  Best match for you
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
+                  {topMatch.title}
+                </div>
+                <div style={{ color: '#475569', fontSize: 14 }}>
+                  You have a {topMatch.matchScore}% match based on your saved skills.
+                </div>
+              </div>
+            )}
             {loadingJobs ? (
               <div style={{ padding: 32, textAlign: 'center', color: '#64748B' }}>Loading jobs...</div>
             ) : filteredJobs.length === 0 ? (
               <div style={{ padding: 32, textAlign: 'center', color: '#64748B' }}>No jobs found</div>
             ) : (
-              filteredJobs.map((job) => (
+              displayedJobs.map((job, index) => (
                 // Map the API job object to the JobCard props. JobCard expects a few fields; ensure defaults.
                 <JobCard
                   key={String(job.id)}
@@ -252,16 +355,14 @@ function BrowseJobs() {
                   description={job.description}
                   onClick={() => setSelectedJob(job as Job)}
                   fullWidth
+                  matchScore={index === 0 && candidateSkills.length > 0 ? (job.matchScore ?? 0) : undefined}
+                  isTopMatch={index === 0 && candidateSkills.length > 0}
                 />
               ))
             )}
           </div>
 
-          {filteredJobs.length === 0 && (
-            <div className="text-center" style={{ paddingTop: 64, paddingBottom: 64 }}>
-              <p className="text-gray-500">No jobs found matching your criteria</p>
-            </div>
-          )}
+          
         </div>
 
         {/* Right: Job Details Placeholder or Drawer */}

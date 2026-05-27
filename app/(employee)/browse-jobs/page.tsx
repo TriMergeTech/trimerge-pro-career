@@ -296,7 +296,7 @@ function BrowseJobs() {
       )}
 
       {showCreateModal && (
-        <div style={{ position: 'fixed', top: '80px', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid gray' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid gray', top: 80 }}>
           <div style={{ width: 720, background: 'white', borderRadius: 8, padding: 32, maxHeight: '90vh', overflowY: 'auto' }}>
             <h2 style={{ marginTop: 0 }}>Create Job Posting</h2>
             <form onSubmit={handleCreateSubmit}>
@@ -323,24 +323,31 @@ function BrowseJobs() {
                     style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
                   />
                 </div>
-                <div style={{ display: 'flex', gap: 8, width: '100%' }}>
-                  <div style={{ gridColumn: '1 / span 2' }}>
+                  <div style={{ gridColumn: '1 / span 2' , gap: 12}}>
                     <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>
                       Department
                     </label>
-                    <input placeholder='Department' value={departmentInput} onChange={e => setDepartmentInput(e.target.value)}
-                      onFocus={e => (e.currentTarget.style.background = '#fff')}
-                      onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
-                      style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
-                    />
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      <select value={departmentInput} onChange={e => setDepartmentInput(e.target.value)}
+                        onFocus={e => (e.currentTarget.style.background = '#fff')}
+                        onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
+                        style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '55%', borderRadius: 6 }}
+                      >
+                        <option value=''>Select department</option>
+                        <option value='ENGINEERING'>Engineering</option>
+                        <option value='MARKETING'>Marketing</option>
+                        <option value='HR'>HR</option>
+                        <option value='SALES'>Sales</option>
+                        <option value='DESIGN'>Design</option>
+                      </select>
+                      <select value={employmentType} onChange={e => setEmploymentType(e.target.value)} style={{ border: '1px solid #E2E8F0', padding: 8, width: '50%', borderRadius: 6, background: '#f7f7fa' }}>
+                        <option value='FULL_TIME'>Full time</option>
+                        <option value='PART_TIME'>Part time</option>
+                        <option value='CONTRACT'>Contract</option>
+                        <option value='INTERNSHIP'>Internship</option>
+                      </select>
+                    </div>
                   </div>
-                  <select value={employmentType} onChange={e => setEmploymentType(e.target.value)} style={{ border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6, background: '#f7f7fa' }}>
-                    <option value='FULL_TIME'>Full time</option>
-                    <option value='PART_TIME'>Part time</option>
-                    <option value='CONTRACT'>Contract</option>
-                    <option value='INTERNSHIP'>Internship</option>
-                  </select>
-                </div>
                 <div style={{ gridColumn: '1 / span 2' }}>
                   <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>
                     Salary Range

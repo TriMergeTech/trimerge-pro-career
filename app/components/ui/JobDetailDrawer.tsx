@@ -24,6 +24,9 @@ interface Job {
 
 import React, { useEffect, useRef, useState } from 'react';
 import useApplyForJob from '../../../hooks/useApplyForJob';
+import useApplicationAIMatch from '../../../hooks/useApplicationAIMatch';
+import { useUser } from '@/contexts/userContext/userContext';
+import Link from 'next/link';
 
 interface JobDetailDrawerProps {
   job: Job | null;
@@ -39,7 +42,9 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
   const [coverType, setCoverType] = useState<'file' | 'text'>('file');
   const [coverText, setCoverText] = useState<string>('');
   const { apply, loading: applying, error: applyError } = useApplyForJob();
+  const { runMatch, loading: aiLoading, data: aiData, error: aiError } = useApplicationAIMatch();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const {state } = useUser()
 
   // Submission logic separated from UI
   async function onSubmit() {
@@ -242,96 +247,121 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
 
         <div style={{ display: 'flex', gap: 12 }}>
           <div style={{ flex: 1 }}>
-            <div style={{ marginBottom: 12 }}>
-              <h4 style={{ margin: 0, marginBottom: 8 }}>Cover Letter</h4>
 
-              <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                <button
-                  type="button"
-                  onClick={() => { setCoverType('file'); setCoverText(''); setCoverError(null); }}
-                  style={{ padding: '8px 12px', borderRadius: 8, border: coverType === 'file' ? '2px solid #FF5F1F' : '1px solid #E5E7EB', background: coverType === 'file' ? '#FFF7F5' : '#fff' }}
-                >
-                  Upload PDF
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setCoverType('text'); setCoverFile(null); setCoverError(null); }}
-                  style={{ padding: '8px 12px', borderRadius: 8, border: coverType === 'text' ? '2px solid #FF5F1F' : '1px solid #E5E7EB', background: coverType === 'text' ? '#FFF7F5' : '#fff' }}
-                >
-                  Write cover letter
-                </button>
-              </div>
+          {state.user?.accountType === "TALENT" && (
+            <>
+              <div style={{ marginBottom: 12 }}>
+                <h4 style={{ margin: 0, marginBottom: 8 }}>Cover Letter</h4>
 
-              {coverType === 'file' && (
-                <div>
-                  <input
-                    id="cover-letter-upload"
-                    type="file"
-                    accept="application/pdf"
-                    style={{ display: 'none'}}
-                    onChange={(e) => {
-                      const f = (e.target as HTMLInputElement).files?.[0] ?? null;
-                      if (!f) {
-                        setCoverFile(null);
-                        setCoverError(null);
-                        return;
-                      }
-                      // basic PDF validation
-                      const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
-                      if (!isPdf) {
-                        setCoverFile(null);
-                        setCoverError('Please upload a PDF file');
-                        (e.target as HTMLInputElement).value = '';
-                        return;
-                      }
-                      setCoverFile(f);
-                      setCoverError(null);
-                    }}
-                  />
+                <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                   <button
                     type="button"
-                    onClick={() => document.getElementById('cover-letter-upload')?.click()}
-                    style={{ padding: '10px 16px', borderRadius: 8, border: '1px dashed #CBD5E1', background: '#fff',  cursor: 'pointer' }}
+                    onClick={() => { setCoverType('file'); setCoverText(''); setCoverError(null); }}
+                    style={{ padding: '8px 12px', borderRadius: 8, border: coverType === 'file' ? '2px solid #FF5F1F' : '1px solid #E5E7EB', background: coverType === 'file' ? '#FFF7F5' : '#fff' }}
                   >
-                    {coverFile ? 'Replace cover letter' : 'Upload cover letter (PDF)'}
+                    Upload PDF
                   </button>
-                  {coverFile && <div style={{ marginTop: 8 }}>{coverFile.name}</div>}
-                  {coverError && <div style={{ color: '#fecaca', marginTop: 8 }}>{coverError}</div>}
+                  <button
+                    type="button"
+                    onClick={() => { setCoverType('text'); setCoverFile(null); setCoverError(null); }}
+                    style={{ padding: '8px 12px', borderRadius: 8, border: coverType === 'text' ? '2px solid #FF5F1F' : '1px solid #E5E7EB', background: coverType === 'text' ? '#FFF7F5' : '#fff' }}
+                  >
+                    Write cover letter
+                  </button>
                 </div>
-              )}
 
-              {coverType === 'text' && (
-                <div>
-                  <textarea
-                    value={coverText}
-                    onChange={(e) => { setCoverText(e.target.value); if (e.target.value.trim().length > 0) setCoverError(null); }}
-                    placeholder="Write your cover letter here..."
-                    rows={8}
-                    style={{ width: '100%', padding: 12, borderRadius: 8, border: '1px solid #E5E7EB', resize: 'vertical' }}
-                  />
-                  <div style={{ fontSize: 12, color: '#6B7280', marginTop: 6 }}>You can paste plain text; we will send it as part of your application.</div>
-                  {coverError && <div style={{ color: '#fecaca', marginTop: 8 }}>{coverError}</div>}
-                </div>
-              )}
-            </div>
+                {coverType === 'file' && (
+                  <div>
+                    <input
+                      id="cover-letter-upload"
+                      type="file"
+                      accept="application/pdf"
+                      style={{ display: 'none'}}
+                      onChange={(e) => {
+                        const f = (e.target as HTMLInputElement).files?.[0] ?? null;
+                        if (!f) {
+                          setCoverFile(null);
+                          setCoverError(null);
+                          return;
+                        }
+                        // basic PDF validation
+                        const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+                        if (!isPdf) {
+                          setCoverFile(null);
+                          setCoverError('Please upload a PDF file');
+                          (e.target as HTMLInputElement).value = '';
+                          return;
+                        }
+                        setCoverFile(f);
+                        setCoverError(null);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => document.getElementById('cover-letter-upload')?.click()}
+                      style={{ padding: '10px 16px', borderRadius: 8, border: '1px dashed #CBD5E1', background: '#fff',  cursor: 'pointer' }}
+                    >
+                      {coverFile ? 'Replace cover letter' : 'Upload cover letter (PDF)'}
+                    </button>
+                    {coverFile && <div style={{ marginTop: 8 }}>{coverFile.name}</div>}
+                    {coverError && <div style={{ color: '#fecaca', marginTop: 8 }}>{coverError}</div>}
+                  </div>
+                )}
 
-            <button
-              disabled={applying || !(coverType === 'file' ? !!coverFile : coverText.trim().length > 0)}
-              style={{
-                width: '100%',
-                background: (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? '#FF5F1F' : '#FFB4A4',
-                color: '#fff',
-                padding: '16px 24px',
-                borderRadius: 12,
-                transition: 'background 0.2s',
-                cursor: applying ? 'wait' : (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? 'pointer' : 'not-allowed',
-                border: 'none',
-                opacity: (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? 1 : 0.7,
-              }}
-              onClick={onSubmit}
-            >
-              {applying ? 'Applying...' : 'Apply for This Position'}
-            </button>
+                {coverType === 'text' && (
+                  <div>
+                    <textarea
+                      value={coverText}
+                      onChange={(e) => { setCoverText(e.target.value); if (e.target.value.trim().length > 0) setCoverError(null); }}
+                      placeholder="Write your cover letter here..."
+                      rows={8}
+                      style={{ width: '100%', padding: 12, borderRadius: 8, border: '1px solid #E5E7EB', resize: 'vertical' }}
+                    />
+                    <div style={{ fontSize: 12, color: '#6B7280', marginTop: 6 }}>You can paste plain text; we will send it as part of your application.</div>
+                    {coverError && <div style={{ color: '#fecaca', marginTop: 8 }}>{coverError}</div>}
+                  </div>
+                )}
+              </div>
+              <button
+                disabled={applying || !(coverType === 'file' ? !!coverFile : coverText.trim().length > 0)}
+                style={{
+                  width: '100%',
+                  background: (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? '#FF5F1F' : '#FFB4A4',
+                  color: '#fff',
+                  padding: '16px 24px',
+                  borderRadius: 12,
+                  transition: 'background 0.2s',
+                  cursor: applying ? 'wait' : (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? 'pointer' : 'not-allowed',
+                  border: 'none',
+                  opacity: (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? 1 : 0.7,
+                }}
+                onClick={onSubmit}
+              >
+                {applying ? 'Applying...' : 'Apply for This Position'}
+              </button>
+              {/* "new ai check" */}
+              {/* "new ai check" */}
+            </>
+          )}
+          {
+            state.user?.accountType === "EMPLOYER" && (
+              <Link 
+                href={`/candidate-overview?jobId=${job._id ?? job.id ?? ''}`}
+                style={{
+                  width: '100%',
+                  marginTop: 8,
+                  background: aiLoading ? '#F3F4F6' : '#0f172a',
+                  color: '#fff',
+                  padding: '12px 16px',
+                  borderRadius: 8,
+                  border: 'none',
+                  cursor: aiLoading ? 'wait' : 'pointer',
+                }}
+              >
+                View All Applicants
+              </Link>
+            )
+          }
             {applyError && <div style={{ color: '#fecaca', marginTop: 8 }}>{applyError}</div>}
             {successMessage && <div style={{ color: '#16A34A', marginTop: 8 }}>{successMessage}</div>}
           </div>

@@ -1,3 +1,4 @@
+import { useUser } from '@/contexts/userContext/userContext';
 import { MapPin, Briefcase, ArrowRight } from 'lucide-react';
 
 interface JobCardProps {
@@ -12,6 +13,8 @@ interface JobCardProps {
 }
 
 export function JobCard({ title, department, location, isNew, description, onClick, fullWidth }: JobCardProps) {
+  const { state } = useUser();
+
   return (
     <div
       onClick={onClick}
@@ -72,7 +75,7 @@ export function JobCard({ title, department, location, isNew, description, onCli
         style={{ width: '100%', background: '#FF5F1F', color: '#fff', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 24, paddingRight: 24, paddingTop: 12, paddingBottom: 12, gap: 8, transition: 'background 0.2s', fontWeight: 600, fontSize: '1rem', boxShadow: '0 1px 4px rgba(255,95,31,0.07)' }}
         className="group-hover:bg-[#E55519]"
       >
-        Apply Now
+        {state.user?.accountType === 'EMPLOYER' ?  'View Job Details' : 'Apply Now'}
         <ArrowRight className="w-4 h-4" />
       </button>
     </div>

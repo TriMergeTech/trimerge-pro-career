@@ -23,6 +23,7 @@ interface Job {
 }
 
 import React, { useEffect, useRef, useState } from 'react';
+import { useUser } from '@/contexts/userContext/userContext';
 import useApplyForJob from '../../../hooks/useApplyForJob';
 import useApplicationAIMatch from '../../../hooks/useApplicationAIMatch';
 import { useUser } from '@/contexts/userContext/userContext';
@@ -34,6 +35,7 @@ interface JobDetailDrawerProps {
 }
 
 export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
+  const { state } = useUser();
   const [visible, setVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(!!job);
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -45,6 +47,33 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
   const { runMatch, loading: aiLoading, data: aiData, error: aiError } = useApplicationAIMatch();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const {state } = useUser()
+
+  const candidateSkills = Array.isArray(state.user?.profile?.skills)
+    ? state.user?.profile?.skills
+        .map((skill) => String(skill).trim())
+        .filter(Boolean)
+    : typeof state.user?.profile?.skills === 'string'
+      ? String(state.user.profile.skills)
+          .split(',')
+          .map((skill) => skill.trim())
+          .filter(Boolean)
+      : [];
+
+  const jobSkills = Array.isArray(job?.skills)
+    ? job.skills.map((skill) => String(skill).trim()).filter(Boolean)
+    : [];
+
+  const matchedSkills = jobSkills.filter((skill) =>
+    candidateSkills.some((candidateSkill) => candidateSkill.toLowerCase() === skill.toLowerCase())
+  );
+
+  const missingSkills = jobSkills.filter((skill) =>
+    !candidateSkills.some((candidateSkill) => candidateSkill.toLowerCase() === skill.toLowerCase())
+  );
+
+  const matchScore = jobSkills.length > 0
+    ? Math.round((matchedSkills.length / jobSkills.length) * 100)
+    : 0;
 
   // Submission logic separated from UI
   async function onSubmit() {
@@ -151,25 +180,31 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
       style={{
         width: '100%',
         maxWidth: '40rem',
-        background: '#fff',
+        background: 'linear-gradient(180deg, #ffffff 0%, #fffdfb 100%)',
         height: '83vh',
         overflowY: 'auto',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-        borderRadius: 16,
+        boxShadow: '0 24px 50px rgba(15,23,42,0.10)',
+        borderRadius: 24,
         marginLeft: 'auto',
         marginRight: 'auto',
         position: 'relative',
-        transition: 'box-shadow 0.2s',
+        transition: 'box-shadow 0.2s, transform 0.2s',
         display: 'block',
         animationDuration: '0.4s',
         animationFillMode: 'forwards',
+        border: '1px solid rgba(229,231,235,0.9)',
       }}
     >
-      <div style={{ position: 'sticky', top: 0, background: '#fff', borderBottom: '1px solid #E5E7EB', padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10, borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
-        <span style={{fontSize: '30px', fontWeight: 'bold'}}>{job.title}</span>
+      <div style={{ position: 'sticky', top: 0, background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.92) 100%)', backdropFilter: 'blur(14px)', borderBottom: '1px solid rgba(229,231,235,0.9)', padding: 24, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, zIndex: 10, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
+        <div style={{ display: 'grid', gap: 8 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', width: 'fit-content', background: 'rgba(255,95,31,0.10)', color: '#FF5F1F', padding: '6px 12px', borderRadius: 9999, fontSize: 12, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+            Job details
+          </span>
+          <span style={{fontSize: 'clamp(1.75rem, 3vw, 2.15rem)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.05, color: '#0F172A'}}>{job.title}</span>
+        </div>
         <button
           onClick={handleClose}
-          style={{ padding: 8, borderRadius: 8, transition: 'background 0.2s' }}
+          style={{ padding: 10, borderRadius: 9999, transition: 'background 0.2s, transform 0.2s', background: '#F8FAFC', border: '1px solid #E2E8F0' }}
         >
           <X className="w-6 h-6" />
         </button>
@@ -177,68 +212,68 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
 
       <div style={{ padding: 24 }}>
         {isNew && (
-          <span style={{ display: 'inline-block', background: '#FF5F1F', color: '#fff', padding: '8px 16px', borderRadius: 9999, fontSize: '0.875rem', marginBottom: 16 }}>
+          <span style={{ display: 'inline-block', background: 'linear-gradient(135deg, #FF5F1F 0%, #FB7A33 100%)', color: '#fff', padding: '8px 16px', borderRadius: 9999, fontSize: '0.875rem', marginBottom: 16, boxShadow: '0 10px 20px rgba(255,95,31,0.16)' }}>
             New Posting
           </span>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F4F4F9', borderRadius: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 14, marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
             <Briefcase className="w-5 h-5 text-[#FF5F1F]" />
             <div>
               <div style={{ fontSize: 12, color: '#6B7280' }}>Department</div>
-              <div>{department}</div>
+              <div style={{ fontWeight: 600, color: '#0F172A' }}>{department}</div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F4F4F9', borderRadius: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
             <MapPin className="w-5 h-5 text-[#FF5F1F]" />
             <div>
               <div style={{ fontSize: 12, color: '#6B7280' }}>Location</div>
-              <div>{job.location}</div>
+              <div style={{ fontWeight: 600, color: '#0F172A' }}>{job.location}</div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F4F4F9', borderRadius: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
             <DollarSign className="w-5 h-5 text-[#FF5F1F]" />
             <div>
               <div className="text-xs text-gray-500">Salary Range</div>
-              <div>{salaryDisplay ?? '$0 - $0'}</div>
+              <div style={{ fontWeight: 600, color: '#0F172A' }}>{salaryDisplay ?? '$0 - $0'}</div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F4F4F9', borderRadius: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
             <Calendar className="w-5 h-5 text-[#FF5F1F]" />
             <div>
               <div style={{ fontSize: 12, color: '#6B7280' }}>Posted</div>
-              <div>{posted ? new Date(posted).toLocaleString() : 'Unknown'}</div>
+              <div style={{ fontWeight: 600, color: '#0F172A' }}>{posted ? new Date(posted).toLocaleString() : 'Unknown'}</div>
             </div>
           </div>
         </div>
 
-        <div style={{ marginBottom: 24 }}>
-          <h3 style={{ marginBottom: 16 }}>Job Description</h3>
-          <p style={{ color: '#374151', lineHeight: 1.6, marginBottom: 16 }}>{job.description}</p>
+        <div style={{ marginBottom: 24, padding: 20, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20, boxShadow: '0 8px 24px rgba(15,23,42,0.04)' }}>
+          <h3 style={{ marginBottom: 14, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Job Description</h3>
+          <p style={{ color: '#374151', lineHeight: 1.75, marginBottom: 0 }}>{job.description}</p>
         </div>
 
         {job.requirements && (
-          <div style={{ marginBottom: 24 }}>
-            <h3 style={{ marginBottom: 16 }}>Requirements</h3>
-            <p style={{ color: '#374151' }}>{job.requirements}</p>
+          <div style={{ marginBottom: 24, padding: 20, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20 }}>
+            <h3 style={{ marginBottom: 14, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Requirements</h3>
+            <p style={{ color: '#374151', lineHeight: 1.7, marginBottom: 0 }}>{job.requirements}</p>
           </div>
         )}
 
         {Array.isArray(job.skills) && job.skills.length > 0 && (
-          <div style={{ marginBottom: 24 }}>
-            <h3 style={{ marginBottom: 12 }}>Skills</h3>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div style={{ marginBottom: 24, padding: 20, background: 'linear-gradient(180deg, #ffffff 0%, #fffcf9 100%)', border: '1px solid #E2E8F0', borderRadius: 20 }}>
+            <h3 style={{ marginBottom: 12, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Skills</h3>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               {job.skills.map((s, idx) => (
-                <span key={idx} style={{ background: '#F1F5F9', padding: '6px 10px', borderRadius: 8, color: '#1F2937', fontSize: 12 }}>{s}</span>
+                <span key={idx} style={{ background: '#FFF7F2', padding: '8px 12px', borderRadius: 9999, color: '#9A3412', fontSize: 12, fontWeight: 600, border: '1px solid #FED7C3' }}>{s}</span>
               ))}
             </div>
           </div>
         )}
 
-        <div style={{ marginBottom: 24 }}>
-            <h3 style={{ marginBottom: 8 }}>Meta</h3>
-          <div style={{ color: '#374151' }}>
+        <div style={{ marginBottom: 24, padding: 20, background: '#F8FAFC', borderRadius: 20, border: '1px solid #E2E8F0' }}>
+            <h3 style={{ marginBottom: 8, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Meta</h3>
+          <div style={{ color: '#374151', display: 'grid', gap: 8 }}>
             <div><strong>Employment Type:</strong> {job.employmentType ? formatEmploymentType(job.employmentType) : 'N/A'}</div>
             <div><strong>Status:</strong> {job.status ?? 'N/A'}</div>
           </div>

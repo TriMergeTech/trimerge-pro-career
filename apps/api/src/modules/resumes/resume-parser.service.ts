@@ -21,16 +21,47 @@ function assertUsefulText(text: string) {
 }
 
 async function parsePdfBuffer(buffer: Buffer): Promise<string> {
-  const pdfParseModule = await import('pdf-parse');
+  const pdfParseModule: any = await import('pdf-parse');
 
-  const pdfParse =
-    (pdfParseModule as any).default ||
-    (pdfParseModule as any).pdfParse ||
-    pdfParseModule;
+  const callableParser =
+    typeof pdfParseModule === 'function'
+      ? pdfParseModule
+      : typeof pdfParseModule.default === 'function'
+        ? pdfParseModule.default
+        : typeof pdfParseModule.pdfParse === 'function'
+          ? pdfParseModule.pdfParse
+          : null;
 
-  const parsed = await pdfParse(buffer);
+  if (callableParser) {
+    const parsed = await callableParser(buffer);
+    return parsed?.text || '';
+  }
 
-  return parsed.text || '';
+  const PDFParseClass =
+    typeof pdfParseModule.PDFParse === 'function'
+      ? pdfParseModule.PDFParse
+      : typeof pdfParseModule.default?.PDFParse === 'function'
+        ? pdfParseModule.default.PDFParse
+        : null;
+
+  if (PDFParseClass) {
+    const parser = new PDFParseClass({ data: buffer });
+
+    try {
+      if (typeof parser.getText === 'function') {
+        const result = await parser.getText();
+        return result?.text || '';
+      }
+
+      throw new AppError('PDF parser does not support getText()', 500);
+    } finally {
+      if (typeof parser.destroy === 'function') {
+        await parser.destroy();
+      }
+    }
+  }
+
+  throw new AppError('PDF parser is not available', 500);
 }
 
 export async function extractResumeText(file: Express.Multer.File): Promise<string> {
@@ -55,7 +86,7 @@ export async function extractResumeText(file: Express.Multer.File): Promise<stri
 
   if (file.mimetype === 'application/msword' || extension === '.doc') {
     throw new AppError(
-      'DOC parsing is not supported yet. Please upload PDF or DOCX for AI matching.',
+      'DOC parsing is not supported. Please upload PDF or DOCX for AI matching.',
       422
     );
   }

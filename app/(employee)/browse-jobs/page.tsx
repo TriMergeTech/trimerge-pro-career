@@ -259,23 +259,39 @@ function BrowseJobs() {
   const topMatch = displayedJobs[0];
 
   return (
-    <div className="flex-1 bg-[#F4F4F9] overflow-hidden h-[90vh]">
-      <div className="max-w-7xl" style={{ marginLeft: 'auto', marginRight: 'auto', padding: 24, display: 'flex', flexDirection: 'row', gap: 32, alignItems: 'flex-start', height: '80vh' }}>
+    <div className="flex-1 overflow-hidden" style={{ background: 'linear-gradient(180deg, #f8fbff 0%, #f4f7fb 42%, #eef4fb 100%)', minHeight: '90vh' }}>
+      <div className="tp-container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+        <div className="tp-card-soft tp-fade-up" style={{ marginBottom: '1.25rem', padding: '1.5rem', background: 'linear-gradient(135deg, rgba(7,23,46,0.98) 0%, rgba(29,78,216,0.96) 100%)', color: 'white', overflow: 'hidden', position: 'relative' }}>
+          <div style={{ position: 'absolute', inset: 'auto -5rem -5rem auto', width: '16rem', height: '16rem', borderRadius: '999px', background: 'rgba(255,255,255,0.07)', filter: 'blur(32px)' }} />
+          <div style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ maxWidth: '42rem' }}>
+              <div className="tp-chip" style={{ background: 'rgba(255,255,255,0.12)', color: 'white', borderColor: 'rgba(255,255,255,0.14)' }}>Career marketplace</div>
+              <h1 style={{ margin: '0.85rem 0 0.55rem', fontSize: 'clamp(2.25rem, 5vw, 3.4rem)', lineHeight: 1, letterSpacing: '-0.05em' }}>
+                Find roles that match the way you actually work.
+              </h1>
+              <p style={{ margin: 0, maxWidth: '38rem', color: 'rgba(255,255,255,0.84)', lineHeight: 1.75 }}>
+                Search openings, compare your best matches, and keep the job hunt focused on roles that fit your skills and location.
+              </p>
+            </div>
+            <div style={{ display: 'grid', gap: '0.75rem', minWidth: '18rem' }}>
+              <div style={{ padding: '0.95rem 1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                <div style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.68)' }}>Matched jobs</div>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{filteredJobs.length}</div>
+              </div>
+              <div style={{ padding: '0.95rem 1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                <div style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.68)' }}>Best match</div>
+                <div style={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.5 }}>{topMatch ? topMatch.title : 'No match yet'}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'row', gap: 32, alignItems: 'flex-start', height: '80vh' }}>
         {/* Left: Job List */}
   <div style={{ flex: '0 0 52%', minWidth: 0, maxWidth: '52%' }}>
           {/* Simple Search Bar */}
           <div className="flex items-center gap-3" style={{ marginBottom: 24 }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              background: '#fff',
-              borderRadius: 12,
-              boxShadow: '0 2px 8px rgba(30,41,59,0.07)',
-              border: '1px solid #e5e7eb',
-              padding: '0.5rem 1rem',
-              width: '100%',
-              transition: 'box-shadow 0.2s',
-            }}>
+            <div className="tp-card" style={{ display: 'flex', alignItems: 'center', background: 'white', borderRadius: 18, border: '1px solid rgba(148,163,184,0.18)', padding: '0.65rem 1rem', width: '100%', boxShadow: '0 16px 40px -28px rgba(15,23,42,0.3)' }}>
               <svg style={{ width: 20, height: 20, color: '#94a3b8', marginRight: 8 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
                 type="text"
@@ -297,7 +313,7 @@ function BrowseJobs() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 overflow-x-hidden pb-2" style={{ marginBottom: 24, columnGap: 10 }}>
+          <div className="flex items-center gap-3 overflow-x-hidden pb-2" style={{ marginBottom: 24, columnGap: 10, flexWrap: 'wrap' }}>
             <Tag className="w-5 h-5 text-gray-600 shrink-0 "  />
             {categories.map((category) => (
               <button
@@ -366,11 +382,13 @@ function BrowseJobs() {
         </div>
 
         {/* Right: Job Details Placeholder or Drawer */}
-  <div className="hide-scrollbar" style={{ flex: '0 0 48%', minWidth: 0, maxWidth: '48%', borderRadius: 16, minHeight: 400, padding: 32, overflowY: 'auto', maxHeight: '70vh', display: selectedJob ? 'none' : 'block' }}>
+  <div className="hide-scrollbar" style={{ flex: '0 0 48%', minWidth: 0, maxWidth: '48%', borderRadius: 24, minHeight: 400, padding: 0, overflowY: 'auto', maxHeight: '70vh', display: selectedJob ? 'none' : 'block' }}>
           {!selectedJob && (
-            <div style={{ textAlign: 'center', color: '#64748B', marginTop: 80 }}>
-              <div style={{ fontSize: 32, fontWeight: 600, marginBottom: 16 }}>Select a job to view details</div>
-              <div style={{ fontSize: 18 }}>Job details will appear here.</div>
+            <div className="tp-card-soft" style={{ textAlign: 'center', color: '#64748B', marginTop: 0, minHeight: 420, display: 'grid', placeItems: 'center', padding: '2rem' }}>
+              <div>
+                <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 16, color: '#0f172a' }}>Select a job to view details</div>
+                <div style={{ fontSize: 18, lineHeight: 1.7 }}>Open a listing to see the full description, skills, and actions in a cleaner drawer.</div>
+              </div>
             </div>
           )}
         </div>
@@ -387,19 +405,22 @@ function BrowseJobs() {
             />
           </div>
         )}
+        </div>
       </div>
       {state.user?.accountType === "EMPLOYER" && (
         <div style={{ position: 'fixed', right: 32, bottom: 32 }}>
-          <button onClick={() => setShowCreateModal(true)} style={{ background: '#FF5F1F', color: 'white', padding: '12px 18px', borderRadius: 8 }}>
+          <button onClick={() => setShowCreateModal(true)} className="tp-btn-primary" style={{ boxShadow: '0 18px 35px -20px rgba(255,95,31,0.95)' }}>
             Create Job Posting
           </button>
         </div>
       )}
 
       {showCreateModal && (
-        <div style={{ position: 'fixed', top: '80px', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid gray' }}>
-          <div style={{ width: 720, background: 'white', borderRadius: 8, padding: 32, maxHeight: '90vh', overflowY: 'auto' }}>
-            <h2 style={{ marginTop: 0 }}>Create Job Posting</h2>
+        <div style={{ position: 'fixed', top: '80px', inset: 0, background: 'rgba(2,6,23,0.55)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(148,163,184,0.2)', padding: '1rem' }}>
+          <div className="tp-card-soft" style={{ width: 760, background: 'white', borderRadius: 24, padding: 32, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 30px 80px -30px rgba(15,23,42,0.45)' }}>
+            <div className="tp-chip" style={{ marginBottom: '0.75rem' }}>New listing</div>
+            <h2 style={{ marginTop: 0, marginBottom: 8, fontSize: '2rem', letterSpacing: '-0.04em' }}>Create job posting</h2>
+            <p className="tp-lead" style={{ marginTop: 0, marginBottom: 24 }}>Keep the job data structured so it fits the backend contract and the new visual system.</p>
             <form onSubmit={handleCreateSubmit}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {/* shared styles for unfocused inputs */}
@@ -502,14 +523,14 @@ function BrowseJobs() {
 
 
               <div style={{ marginTop: 12 }}>
-                <textarea placeholder='Requirements' value={requirements} onChange={e => setRequirements(e.target.value)} style={{ width: '100%', minHeight: 80, border: '1px solid #E2E8F0', padding: 8, borderRadius: 6 }} />
+                <textarea placeholder='Requirements' value={requirements} onChange={e => setRequirements(e.target.value)} style={{ width: '100%', minHeight: 110, border: '1px solid #E2E8F0', padding: 12, borderRadius: 14, background: '#f8fafc' }} />
               </div>
 
-              {createError && <div style={{ color: 'red' }}>{createError}</div>}
+              {createError && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: 14, fontWeight: 700 }}>{createError}</div>}
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
-                <button type='button' onClick={closeCreateModal}>Cancel</button>
-                <button type='submit' style={{ background: '#1e3a8a', color: 'white', padding: '8px 12px', borderRadius: 6 }}>{creating ? 'Creating...' : 'Create Job'}</button>
+                <button type='button' onClick={closeCreateModal} className="tp-btn-secondary">Cancel</button>
+                <button type='submit' className="tp-btn-primary">{creating ? 'Creating...' : 'Create Job'}</button>
               </div>
             </form>
           </div>

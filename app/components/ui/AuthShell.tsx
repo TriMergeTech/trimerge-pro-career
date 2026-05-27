@@ -1,0 +1,55 @@
+"use client"
+
+import type { ReactNode } from 'react'
+import { CheckCircle2, Sparkles } from 'lucide-react'
+
+type AuthShellProps = {
+  eyebrow: string
+  title: string
+  subtitle: string
+  bullets: string[]
+  children: ReactNode
+  footer?: ReactNode
+}
+
+export function AuthShell({ eyebrow, title, subtitle, bullets, children, footer }: AuthShellProps) {
+  return (
+    <section style={{ padding: '2rem 0 5rem' }}>
+      <div className="tp-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, minmax(0, 1fr))', gap: '1rem', alignItems: 'stretch' }}>
+        <div className="auth-span-5" style={{ position: 'relative' }}>
+          <div className="tp-card tp-float" style={{ position: 'relative', overflow: 'hidden', minHeight: '100%', padding: '2rem', background: 'linear-gradient(160deg, #07172e 0%, #1d4ed8 100%)', color: 'white' }}>
+            <div style={{ position: 'absolute', inset: 'auto -4rem -4rem auto', width: '16rem', height: '16rem', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', filter: 'blur(24px)' }} />
+            <div style={{ position: 'relative', zIndex: 1, display: 'grid', gap: '1.15rem' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.55rem 0.9rem', borderRadius: '999px', background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 800, width: 'fit-content' }}>
+                <Sparkles size={15} color="#f5a623" />
+                {eyebrow}
+              </div>
+              <div style={{ maxWidth: '28rem' }}>
+                <h1 style={{ margin: 0, fontSize: 'clamp(2.4rem, 5vw, 4.25rem)', lineHeight: 0.96, letterSpacing: '-0.05em' }}>{title}</h1>
+                <p style={{ margin: '1rem 0 0', color: 'rgba(255,255,255,0.82)', lineHeight: 1.8, fontSize: '1.02rem' }}>{subtitle}</p>
+              </div>
+              <div style={{ display: 'grid', gap: '0.7rem', marginTop: '0.35rem' }}>
+                {bullets.map((bullet) => (
+                  <div key={bullet} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.9rem 1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.08)' }}>
+                    <CheckCircle2 size={17} color="#93c5fd" style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+                    <span style={{ lineHeight: 1.6, color: 'rgba(255,255,255,0.88)' }}>{bullet}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: '1rem 1.1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.82)', lineHeight: 1.7 }}>
+                Built to stay aligned with the backend APIs we already have, while giving the journey a much cleaner and more premium feel.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="auth-span-7">
+          <div className="tp-card-soft" style={{ padding: '1.5rem', minHeight: '100%' }}>
+            {children}
+            {footer ? <div style={{ marginTop: '1.25rem' }}>{footer}</div> : null}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

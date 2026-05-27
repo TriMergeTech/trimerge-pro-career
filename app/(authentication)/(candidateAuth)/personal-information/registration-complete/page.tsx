@@ -1,86 +1,45 @@
-import Image from 'next/image'
+"use client"
+
+import Link from 'next/link'
 import React from 'react'
+import { AuthShell } from '../../../../components/ui/AuthShell'
+import { BadgeCheck, BriefcaseBusiness } from 'lucide-react'
 
 function Page() {
   return (  
-    <div style={{
-        minHeight: '90vh',
-        display: 'flex',
-        position: 'relative',
-        flexDirection: 'column',
-        backgroundColor: '#0b1f3a',
-        padding: '2rem',
-        rowGap: '1rem',
-        alignItems: 'center',
-        justifyContent: 'center',
-    }}>
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'absolute',
-            top: '0%',
-            paddingTop: '1rem',
-            width: '80%',
-            height: '90%',
-            borderBottomLeftRadius: '0.5rem',
-            borderBottomRightRadius: '0.5rem',
-            border: '2px solid #f5a929',
-            borderTop: 'none',
-            alignItems: 'center',
-            justifyContent: 'start ',
-            backgroundColor: 'white',
-        }}>
-            <Image
-                src="/pop.svg"
-                alt="Success Illustration"
-                width={200}
-                height={200}
-            />
-            <div style={{
-                fontSize: '2rem',
-                fontWeight: 'bold',
-                textAlign: 'center',
-                marginTop: '2rem',
-                width: '70%',
-                textAlignLast: 'center',
-            }}>
-                You are all Set!
+        <AuthShell
+            eyebrow="Candidate onboarding complete"
+            title="Your profile is ready to go."
+            subtitle="You can now browse opportunities, connect with recruiters, and use the profile you just built across the platform."
+            bullets={[
+                'Your candidate profile has been saved through the existing backend flow.',
+                'You can begin browsing jobs and applying immediately.',
+                'The next best step is to review opportunities and complete your applications.',
+            ]}
+            footer={(
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--tp-muted)' }}>Everything is stored and ready.</span>
+                    <Link href="/browse-jobs" className="tp-footer-link" style={{ fontWeight: 800, color: 'var(--tp-primary)' }}>
+                        Go to jobs
+                    </Link>
+                </div>
+            )}
+        >
+            <div style={{ display: 'grid', gap: '1rem', textAlign: 'center' }}>
+                <div style={{ display: 'grid', placeItems: 'center', width: '5rem', height: '5rem', borderRadius: '28px', marginInline: 'auto', background: 'linear-gradient(135deg, rgba(29,78,216,0.12), rgba(245,166,35,0.12))' }}>
+                    <BadgeCheck size={30} color="var(--tp-primary)" />
+                </div>
+                <div>
+                    <div className="tp-kicker">Complete</div>
+                    <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Ready to explore roles.</h2>
+                    <p className="tp-lead" style={{ marginTop: '0.6rem' }}>Move into the jobs area and start applying.</p>
+                </div>
+                <Link href="/browse-jobs" className="tp-btn-primary" style={{ width: '100%' }}>
+                    Browse jobs
+                    <BriefcaseBusiness size={16} />
+                </Link>
             </div>
-            <div style={{
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                textAlign: 'center',
-                marginTop: '2rem',
-                width: '60%',
-                textAlignLast: 'center',
-            }}>
-                Your candidate profile is complete. You can now explore opportunities, connect with recruiters, and manage your job search through TriMergePRO.
-            </div>
-            <img 
-                src="/Logo.png" 
-                alt="TriMergePro Logo" 
-                style={{ 
-                    objectFit: 'contain', 
-                    height: '6rem', 
-                    width: '300px',
-                    marginBottom: '1rem' 
-                }} 
-                />
-            <button style={{
-                backgroundColor: '#1e3a8a',
-                color: 'white',
-                padding: '0.75rem 1.5rem', 
-                border: 'none',
-                borderRadius: '0.375rem',
-                cursor: 'pointer',
-                marginTop: '2rem',
-            }}>
-                Back to Dashboard
-            </button>   
-        </div>
-        
-
-    </div>
+        </AuthShell>
   )
 }
 

@@ -1,9 +1,10 @@
 "use client"
-import Image from 'next/image'
 // Link removed (unused)
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useRecruiterOnboardingStepThree } from '@/hooks/useRecruiterOnboardingStepThree'
+import { AuthShell } from '../../../../components/ui/AuthShell'
+import { ArrowRight } from 'lucide-react'
 
 function Page() {
     const router = useRouter()
@@ -17,140 +18,75 @@ function Page() {
         const payload = { companyOverview, benefitsAndOpportunities, primaryHiringNeeds }
         const result = await submit(payload)
         if (result) {
-            router.push('/')
+                        router.push('/recruiter-information/registration-complete')
         }
     }
 
     return (
-        <div style={{
-        minHeight: '90vh',
-        display: 'flex',
-        paddingTop: '2rem',
-        justifyContent: 'end',
-        paddingBottom: '2rem',
-        position: 'relative',
-    }}>
-        
-            <Image
-            style={{
-                marginTop: '3rem',
-                borderRadius: '0.5rem',
-                width: '70%',
-                height: '80%',
-                left: '-5%',
-                bottom: '0',
-                position: 'absolute',
-            }}
-             src="/recruiterInfo.svg"
-             alt="Candidate Illustration"
-             width={300}
-             height={200}
-            />
-        <form onSubmit={handleSubmit} style={{
-            height: '83vh',
-            paddingBottom: '2rem',
-            display: 'flex',
-            alignItems: 'start',
-            flexDirection: 'column',
-            justifyContent: 'start',
-            width: '40%',
-            backgroundColor: '#f8fafc',
-            marginRight: '3rem',
-            borderRadius: '0.8rem',
-            paddingLeft: '2rem',
-            paddingRight: '2rem',
-            border: '2px solid #f5a929',
-        }}>
-            <span style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'end',
-                width: '100%',
-                height: 'fit-content',
-                paddingTop: '0.6rem',
-            }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', textAlign: 'center' }}>
-                    Tell Us More About Your Company & Hiring Goals
-                </h1>
-                <div style={{ color: 'white'}}>
-                    Step 3/3
+        <AuthShell
+            eyebrow="Employer onboarding"
+            title="Explain the company story and what you are hiring for."
+            subtitle="This final recruiter step turns the profile into something useful for candidates and keeps the onboarding aligned with the backend contract."
+            bullets={[
+                'Share the company overview, benefits, and hiring needs in a structured way.',
+                'These details help the platform present richer employer profiles.',
+                'Finish this screen and the recruiter account is ready to use.',
+            ]}
+            footer={<span style={{ color: 'var(--tp-muted)' }}>Step 2 of 3</span>}
+        >
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
+                <div>
+                    <div className="tp-kicker">Hiring profile</div>
+                    <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Tell candidates why they should care.</h2>
+                    <p className="tp-lead" style={{ marginTop: '0.6rem' }}>A clear profile improves the recruiting experience later on.</p>
                 </div>
-            </span>
-            <span style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'start',
-                rowGap: '1rem',
-                width: '80%',
-            }}>
-                                <h1 style={{ marginTop: '3rem' }}>Company Overview</h1>
-                                <textarea
-                                    value={companyOverview}
-                                    onChange={(e) => setCompanyOverview(e.target.value)}
-                                    name='companyOverview'
-                                    placeholder='Briefly describe your company, mission, and workplace culture (max 800 characters).'
-                                    style={{
-                                        padding: '0.75rem',
-                                        border: '1px solid #D1D5DB',
-                                        width: '90%',
-                                        height: '6rem',
-                                        borderRadius: '0.375rem',
-                                        backgroundColor: 'white',
-                                        resize: 'vertical',
-                                    }}
-                                />
 
-                                <h1>Benefits & Opportunities</h1>
-                                <textarea
-                                    value={benefitsAndOpportunities}
-                                    onChange={(e) => setBenefitsAndOpportunities(e.target.value)}
-                                    name='benefitsAndOpportunities'
-                                    placeholder='e.g. Flexible PTO, Health benefits, Remote options, Career growth'
-                                    style={{
-                                        padding: '0.75rem',
-                                        border: '1px solid #D1D5DB',
-                                        width: '90%',
-                                        height: '5rem',
-                                        borderRadius: '0.375rem',
-                                        backgroundColor: 'white',
-                                        resize: 'vertical',
-                                    }}
-                                />
+                <label style={{ display: 'grid', gap: '0.45rem' }}>
+                    <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Company overview</span>
+                    <textarea
+                        value={companyOverview}
+                        onChange={(e) => setCompanyOverview(e.target.value)}
+                        name='companyOverview'
+                        placeholder='Briefly describe your company, mission, and workplace culture (max 800 characters).'
+                        className="tp-card"
+                        style={{ width: '100%', minHeight: '8rem', resize: 'vertical', boxSizing: 'border-box', padding: '1rem', borderRadius: '18px', border: '1px solid rgba(148,163,184,0.2)' }}
+                    />
+                </label>
 
-                                <h1>Primary Hiring Needs</h1>
-                                <textarea
-                                    value={primaryHiringNeeds}
-                                    onChange={(e) => setPrimaryHiringNeeds(e.target.value)}
-                                    name='primaryHiringNeeds'
-                                    placeholder='Search or add skills (e.g., Python, AutoCAD, Project Management)'
-                                    style={{
-                                        padding: '0.75rem',
-                                        border: '1px solid #D1D5DB',
-                                        width: '90%',
-                                        height: '5rem',
-                                        borderRadius: '0.375rem',
-                                        backgroundColor: 'white',
-                                        resize: 'vertical',
-                                    }}
-                                />
-             
-            </span>
-                        <button disabled={loading} style={{
-                                backgroundColor: '#1e3a8a',
-                                color: 'white',
-                                padding: '0.75rem 1.5rem',
-                                border: 'none',
-                                borderRadius: '0.375rem',
-                                cursor: 'pointer',
-                                width: '60%',
-                                marginTop: '2rem',
-                                alignSelf: 'center',
-                        }}>
-                                {loading ? 'Saving...' : 'Save and Continue'}
-                        </button>
-                        {error && <div style={{ color: 'red', marginTop: '0.5rem' }}>{error}</div>}
-        </form>
-    </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem' }}>
+                    <label style={{ display: 'grid', gap: '0.45rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Benefits and opportunities</span>
+                        <textarea
+                            value={benefitsAndOpportunities}
+                            onChange={(e) => setBenefitsAndOpportunities(e.target.value)}
+                            name='benefitsAndOpportunities'
+                            placeholder='Flexible PTO, health benefits, remote options, career growth'
+                            className="tp-card"
+                            style={{ width: '100%', minHeight: '7rem', resize: 'vertical', boxSizing: 'border-box', padding: '1rem', borderRadius: '18px', border: '1px solid rgba(148,163,184,0.2)' }}
+                        />
+                    </label>
+
+                    <label style={{ display: 'grid', gap: '0.45rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Primary hiring needs</span>
+                        <textarea
+                            value={primaryHiringNeeds}
+                            onChange={(e) => setPrimaryHiringNeeds(e.target.value)}
+                            name='primaryHiringNeeds'
+                            placeholder='Teams, skills, and roles you want to hire for'
+                            className="tp-card"
+                            style={{ width: '100%', minHeight: '7rem', resize: 'vertical', boxSizing: 'border-box', padding: '1rem', borderRadius: '18px', border: '1px solid rgba(148,163,184,0.2)' }}
+                        />
+                    </label>
+                </div>
+
+                {error && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{error}</div>}
+
+                <button disabled={loading} className="tp-btn-primary" style={{ width: '100%', cursor: loading ? 'not-allowed' : 'pointer' }}>
+                    {loading ? 'Saving…' : 'Save and continue'}
+                    {!loading && <ArrowRight size={16} />}
+                </button>
+            </form>
+        </AuthShell>
   )
 }
 

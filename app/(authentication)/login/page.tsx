@@ -2,17 +2,18 @@
 
 import { useUser } from '@/contexts/userContext/userContext';
 import { useLogin } from '@/hooks/useLogin';
-import  Link  from 'next/link';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import { AuthShell } from '../../components/ui/AuthShell';
+import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react';
 
 function LoginPage() {
   const { login, loading, error, setError } = useLogin(); 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const {state} = useUser()
-  useEffect(()=>{
-    console.log(state)
-  }, [])
+  const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     if (error) {
@@ -27,194 +28,106 @@ function LoginPage() {
     e.preventDefault();
     const user = await login({ email, password });
 
-    if(!error){
-      alert("You have logged in")
-      console.log(state)
+    if (!user) return;
+
+    const resolvedUser = (user as { user?: { accountType?: string; isVerified?: boolean; profile?: { firstName?: string }; email?: string; status?: string } }).user ?? (user as { accountType?: string; isVerified?: boolean; profile?: { firstName?: string }; email?: string; status?: string });
+    const accountType = (resolvedUser?.accountType || '').toLowerCase();
+    const isVerified = resolvedUser?.isVerified !== false;
+
+    if (!isVerified) {
+      router.replace(`/email-sent?email=${encodeURIComponent(email)}&role=${encodeURIComponent(resolvedUser?.accountType || 'Candidate')}`);
+      return;
     }
+
+    const hasProfile = Boolean(resolvedUser?.profile && Object.keys(resolvedUser.profile).length > 0);
+
+    if (accountType === 'candidate') {
+      router.replace(hasProfile ? '/browse-jobs' : '/personal-information/step-one');
+      return;
+    }
+
+    if (accountType === 'recruiter' || accountType === 'employer') {
+      router.replace(hasProfile ? '/employer-dashboard' : '/recruiter-information/step-one');
+      return;
+    }
+
+    router.replace('/browse-jobs');
   }
-  // Colors from your colors.json reference
-  const colors = {
-    primary: '#3B82F6',
-    accentGreen: '#10B981',
-    accentGreenHover: '#059669',
-    neutralBorder: '#E5E7EB',
-    neutralText: '#111827',
-    background: '#F8FAFC',
-    darkHeader: '#0b1f3a',
-    formBorder: '#F59E0B'
-  };
-  
 
   return (
-    <div style={{ 
-      minHeight: '90vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      backgroundColor: colors.background, 
-      flexDirection: 'column',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      {/* Background Curved Section */}
-      <div
-        style={{
-          position: 'absolute',
-          width: '100vw',
-          height: '75%',
-          backgroundColor: colors.darkHeader,
-          top: 0,
-          left: 0,
-          zIndex: 0,
-          borderBottomRightRadius: '10% 12%',
-          borderBottomLeftRadius: '10% 12%',
-        }}
-      />
-
-      {/* Login Form Container */}
-      <form 
-      onSubmit={onSubmit}
-        style={{
-          width: '50%',
-          maxWidth: '50rem', // max-w-sm
-          minHeight: '50vh',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-          border: `2px solid ${colors.formBorder}`,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          paddingLeft: '20px',
-          paddingRight: '20px',
-          paddingTop: '15px',
-          paddingBottom: '15px',
-          zIndex: 2,
-          backgroundColor: 'white',
-          borderRadius: '0.75rem'
-        }}
-      >
-        <img 
-          src="/Logo.png" 
-          alt="TriMergePro Logo" 
-          style={{ 
-            objectFit: 'contain', 
-            height: '6rem', 
-            width: '300px',
-            marginBottom: '1rem' 
-          }} 
-        />
-        
-        <h2 style={{ 
-          fontSize: '3rem', 
-          fontWeight: 'bold', 
-          marginBottom: '1.5rem', 
-          color: 'black', 
-          textAlign: 'center' 
-        }}>
-          Log In
-        </h2>
-
-        {/* Email Field */}
-        <div style={{ marginBottom: '1rem', width: '100%' }}>
-          <label 
-            htmlFor="email"
-            style={{ 
-              display: 'block', 
-              color: colors.neutralText, 
-              fontSize: '0.875rem', 
-              fontWeight: 500, 
-              marginBottom: '0.5rem' 
-            }}
-          >
-            Email
-          </label>
-          <input
-          onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            id="email"
-            placeholder="you@email.com"
-            required
-            style={{
-              width: '100%',
-              paddingLeft: '1rem',
-              paddingRight: '1rem',
-              paddingTop: '0.5rem',
-              paddingBottom: '0.5rem',
-              border: `1px solid ${colors.neutralBorder}`,
-              borderRadius: '0.375rem',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
-          />
-        </div>
-
-        {/* Password Field */}
-        <div style={{ marginBottom: '1.5rem', width: '100%' }}>
-          <label 
-            htmlFor="password"
-            style={{ 
-              display: 'block', 
-              color: colors.neutralText, 
-              fontSize: '0.875rem', 
-              fontWeight: 500, 
-              marginBottom: '0.5rem' 
-            }}
-          >
-            Password
-          </label>
-          <input
-          onChange={(e)=>{setPassword(e.target.value)}}
-            type="password"
-            id="password"
-            placeholder="••••••••"
-            required
-            style={{
-              width: '100%',
-              paddingLeft: '1rem',
-              paddingRight: '1rem',
-              paddingTop: '0.5rem',
-              paddingBottom: '0.5rem',
-              border: `1px solid ${colors.neutralBorder}`,
-              borderRadius: '0.375rem',
-              outline: 'none',
-              boxSizing: 'border-box'
-            }}
-          />
-        </div>
-          {error && (
-            <div style={{ color: 'red', marginBottom: '1rem' }}>
-              {error}
-            </div>
-          )}
-        {/* Submit Button */}
-        <button
-          type="submit"
-          style={{
-            width: '100%',
-            paddingTop: '0.5rem',
-            paddingBottom: '0.5rem',
-            marginTop: '1.25rem',
-            backgroundColor: colors.darkHeader,
-            color: 'white',
-            fontWeight: 600,
-            borderRadius: '0.375rem',
-            border: 'none',
-            cursor: `${loading ? 'not-allowed' : 'pointer'}`,
-            transition: 'background-color 0.2s'
-          }}
-        >
-          {loading ? 'Logging in...' : 'Log In'}
-        </button>
-        <Link href="/forgot-password" style={{ marginTop: '1rem',width: '40%', display: 'block', textAlign: 'left', color: colors.primary, textDecoration: 'underline', textDecorationColor: colors.formBorder }}>
-          Forgot Password?
-        </Link>
-        <span  style={{ marginTop: '1rem', width: '40%', textAlign: 'left', alignContent: 'center', color: colors.neutralText, display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-           Don't have an account?
-          <Link href="/signup" style={{ display: 'block', textAlign: 'left', color: colors.primary, textDecoration: 'underline', textDecorationColor: colors.formBorder }}>
-            Join now
+    <AuthShell
+      eyebrow="Welcome back"
+      title="Log in and continue your journey."
+      subtitle="A cleaner sign-in experience that keeps the current backend contract intact while routing users to the right place faster."
+      bullets={[
+        'Email and password sign-in powered by the existing auth endpoint.',
+        'Candidates and employers are redirected based on the account type returned by the API.',
+        'Forgot password, verification, and onboarding stay connected to the current backend flows.',
+      ]}
+      footer={(
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Link href="/forgot-password" className="tp-footer-link" style={{ fontWeight: 800, color: 'var(--tp-primary)' }}>
+            Forgot password?
           </Link>
-        </span>
+          <span style={{ color: 'var(--tp-muted)' }}>
+            Don&apos;t have an account?{' '}
+            <Link href="/join-now" className="tp-footer-link" style={{ fontWeight: 800, color: 'var(--tp-primary)' }}>
+              Join now
+            </Link>
+          </span>
+        </div>
+      )}
+    >
+      <form onSubmit={onSubmit} style={{ display: 'grid', gap: '1rem' }}>
+        <div>
+          <div className="tp-kicker">Sign in</div>
+          <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Access your account</h2>
+          <p className="tp-lead" style={{ marginTop: '0.6rem' }}>Use the same email you registered with to continue.</p>
+        </div>
+
+        <label style={{ display: 'grid', gap: '0.45rem' }}>
+          <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Email</span>
+          <div style={{ position: 'relative' }}>
+            <Mail size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+            <input
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              id="email"
+              placeholder="you@email.com"
+              required
+              className="tp-card"
+              style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)', outline: 'none', boxShadow: 'none' }}
+            />
+          </div>
+        </label>
+
+        <label style={{ display: 'grid', gap: '0.45rem' }}>
+          <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Password</span>
+          <div style={{ position: 'relative' }}>
+            <LockKeyhole size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+            <input
+              onChange={(e) => setPassword(e.target.value)}
+              type={showPassword ? 'text' : 'password'}
+              id="password"
+              placeholder="••••••••"
+              required
+              className="tp-card"
+              style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 3rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)', outline: 'none', boxShadow: 'none' }}
+            />
+            <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label="Toggle password visibility" style={{ position: 'absolute', right: '0.9rem', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--tp-muted)' }}>
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+        </label>
+
+        {error && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{error}</div>}
+
+        <button type="submit" disabled={loading} className="tp-btn-primary" style={{ width: '100%', cursor: loading ? 'not-allowed' : 'pointer' }}>
+          {loading ? 'Logging in…' : 'Log in'}
+          {!loading && <ArrowRight size={16} />}
+        </button>
       </form>
-    </div>
+    </AuthShell>
   );
 }
 

@@ -1,7 +1,7 @@
 "use client"
 
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { JobCard } from '@/app/components/ui/JobCard';
 import { JobDetailDrawer } from '@/app/components/ui/JobDetailDrawer';
 import { Tag } from 'lucide-react';
@@ -86,6 +86,8 @@ function BrowseJobs() {
 
   const normalizeSkill = (value: string) => value.trim().toLowerCase();
 
+  const SKILL_SUGGESTIONS = ['JavaScript','TypeScript','React','Node.js','Python','Django','AWS','Docker','Kubernetes','SQL','PostgreSQL','GraphQL','REST','CSS','HTML','Next.js','Tailwind CSS','Java','C#','Go']
+
   const calculateMatchScore = (job: Job, candidateSkills: string[]) => {
     const jobSkills = Array.isArray(job.skills) ? job.skills : [];
     if (candidateSkills.length === 0 || jobSkills.length === 0) return 0;
@@ -115,6 +117,226 @@ function BrowseJobs() {
   const [description, setDescription] = useState('')
   const [requirements, setRequirements] = useState('')
   const [locationInput, setLocationInput] = useState('')
+  type CountryInfo = { country: string; cities?: string[] }
+  const [countriesData, setCountriesData] = useState<CountryInfo[] | null>(null)
+  const [countriesLoading, setCountriesLoading] = useState(false)
+  const [country, setCountry] = useState('')
+  const [statesForCountry, setStatesForCountry] = useState<string[] | null>(null)
+  const [statesLoading, setStatesLoading] = useState(false)
+  const [stateProvince, setStateProvince] = useState('')
+  const [citiesForState, setCitiesForState] = useState<string[] | null>(null)
+  const [citiesLoading, setCitiesLoading] = useState(false)
+  const [city, setCity] = useState('')
+
+  // Salary slider bounds (numbers in local currency units)
+  const SALARY_MIN = 0
+  const SALARY_MAX = 300000
+  const SALARY_STEP = 500
+  const [salaryMinNum, setSalaryMinNum] = useState(30000)
+  const [salaryMaxNum, setSalaryMaxNum] = useState(120000)
+  const [activeThumb, setActiveThumb] = useState<'min' | 'max' | null>(null)
+  const trackRef = useRef<HTMLDivElement | null>(null)
+  const activeThumbRef = useRef<'min' | 'max' | null>(null)
+  const valueFromPointer = (clientX: number) => {
+    const rect = trackRef.current?.getBoundingClientRect()
+    if (!rect) return SALARY_MIN
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+    const raw = SALARY_MIN + ratio * salaryRangeWidth
+    const stepped = Math.round(raw / SALARY_STEP) * SALARY_STEP
+    return Math.min(SALARY_MAX, Math.max(SALARY_MIN, stepped))
+  }
+
+  const onPointerMove = (e: PointerEvent) => {
+    const thumb = activeThumbRef.current
+    if (!thumb) return
+    const val = valueFromPointer(e.clientX)
+    if (thumb === 'min') {
+      const newMin = Math.min(val, salaryMaxNum)
+      setSalaryMinNum(newMin)
+      setSalaryMin(String(newMin))
+    } else {
+      const newMax = Math.max(val, salaryMinNum)
+      setSalaryMaxNum(newMax)
+      setSalaryMax(String(newMax))
+    }
+  }
+
+  const onPointerUp = () => {
+    setActiveThumb(null)
+    activeThumbRef.current = null
+    window.removeEventListener('pointermove', onPointerMove)
+    window.removeEventListener('pointerup', onPointerUp)
+  }
+
+  const onPointerDownTrack = (e: React.PointerEvent) => {
+    const clientX = e.clientX
+    const val = valueFromPointer(clientX)
+    // choose nearest thumb
+    const distMin = Math.abs(val - salaryMinNum)
+    const distMax = Math.abs(val - salaryMaxNum)
+    const thumb = distMin <= distMax ? 'min' : 'max'
+    setActiveThumb(thumb)
+    // set initial value
+    if (thumb === 'min') {
+      const newMin = Math.min(val, salaryMaxNum)
+      setSalaryMinNum(newMin)
+      setSalaryMin(String(newMin))
+    } else {
+      const newMax = Math.max(val, salaryMinNum)
+      setSalaryMaxNum(newMax)
+      setSalaryMax(String(newMax))
+    }
+    // attach global listeners
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerup', onPointerUp)
+  }
+
+  const startThumbDrag = (thumb: 'min' | 'max', e: React.PointerEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      // ignore capture errors in older browsers
+    }
+
+    const val = valueFromPointer(e.clientX)
+    setActiveThumb(thumb)
+    activeThumbRef.current = thumb
+
+    if (thumb === 'min') {
+      const newMin = Math.min(val, salaryMaxNum)
+      setSalaryMinNum(newMin)
+      setSalaryMin(String(newMin))
+    } else {
+      const newMax = Math.max(val, salaryMinNum)
+      setSalaryMaxNum(newMax)
+      setSalaryMax(String(newMax))
+    }
+
+    window.addEventListener('pointermove', onPointerMove)
+    window.addEventListener('pointerup', onPointerUp)
+  }
+
+  // Skill suggestion UI state
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [suggestionIndex, setSuggestionIndex] = useState(-1)
+  const [showSkillSuggestions, setShowSkillSuggestions] = useState(false)
+
+  // Basic fallback if remote load fails
+  const FALLBACK_COUNTRIES = [{ country: 'Nigeria', cities: ['Lagos', 'Abuja'] }, { country: 'United States', cities: ['Austin', 'Miami', 'Remote'] }]
+
+  useEffect(() => {
+    // Sync the textual location used by the backend
+    if (!country) return
+    if (stateProvince) {
+      setLocationInput(city ? `${city}, ${stateProvince}, ${country}` : `${stateProvince}, ${country}`)
+    } else {
+      setLocationInput(city ? `${city}, ${country}` : country)
+    }
+  }, [country, stateProvince, city])
+
+  useEffect(() => {
+    // Load countries list when the create modal opens
+    if (!showCreateModal) return
+    if (countriesData || countriesLoading) return
+    setCountriesLoading(true)
+    fetch('https://countriesnow.space/api/v0.1/countries')
+      .then(res => res.json())
+      .then((json) => {
+        if (json && Array.isArray(json.data)) {
+          const normalized = json.data.map((c: any) => ({ country: c.country, cities: Array.isArray(c.cities) ? c.cities : [] }))
+          setCountriesData(normalized)
+          if (normalized.length > 0) {
+            setCountry(normalized[0].country)
+            setCity(normalized[0].cities[0] ?? '')
+          }
+        } else {
+          setCountriesData(FALLBACK_COUNTRIES)
+          setCountry(FALLBACK_COUNTRIES[0].country)
+          setCity(FALLBACK_COUNTRIES[0].cities[0])
+        }
+      })
+      .catch(() => {
+        setCountriesData(FALLBACK_COUNTRIES)
+        setCountry(FALLBACK_COUNTRIES[0].country)
+        setCity(FALLBACK_COUNTRIES[0].cities[0])
+      })
+      .finally(() => setCountriesLoading(false))
+  }, [showCreateModal, countriesData, countriesLoading])
+
+  // When country changes, attempt to load administrative states for that country.
+  useEffect(() => {
+    if (!showCreateModal || !country) return
+    setStatesLoading(true)
+    setStatesForCountry(null)
+    setCitiesForState(null)
+    setStateProvince('')
+
+    fetch('https://countriesnow.space/api/v0.1/countries/states', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ country }),
+    })
+      .then(res => res.json())
+      .then((json) => {
+        const states = json?.data?.states ?? json?.data ?? null
+        if (Array.isArray(states) && states.length > 0) {
+          const names = states.map((s: any) => (typeof s === 'string' ? s : s.name || s.state || ''))
+          setStatesForCountry(names)
+          setStateProvince(names[0] ?? '')
+        } else {
+          // No states available: fall back to country-level cities
+          const cent = (countriesData ?? FALLBACK_COUNTRIES).find(c => c.country === country)
+          setStatesForCountry(null)
+          setCitiesForState(cent?.cities ?? null)
+          setCity(cent?.cities?.[0] ?? '')
+        }
+      })
+      .catch(() => {
+        const cent = (countriesData ?? FALLBACK_COUNTRIES).find(c => c.country === country)
+        setStatesForCountry(null)
+        setCitiesForState(cent?.cities ?? null)
+        setCity(cent?.cities?.[0] ?? '')
+      })
+      .finally(() => setStatesLoading(false))
+  }, [country, showCreateModal, countriesData])
+
+  // When state/province changes, attempt to load cities for that state
+  useEffect(() => {
+    if (!showCreateModal || !country) return
+    if (!stateProvince) return
+    setCitiesLoading(true)
+    setCitiesForState(null)
+
+    fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ country, state: stateProvince }),
+    })
+      .then(res => res.json())
+      .then((json) => {
+        const cities = json?.data ?? json?.data?.cities ?? null
+        if (Array.isArray(cities) && cities.length > 0) {
+          setCitiesForState(cities)
+          setCity(cities[0] ?? '')
+        } else {
+          // fallback to country-level cities
+          const cent = (countriesData ?? FALLBACK_COUNTRIES).find(c => c.country === country)
+          setCitiesForState(cent?.cities ?? null)
+          setCity(cent?.cities?.[0] ?? '')
+        }
+      })
+      .catch(() => {
+        const cent = (countriesData ?? FALLBACK_COUNTRIES).find(c => c.country === country)
+        setCitiesForState(cent?.cities ?? null)
+        setCity(cent?.cities?.[0] ?? '')
+      })
+      .finally(() => setCitiesLoading(false))
+  }, [stateProvince, country, showCreateModal, countriesData])
+
+  const DEPARTMENTS = ['Engineering', 'Marketing', 'HR', 'Sales', 'Design', 'Operations']
   const [employmentType, setEmploymentType] = useState<'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP' | string>('FULL_TIME')
   const [salaryMin, setSalaryMin] = useState<string>('')
   const [salaryMax, setSalaryMax] = useState<string>('')
@@ -162,6 +384,13 @@ function BrowseJobs() {
     return () => { mounted = false }
   }, [])
 
+  // Ensure activeThumb is cleared if mouseup happens outside the input
+  useEffect(() => {
+    const onUp = () => setActiveThumb(null)
+    window.addEventListener('mouseup', onUp)
+    return () => window.removeEventListener('mouseup', onUp)
+  }, [])
+
   const closeCreateModal = () => {
     setShowCreateModal(false)
     // reset form
@@ -169,10 +398,18 @@ function BrowseJobs() {
     setDescription('')
     setRequirements('')
     setLocationInput('')
-  setDepartmentInput('')
+    // reset country/city to first available (fallback if not loaded)
+    const first = (countriesData && countriesData.length > 0) ? countriesData[0] : (FALLBACK_COUNTRIES[0] ?? null)
+    if (first) { setCountry(first.country); setCity((first as any).cities?.[0] ?? '') }
+    setDepartmentInput('')
     setEmploymentType('FULL_TIME')
     setSalaryMin('')
     setSalaryMax('')
+    setSalaryMinNum(30000)
+    setSalaryMaxNum(120000)
+    setSuggestions([])
+    setSuggestionIndex(-1)
+    setShowSkillSuggestions(false)
     setCurrency('USD')
     setSkills([])
     setNewSkill('')
@@ -208,8 +445,8 @@ function BrowseJobs() {
       requirements,
       location: locationInput,
       employmentType,
-      salaryMin: typeof salaryMin === 'number' ? salaryMin : Number(salaryMin) || 0,
-      salaryMax: typeof salaryMax === 'number' ? salaryMax : Number(salaryMax) || 0,
+      salaryMin: Number(salaryMinNum) || 0,
+      salaryMax: Number(salaryMaxNum) || 0,
       currency,
       skills: skillsArray,
       status: statusInput,
@@ -257,6 +494,11 @@ function BrowseJobs() {
     : filteredJobs;
 
   const topMatch = displayedJobs[0];
+
+  // Salary slider positions (percent) for custom thumbs
+  const salaryRangeWidth = SALARY_MAX - SALARY_MIN || 1
+  const salaryMinPct = Math.round(((salaryMinNum - SALARY_MIN) / salaryRangeWidth) * 100)
+  const salaryMaxPct = Math.round(((salaryMaxNum - SALARY_MIN) / salaryRangeWidth) * 100)
 
   return (
     <div className="flex-1 overflow-hidden" style={{ background: 'linear-gradient(180deg, #f8fbff 0%, #f4f7fb 42%, #eef4fb 100%)', minHeight: '90vh' }}>
@@ -416,10 +658,18 @@ function BrowseJobs() {
       )}
 
       {showCreateModal && (
-        <div style={{ position: 'fixed', top: '80px', inset: 0, background: 'rgba(2,6,23,0.55)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(148,163,184,0.2)', padding: '1rem', zIndex: 2000 }}>
-          <div className="tp-card-soft" style={{ width: 760, background: 'white', borderRadius: 24, padding: 32, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 30px 80px -30px rgba(15,23,42,0.45)' }}>
-            <div className="tp-chip" style={{ marginBottom: '0.75rem' }}>New listing</div>
-            <h2 style={{ marginTop: 0, marginBottom: 8, fontSize: '2rem', letterSpacing: '-0.04em' }}>Create job posting</h2>
+        <div style={{ position: 'fixed', top: '60px', inset: 0, background: 'rgba(2,6,23,0.48)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '2rem', zIndex: 2000 }}>
+          <div className="tp-card-soft" role="dialog" aria-modal="true" style={{ width: 820, background: 'linear-gradient(180deg, #ffffff, #fbfdff)', borderRadius: 20, padding: 28, maxHeight: '86vh', overflowY: 'auto', boxShadow: '0 40px 100px rgba(2,6,23,0.26)', border: '1px solid rgba(15,23,42,0.04)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <div>
+                <div className="tp-chip" style={{ marginBottom: '0.6rem', background: 'linear-gradient(90deg,#E8F0FF,#F4F7FF)', color: '#1e3a8a', padding: '6px 10px', borderRadius: 999, fontWeight: 700, display: 'inline-block' }}>New listing</div>
+                <h2 style={{ marginTop: 0, marginBottom: 6, fontSize: '1.9rem', letterSpacing: '-0.04em' }}>Create job posting</h2>
+                <p className="tp-lead" style={{ marginTop: 0, marginBottom: 12, color: '#6b7280' }}>Keep the job data structured so it fits the backend contract and the new visual system.</p>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button onClick={closeCreateModal} aria-label="Close create job" style={{ border: 'none', background: 'transparent', padding: 8, borderRadius: 10, cursor: 'pointer' }}>✕</button>
+              </div>
+            </div>
             <p className="tp-lead" style={{ marginTop: 0, marginBottom: 24 }}>Keep the job data structured so it fits the backend contract and the new visual system.</p>
             <form onSubmit={handleCreateSubmit}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -435,49 +685,186 @@ function BrowseJobs() {
                     style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
                   />
                 </div>
-                <div style={{ gridColumn: '1 / span 2' }}>
-                  <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>
-                    Location
-                  </label>
-                  <input required placeholder='Location' value={locationInput} onChange={e => setLocationInput(e.target.value)}
-                    onFocus={e => (e.currentTarget.style.background = '#fff')}
-                    onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
-                    style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
-                  />
+                <div style={{ gridColumn: '1 / span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>Country</label>
+                    <select
+                      value={country}
+                      onChange={e => { const sel = e.target.value; setCountry(sel); setStateProvince(''); setCitiesForState(null); setCity('') }}
+                      aria-label="Select country"
+                      style={{ width: '100%', border: '1px solid #E2E8F0', padding: 10, borderRadius: 8, background: '#fff', cursor: 'pointer', appearance: 'none' }}
+                    >
+                      {(countriesData ?? FALLBACK_COUNTRIES).map(c => (
+                        <option key={c.country} value={c.country}>{c.country}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>State / Province</label>
+                    {statesForCountry ? (
+                      <select
+                        value={stateProvince}
+                        onChange={e => setStateProvince(e.target.value)}
+                        aria-label="Select state or province"
+                        style={{ width: '100%', border: '1px solid #E2E8F0', padding: 10, borderRadius: 8, background: '#fff', cursor: 'pointer', appearance: 'none' }}
+                      >
+                        {statesForCountry.map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <select
+                        value={city}
+                        onChange={e => setCity(e.target.value)}
+                        aria-label="Select city or location"
+                        style={{ width: '100%', border: '1px solid #E2E8F0', padding: 10, borderRadius: 8, background: '#fff', cursor: 'pointer', appearance: 'none' }}
+                      >
+                        {((countriesData ?? FALLBACK_COUNTRIES).find(c => c.country === country)?.cities ?? []).map(ct => (
+                          <option key={ct} value={ct}>{ct}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+
+                  {/* If states are present, render a city selector based on the selected state */}
+                  {statesForCountry && (
+                    <div style={{ gridColumn: '1 / span 2' }}>
+                      <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>City / Location</label>
+                      <select
+                        value={city}
+                        onChange={e => setCity(e.target.value)}
+                        aria-label="Select city or location"
+                        style={{ width: '100%', border: '1px solid #E2E8F0', padding: 10, borderRadius: 8, background: '#fff', cursor: 'pointer', appearance: 'none' }}
+                      >
+                        {(citiesForState ?? []).map(ct => (
+                          <option key={ct} value={ct}>{ct}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
                 <div style={{ display: 'flex', gap: 8, width: '100%' }}>
-                  <div style={{ gridColumn: '1 / span 2' }}>
+                  <div style={{ flex: 1 }}>
                     <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>
                       Department
                     </label>
-                    <input placeholder='Department' value={departmentInput} onChange={e => setDepartmentInput(e.target.value)}
-                      onFocus={e => (e.currentTarget.style.background = '#fff')}
-                      onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
-                      style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
-                    />
+                    <select value={departmentInput} onChange={e => setDepartmentInput(e.target.value)} aria-label="Select department"
+                      onFocus={e => (e.currentTarget.style.boxShadow = '0 6px 18px rgba(59,130,246,0.08)')}
+                      onBlur={e => (e.currentTarget.style.boxShadow = 'none')}
+                      style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 10, width: '100%', borderRadius: 8, cursor: 'pointer' }}
+                    >
+                      <option value="">Select department...</option>
+                      {DEPARTMENTS.map(d => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
                   </div>
-                  <select value={employmentType} onChange={e => setEmploymentType(e.target.value)} style={{ border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6, background: '#f7f7fa' }}>
-                    <option value='FULL_TIME'>Full time</option>
-                    <option value='PART_TIME'>Part time</option>
-                    <option value='CONTRACT'>Contract</option>
-                    <option value='INTERNSHIP'>Internship</option>
-                  </select>
+
+                  <div style={{ flex: '0 0 38%', position: 'relative' }}>
+                    <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>Employment type</label>
+                    <div style={{ position: 'relative' }}>
+                      <select
+                        value={employmentType}
+                        onChange={e => setEmploymentType(e.target.value)}
+                        aria-label="Employment Type"
+                        onFocus={e => (e.currentTarget.style.boxShadow = '0 6px 18px rgba(59,130,246,0.12)')}
+                        onBlur={e => (e.currentTarget.style.boxShadow = 'none')}
+                        style={{
+                          width: '100%',
+                          border: '1px solid #E6EEF8',
+                          padding: '10px 40px 10px 12px',
+                          borderRadius: 10,
+                          background: '#ffffff',
+                          appearance: 'none',
+                          WebkitAppearance: 'none',
+                          MozAppearance: 'none',
+                          outline: 'none',
+                          cursor: 'pointer',
+                          fontSize: 15,
+                          boxShadow: '0 2px 6px rgba(2,6,23,0.04)'
+                        }}
+                      >
+                        <option value='FULL_TIME'>Full time</option>
+                        <option value='PART_TIME'>Part time</option>
+                        <option value='CONTRACT'>Contract</option>
+                        <option value='INTERNSHIP'>Internship</option>
+                      </select>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
+                  </div>
                 </div>
                 <div style={{ gridColumn: '1 / span 2' }}>
                   <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>
                     Salary Range
                   </label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <input placeholder='Salary min' value={salaryMin} onChange={e => setSalaryMin(e.target.value)}
-                      onFocus={e => (e.currentTarget.style.background = '#fff')}
-                      onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
-                      style={{ marginRight: 8, background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
-                    />
-                    <input placeholder='Salary max' value={salaryMax} onChange={e => setSalaryMax(e.target.value)}
-                      onFocus={e => (e.currentTarget.style.background = '#fff')}
-                      onBlur={e => (e.currentTarget.style.background = '#f7f7fa')}
-                      style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '100%', borderRadius: 6 }}
-                    />
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <input type="number" aria-label="Salary minimum" value={salaryMinNum} onChange={e => { const v = Number(e.target.value||0); setSalaryMinNum(Math.min(v, salaryMaxNum)); setSalaryMin(String(Math.min(v, salaryMaxNum))) }}
+                        style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '30%', borderRadius: 6 }} />
+                      <div style={{ flex: 1 }}>
+                        <div ref={trackRef} onPointerDown={onPointerDownTrack} style={{ position: 'relative', height: 48, touchAction: 'none' }}>
+                          <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', transform: 'translateY(-50%)', height: 8, borderRadius: 8, background: '#F1F5F9' }} />
+                          <div style={{ position: 'absolute', left: `${salaryMinPct}%`, right: `${100 - salaryMaxPct}%`, top: '50%', transform: 'translateY(-50%)', height: 8, borderRadius: 8, background: 'linear-gradient(90deg,#60A5FA,#3B82F6)' }} />
+                          {/* Custom thumbs with larger hitboxes */}
+                          <button
+                            type="button"
+                            aria-label="Drag minimum salary"
+                            onPointerDown={(e) => {
+                              if ((e as any).button !== 0) return
+                              startThumbDrag('min', e)
+                            }}
+                            style={{
+                              position: 'absolute',
+                              left: `calc(${salaryMinPct}% - 26px)`,
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              width: 52,
+                              height: 52,
+                              border: 'none',
+                              background: 'transparent',
+                              padding: 0,
+                              margin: 0,
+                              cursor: 'grab',
+                              touchAction: 'none',
+                              zIndex: activeThumb === 'min' ? 4 : 2,
+                            }}
+                          >
+                            <span aria-hidden style={{ position: 'absolute', left: 16, top: 16, width: 20, height: 20, borderRadius: '999px', background: 'white', border: '3px solid #2563EB', boxShadow: '0 6px 18px rgba(37,99,235,0.18)', pointerEvents: 'none' }} />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Drag maximum salary"
+                            onPointerDown={(e) => {
+                              if ((e as any).button !== 0) return
+                              startThumbDrag('max', e)
+                            }}
+                            style={{
+                              position: 'absolute',
+                              left: `calc(${salaryMaxPct}% - 26px)`,
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              width: 52,
+                              height: 52,
+                              border: 'none',
+                              background: 'transparent',
+                              padding: 0,
+                              margin: 0,
+                              cursor: 'grab',
+                              touchAction: 'none',
+                              zIndex: activeThumb === 'max' ? 4 : 2,
+                            }}
+                          >
+                            <span aria-hidden style={{ position: 'absolute', left: 16, top: 16, width: 20, height: 20, borderRadius: '999px', background: 'white', border: '3px solid #2563EB', boxShadow: '0 6px 18px rgba(37,99,235,0.18)', pointerEvents: 'none' }} />
+                          </button>
+                        </div>
+                      </div>
+                      <input type="number" aria-label="Salary maximum" value={salaryMaxNum} onChange={e => { const v = Number(e.target.value||0); setSalaryMaxNum(Math.max(v, salaryMinNum)); setSalaryMax(String(Math.max(v, salaryMinNum))) }}
+                        style={{ background: '#f7f7fa', border: '1px solid #E2E8F0', padding: 8, width: '30%', borderRadius: 6 }} />
+                    </div>
+                    <div style={{ color: 'var(--tp-muted)', fontSize: 13 }}>You can drag the handles or type exact values.</div>
                   </div>
                 </div>
                 <div style={{ gridColumn: '1 / span 2' }}>
@@ -507,13 +894,34 @@ function BrowseJobs() {
                       )}
 
                       {showSkillInput && (
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                          <input autoFocus placeholder='New skill' value={newSkill} onChange={e => setNewSkill(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } }}
-                            style={{ padding: '6px 8px', borderRadius: 6, background: '#fff', border: '1px solid #E2E8F0' }}
-                          />
-                          <button type='button' onClick={addSkill} style={{ padding: '6px 10px', borderRadius: 6, background: '#1e3a8a', color: 'white' }}>Add</button>
-                          <button type='button' onClick={() => { setShowSkillInput(false); setNewSkill(''); }} style={{ padding: '6px 8px', borderRadius: 6, background: 'transparent', border: '1px solid #e5e7eb' }}>Cancel</button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 260 }}>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                            <input autoFocus placeholder='New skill' value={newSkill} onChange={e => {
+                                const v = e.target.value; setNewSkill(v);
+                                const filtered = SKILL_SUGGESTIONS.filter(s => s.toLowerCase().includes(v.toLowerCase()) && !skills.includes(s)).slice(0,8);
+                                setSuggestions(filtered); setSuggestionIndex(-1); setShowSkillSuggestions(filtered.length > 0);
+                              }}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter') { e.preventDefault(); if (showSkillSuggestions && suggestionIndex >= 0) { setNewSkill(suggestions[suggestionIndex]); addSkill(); } else { addSkill(); } }
+                                if (e.key === 'ArrowDown') { e.preventDefault(); setSuggestionIndex(i => Math.min((i+1), suggestions.length-1)); }
+                                if (e.key === 'ArrowUp') { e.preventDefault(); setSuggestionIndex(i => Math.max((i-1), 0)); }
+                                if (e.key === 'Escape') { setShowSkillSuggestions(false); }
+                              }}
+                              style={{ padding: '6px 8px', borderRadius: 6, background: '#fff', border: '1px solid #E2E8F0', flex: 1 }}
+                            />
+                            <button type='button' onClick={addSkill} style={{ padding: '6px 10px', borderRadius: 6, background: '#1e3a8a', color: 'white' }}>Add</button>
+                            <button type='button' onClick={() => { setShowSkillInput(false); setNewSkill(''); setShowSkillSuggestions(false); }} style={{ padding: '6px 8px', borderRadius: 6, background: 'transparent', border: '1px solid #e5e7eb' }}>Cancel</button>
+                          </div>
+                          {showSkillSuggestions && suggestions.length > 0 && (
+                            <div style={{ border: '1px solid #E2E8F0', borderRadius: 8, background: 'white', boxShadow: '0 6px 18px rgba(2,6,23,0.08)', maxHeight: 180, overflowY: 'auto' }}>
+                              {suggestions.map((s, idx) => (
+                                <div key={s} onMouseDown={e => { e.preventDefault(); setNewSkill(s); addSkill(); }}
+                                  style={{ padding: '8px 10px', cursor: 'pointer', background: idx === suggestionIndex ? '#EEF2FF' : 'transparent' }}>
+                                  {s}
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

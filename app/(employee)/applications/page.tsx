@@ -252,8 +252,7 @@ export function MyApplications() {
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
+                );
               })}
             </div>
           </div>
@@ -263,4 +262,4 @@ export function MyApplications() {
   );
 }
 
-export default MyApplications
+export default MyApplications;

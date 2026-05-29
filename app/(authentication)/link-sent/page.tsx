@@ -5,10 +5,13 @@ import React from 'react'
 import { useSearchParams } from 'next/navigation'
 import { AuthShell } from '../../components/ui/AuthShell'
 import { MailCheck, RotateCcw } from 'lucide-react'
+import { useResendEmail } from '@/hooks/useResendEmail'
 
 function Page() {
     const searchParams = useSearchParams()
     const email = searchParams?.get('email') || ''
+    const { resend, loading: resendLoading } = useResendEmail()
+    const [message, setMessage] = React.useState<string | null>(null)
 
   return (
         <AuthShell
@@ -40,10 +43,24 @@ function Page() {
                     <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Open the email and copy the OTP into the reset form.</h2>
                     <p className="tp-lead" style={{ marginTop: '0.6rem' }}>If the message does not arrive in a few minutes, request another reset code.</p>
                 </div>
-                <Link href="/forgot-password" className="tp-btn-primary" style={{ width: '100%' }}>
-                    Request another code
+                <button
+                    onClick={async () => {
+                        setMessage(null)
+                        if (!email) {
+                            setMessage('No email available to resend to.')
+                            return
+                        }
+                        const res = await resend({ email })
+                        if (res) setMessage('Verification email resent. Check your inbox.')
+                    }}
+                    disabled={resendLoading}
+                    className="tp-btn-primary"
+                    style={{ width: '100%', cursor: resendLoading ? 'not-allowed' : 'pointer' }}
+                >
+                    {resendLoading ? 'Resending…' : 'Request another code'}
                     <RotateCcw size={16} />
-                </Link>
+                </button>
+                {message && <div style={{ marginTop: '0.75rem', color: 'var(--tp-muted)' }}>{message}</div>}
             </div>
         </AuthShell>
   )

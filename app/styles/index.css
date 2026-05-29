@@ -213,6 +213,53 @@ a {
   transform: translateY(-1px);
 }
 
+/* Accessibility helpers */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Skip link (visible when focused) */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 9999;
+}
+.skip-link:focus,
+.skip-link:active {
+  left: 1rem;
+  top: 1rem;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 0.75rem;
+  background: var(--tp-primary);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(13, 60, 150, 0.18);
+}
+
+/* Focus-visible for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(29,78,216,0.35);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
 .tp-nav-link {
   color: var(--tp-ink);
   text-decoration: none;

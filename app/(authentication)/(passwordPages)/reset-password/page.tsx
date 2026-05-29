@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { AuthShell } from '../../../components/ui/AuthShell'
 import { Eye, EyeOff, KeyRound, Mail, ShieldCheck } from 'lucide-react'
 import { useResetPassword } from '@/hooks/useResetPassword'
+import { useResendEmail } from '@/hooks/useResendEmail'
 
 function Page() {
     const router = useRouter()
@@ -61,9 +62,7 @@ function Page() {
             ]}
             footer={(
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Link href="/forgot-password" className="tp-footer-link" style={{ fontWeight: 800, color: 'var(--tp-primary)' }}>
-                        Request another code
-                    </Link>
+                    <ResendControl email={email} />
                     <Link href="/login" className="tp-footer-link" style={{ fontWeight: 800, color: 'var(--tp-primary)' }}>
                         Back to login
                     </Link>
@@ -125,3 +124,30 @@ function Page() {
 }
 
 export default Page
+
+function ResendControl({ email }: { email: string }) {
+    const { resend, loading } = useResendEmail()
+    const [msg, setMsg] = React.useState<string | null>(null)
+
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+                onClick={async () => {
+                    setMsg(null)
+                    if (!email) {
+                        setMsg('No email available to resend to.')
+                        return
+                    }
+                    const res = await resend({ email })
+                    if (res) setMsg('Verification email resent. Check your inbox.')
+                }}
+                disabled={loading}
+                className="tp-footer-link"
+                style={{ fontWeight: 800, color: 'var(--tp-primary)', background: 'transparent', border: 'none', padding: 0, cursor: loading ? 'not-allowed' : 'pointer' }}
+            >
+                {loading ? 'Resending…' : 'Request another code'}
+            </button>
+            {msg && <span style={{ color: 'var(--tp-muted)', fontSize: '0.95rem' }}>{msg}</span>}
+        </div>
+    )
+}

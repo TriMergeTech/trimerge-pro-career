@@ -52,7 +52,7 @@ export function EmployerDashboard() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
@@ -81,7 +81,7 @@ export function EmployerDashboard() {
       {
         activeTab === 'accountInfo' ? (
           <div style={{ flex: 1, overflowY: 'auto', paddingRight: '1rem', flexWrap: 'wrap', display: 'flex', columnGap: '1rem', paddingTop: '1rem', rowGap: '1rem' }}>
-            <div className="tp-card-soft" style={{ width: '45%', height: 'fit-content', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.75rem' }}>
+            <div className="tp-card-soft" style={{ width: '100%', height: 'fit-content', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.75rem' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <p>
                   Recruiter Contact Info
@@ -107,7 +107,7 @@ export function EmployerDashboard() {
                 <input value={recruiterRole} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
               </div>
             </div>
-            <div className="tp-card-soft" style={{ width: '45%', height: 'fit-content', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.75rem' }}>
+            <div className="tp-card-soft" style={{ width: '100%', height: 'fit-content', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.75rem' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <p>
                   Company Profile
@@ -135,7 +135,7 @@ export function EmployerDashboard() {
                 </div>
               </div>
             </div>
-            <div className="tp-card-soft" style={{ width: '45%', height: 'fit-content', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.75rem' }}>
+            <div className="tp-card-soft" style={{ width: '100%', height: 'fit-content', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.75rem' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <p>
                   Company Overview

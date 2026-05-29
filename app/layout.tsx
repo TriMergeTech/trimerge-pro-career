@@ -14,8 +14,9 @@ function Layout({ children }: { children: ReactNode }) {
     <html lang="en" className={manrope.className}>
       <body className="tp-shell overflow-x-hidden antialiased" style={{ backgroundColor: 'var(--tp-bg)', color: 'var(--tp-ink)' }}>
         <UserProvider>
+          <a href="#content" className="skip-link">Skip to content</a>
           <Navbar />
-          <main>{children}</main>
+          <main id="content" tabIndex={-1}>{children}</main>
           <Footer />
         </UserProvider>
       </body>

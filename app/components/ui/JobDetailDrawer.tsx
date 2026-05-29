@@ -23,7 +23,6 @@ interface Job {
 }
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useUser } from '@/contexts/userContext/userContext';
 import useApplyForJob from '../../../hooks/useApplyForJob';
 import useApplicationAIMatch from '../../../hooks/useApplicationAIMatch';
 import { useUser } from '@/contexts/userContext/userContext';
@@ -46,7 +45,6 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
   const { apply, loading: applying, error: applyError } = useApplyForJob();
   const { runMatch, loading: aiLoading, data: aiData, error: aiError } = useApplicationAIMatch();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const {state } = useUser()
 
   const candidateSkills = Array.isArray(state.user?.profile?.skills)
     ? state.user?.profile?.skills

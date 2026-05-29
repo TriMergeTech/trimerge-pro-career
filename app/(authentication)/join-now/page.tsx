@@ -58,13 +58,13 @@ function Page() {
 
     return (
                 <AuthShell
-                    eyebrow="Join TriMergePro Careers"
-                    title="Build your account in a cleaner, guided flow."
-                    subtitle="Choose the path that matches how you work, then continue into verification and onboarding without losing the backend sequence we already have."
+                    eyebrow="Join TriMerge Careers"
+                    title="Create your account to find jobs or hire talent."
+                    subtitle="Pick Candidate or Recruiter, verify your email, and continue through a short onboarding tailored to your role."
                     bullets={[
-                        'Candidate and employer paths stay separate from the first step.',
-                        'Email verification is still required before onboarding continues.',
-                        'The form maps directly to the current register API contract.',
+                        'Choose Candidate to find jobs and build your profile.',
+                        'Choose Recruiter to post jobs and manage applicants.',
+                        'Verify your email to unlock the next onboarding steps.',
                     ]}
                     footer={(
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>

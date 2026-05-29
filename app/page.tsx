@@ -20,23 +20,23 @@ const tracks = [
 ]
 
 const featuredRoles = [
-  { title: 'Frontend Developer', company: 'TriMergePro', location: 'Lagos, Nigeria', salary: '$90k - $120k', tags: ['React', 'TypeScript', 'Remote'] },
-  { title: 'Backend Engineer', company: 'TriMergePro', location: 'Austin, TX', salary: '$110k - $145k', tags: ['Node.js', 'APIs', 'Cloud'] },
-  { title: 'Product Manager', company: 'TriMergePro', location: 'Miami, FL', salary: '$120k - $160k', tags: ['Strategy', 'Delivery', 'Stakeholders'] },
+  { title: 'Frontend Developer', company: 'TriMerge', location: 'Lagos, Nigeria', salary: '$90k - $120k', tags: ['React', 'TypeScript', 'Remote'] },
+  { title: 'Backend Engineer', company: 'TriMerge', location: 'Austin, TX', salary: '$110k - $145k', tags: ['Node.js', 'APIs', 'Cloud'] },
+  { title: 'Product Manager', company: 'TriMerge', location: 'Miami, FL', salary: '$120k - $160k', tags: ['Strategy', 'Delivery', 'Stakeholders'] },
 ]
 
 const steps = [
   {
     title: 'Create your account',
-    text: 'Choose Candidate or Employer, confirm your email, and keep your profile connected to the backend onboarding flow.',
+    text: 'Pick Candidate or Employer, confirm your email, and get ready to apply or post jobs.',
   },
   {
     title: 'Complete guided onboarding',
-    text: 'Progress through the right steps for your role so the API receives exactly the data it expects.',
+    text: 'Finish a short set of steps so your profile and applications match what employers expect.',
   },
   {
     title: 'Apply or hire with clarity',
-    text: 'Search jobs, apply, manage postings, and keep each action aligned with the current authenticated session.',
+    text: 'Search roles, apply quickly, and track your applications in one place.',
   },
 ]
 
@@ -55,15 +55,15 @@ export default function Home() {
 
               <div style={{ display: 'grid', gap: '1.5rem', position: 'relative', zIndex: 1, paddingTop: '2rem' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.55rem' }}>
-                  <span className="tp-chip"><BadgeCheck size={16} /> TriMergePro Careers</span>
+                  <span className="tp-chip"><BadgeCheck size={16} /> TriMerge Careers</span>
                 </div>
 
                 <div style={{ maxWidth: '46rem' }}>
                   <h1 className="tp-title" style={{ fontSize: 'clamp(3rem, 7vw, 5.25rem)', margin: 0 }}>
-                    Find work that feels precise, human, and high-impact.
+                    Find jobs, apply fast, and grow your career with TriMerge.
                   </h1>
                   <p className="tp-lead" style={{ fontSize: '1.08rem', marginTop: '1.2rem', maxWidth: '40rem' }}>
-                    A premium careers platform for talents and employers, shaped around the same backend flows we already have and elevated with a cleaner, more polished experience.
+                    Search current openings, compare your best matches, and apply to roles at companies that are hiring now — all powered by TriMerge's streamlined hiring flows.
                   </p>
                 </div>
 
@@ -136,20 +136,20 @@ export default function Home() {
             </div>
 
             <div className="tp-card" style={{ padding: '1.25rem' }}>
-              <div className="tp-kicker">What makes this different</div>
-              <h3 style={{ margin: '0.4rem 0 0', fontSize: '1.45rem', letterSpacing: '-0.04em' }}>Built for the flow the backend already supports.</h3>
-              <div style={{ display: 'grid', gap: '0.75rem', marginTop: '1rem' }}>
-                {[
-                  'Signup routes to email verification with role-aware onboarding.',
-                  'Login, jobs, and onboarding stay aligned with the current API contracts.',
-                  'Reset password and resend email are first-class flows, not afterthoughts.',
-                ].map((text) => (
-                  <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--tp-muted)', lineHeight: 1.6 }}>
-                    <Target size={16} color="var(--tp-primary)" style={{ marginTop: '0.2rem', flexShrink: 0 }} />
-                    <span>{text}</span>
-                  </div>
-                ))}
-              </div>
+              <div className="tp-kicker">Why TriMerge</div>
+                <h3 style={{ margin: '0.4rem 0 0', fontSize: '1.45rem', letterSpacing: '-0.04em' }}>A simpler, job-first experience.</h3>
+                <div style={{ display: 'grid', gap: '0.75rem', marginTop: '1rem' }}>
+                  {[
+                    'Create an account, verify your email, and finish onboarding to start applying.',
+                    'Browse curated jobs with salary, location, and key skills displayed up front.',
+                    'Track your applications and stay in sync with employers through a clear flow.',
+                  ].map((text) => (
+                    <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--tp-muted)', lineHeight: 1.6 }}>
+                      <Target size={16} color="var(--tp-primary)" style={{ marginTop: '0.2rem', flexShrink: 0 }} />
+                      <span>{text}</span>
+                    </div>
+                  ))}
+                </div>
             </div>
           </div>
         </div>

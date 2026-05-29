@@ -1,8 +1,9 @@
 "use client"
-import Image from 'next/image'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useRecruiterOnboardingStepTwo } from '@/hooks/useRecruiterOnboardingStepTwo'
+import { AuthShell } from '../../../../components/ui/AuthShell'
+import { ArrowRight, Building2, Globe, MapPin, UserCircle2 } from 'lucide-react'
 
 function Page() {
   const router = useRouter()
@@ -27,145 +28,81 @@ function Page() {
   }
 
   return (
-    <div style={{
-        minHeight: '90vh',
-        display: 'flex',
-        paddingTop: '2rem',
-        justifyContent: 'space-around',
-        paddingBottom: '2rem',
-    }}>
-        <form onSubmit={handleSubmit} style={{
-            maxHeight: '100vh',
-            height: 'fit-content',
-            paddingBottom: '2rem',
-            display: 'flex',
-            alignItems: 'start',
-            flexDirection: 'column',
-            justifyContent: 'start',
-            width: '40%',
-            backgroundColor: '#0b1f3a',
-            marginLeft: '3rem',
-            borderRadius: '0.8rem',
-            paddingLeft: '2rem',
-            paddingRight: '2rem',
-        }}>
-                <span style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'end',
-                width: '100%',
-                height: 'fit-content',
-                paddingTop: '0.6rem',
-            }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'white', textAlign: 'center' }}>
-                    Personal Information
-                </h1>
-                <div style={{ color: 'white'}}>
-                    Step 2/3
+        <AuthShell
+            eyebrow="Employer onboarding"
+            title="Give your hiring team a strong starting point."
+            subtitle="We capture the company basics first so the remaining onboarding steps can focus on hiring goals and job creation."
+            bullets={[
+                'Share company details once and reuse them across the platform.',
+                'The recruiter flow stays aligned with the existing backend onboarding endpoints.',
+                'A clean company profile makes posting and managing roles easier later.',
+            ]}
+            footer={<span style={{ color: 'var(--tp-muted)' }}>Step 1 of 3</span>}
+        >
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
+                <div>
+                    <div className="tp-kicker">Company basics</div>
+                    <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Tell us about the organization.</h2>
+                    <p className="tp-lead" style={{ marginTop: '0.6rem' }}>These details help shape the employer profile.</p>
                 </div>
-            </span>
-            <span style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'start',
-                rowGap: '1rem',
-                width: '80%',
-            }}>
-                <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} type="text" placeholder="Company Name *" style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    borderRadius: '0.375rem',
-                    marginTop: '2rem',
-                    backgroundColor: 'white',
-                }}/>
-                <input value={companyWebsite} onChange={(e) => setCompanyWebsite(e.target.value)} type="text" placeholder="Company Website *" style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                }}/>
-                <input value={industry} onChange={(e) => setIndustry(e.target.value)} type="text" placeholder="Industry *" style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                }}/>
-                <input value={companySize} onChange={(e) => setCompanySize(e.target.value)} type="text" placeholder="Company Size" style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                }}/>
-                <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" placeholder="Location *" style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                }}/>
-                <input value={yourRole} onChange={(e) => setYourRole(e.target.value)} type="text" placeholder="Your Role *" style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                }}/>
-                <input value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} type="text" placeholder="Job Title" style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                }}/>
-            </span>
-            <button disabled={loading} type="submit" style={{
-                backgroundColor: '#1e3a8a',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                border: 'none',
-                borderRadius: '0.375rem',
-                cursor: 'pointer',
-                width: '60%',
-                marginTop: '2rem',
-                alignSelf: 'center',
-            }}>
-                {loading ? 'Saving...' : 'Save and Continue'}
-            </button>
-            {error && <div style={{ color: 'red', marginTop: '0.5rem' }}>{error}</div>}
-        </form>
-        <div style={{
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            flexDirection: 'column',
-            justifyContent: 'start',
-            width: '50%',
-            paddingRight: '3rem',
-        }}>
-            <h1 style={{ fontSize: '3rem', fontWeight: 'bold', color: '#111827', textAlign: 'center' }}>
-                Welcome Username
-            </h1>
-            <div style={{ fontSize: '1.25rem', color: '#6B7280', textAlign: 'right', marginTop: '3rem' }}>
-                Create your recruiter account to post roles, manage candidates, and collaborate with your hiring team on TriMergePRO.
-            </div>
-            <Image
-            style={{
-                marginTop: '3rem',
-                borderRadius: '0.5rem',
-                width: '70%',
-                height: '90%',
-            }}
-             src="/recruiter.svg"
-             alt="Personal Info Illustration"
-             width={500}
-             height={300}
-            />
-        </div>
-    </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem' }}>
+                    <label style={{ display: 'grid', gap: '0.45rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Company name</span>
+                        <div style={{ position: 'relative' }}>
+                            <Building2 size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                            <input required value={companyName} onChange={(e) => setCompanyName(e.target.value)} type="text" placeholder="Company name *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                        </div>
+                    </label>
+
+                    <label style={{ display: 'grid', gap: '0.45rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Company website</span>
+                        <div style={{ position: 'relative' }}>
+                            <Globe size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                            <input required value={companyWebsite} onChange={(e) => setCompanyWebsite(e.target.value)} type="text" placeholder="Company website *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                        </div>
+                    </label>
+
+                    <label style={{ display: 'grid', gap: '0.45rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Industry</span>
+                        <input required value={industry} onChange={(e) => setIndustry(e.target.value)} type="text" placeholder="Industry *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                    </label>
+
+                    <label style={{ display: 'grid', gap: '0.45rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Company size</span>
+                        <input value={companySize} onChange={(e) => setCompanySize(e.target.value)} type="text" placeholder="Company size" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                    </label>
+
+                    <label style={{ display: 'grid', gap: '0.45rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Location</span>
+                        <div style={{ position: 'relative' }}>
+                            <MapPin size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                            <input required value={location} onChange={(e) => setLocation(e.target.value)} type="text" placeholder="Location *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                        </div>
+                    </label>
+
+                    <label style={{ display: 'grid', gap: '0.45rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Your role</span>
+                        <div style={{ position: 'relative' }}>
+                            <UserCircle2 size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                            <input required value={yourRole} onChange={(e) => setYourRole(e.target.value)} type="text" placeholder="Your role *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                        </div>
+                    </label>
+
+                    <label style={{ display: 'grid', gap: '0.45rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Job title</span>
+                        <input value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} type="text" placeholder="Job title" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                    </label>
+                </div>
+
+                {error && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{error}</div>}
+
+                <button disabled={loading} type="submit" className="tp-btn-primary" style={{ width: '100%', cursor: loading ? 'not-allowed' : 'pointer' }}>
+                    {loading ? 'Saving…' : 'Save and continue'}
+                    {!loading && <ArrowRight size={16} />}
+                </button>
+            </form>
+        </AuthShell>
   )
 }
 

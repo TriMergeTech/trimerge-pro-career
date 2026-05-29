@@ -91,53 +91,57 @@ export function MyApplications() {
   );
 
   return (
-    <div style={{ flex: 1, background: '#F4F4F9', overflowY: 'auto', maxHeight: '90vh' }}>
-      <div style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: 24 }}>
-        <div style={{ maxWidth: 1120, margin: '0 auto' }}>
-          <h1 style={{ marginBottom: 8 }}>My Applications</h1>
-          <p style={{ color: '#64748B' }}>Track the status of your internal job applications</p>
+    <div style={{ flex: 1, minHeight: '90vh', overflowY: 'auto', background: 'linear-gradient(180deg, #f8fbff 0%, #f4f7fb 42%, #eef4fb 100%)' }}>
+      <div className="tp-container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+        <div className="tp-card-soft tp-fade-up" style={{ marginBottom: '1.25rem', padding: '1.5rem', background: 'linear-gradient(135deg, #07172e 0%, #1d4ed8 100%)', color: 'white', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', inset: 'auto -5rem -5rem auto', width: '16rem', height: '16rem', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', filter: 'blur(30px)' }} />
+          <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div>
+              <div className="tp-chip" style={{ background: 'rgba(255,255,255,0.12)', color: 'white', borderColor: 'rgba(255,255,255,0.14)' }}>Application tracker</div>
+              <h1 style={{ margin: '0.85rem 0 0.45rem', fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.05em' }}>My applications</h1>
+              <p style={{ margin: 0, maxWidth: '42rem', color: 'rgba(255,255,255,0.84)', lineHeight: 1.75 }}>Track every application, see the next hiring milestone, and keep a clean view of what still needs attention.</p>
+            </div>
+            <div style={{ display: 'grid', gap: '0.5rem', minWidth: '14rem' }}>
+              <div style={{ fontSize: '0.82rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)' }}>Active applications</div>
+              <div style={{ fontSize: '2rem', fontWeight: 800 }}>{activeApplications.length}</div>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div style={{ maxWidth: 1120, margin: '0 auto', padding: 24 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24, marginBottom: 32 }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: 24, boxShadow: '0 1px 4px rgba(30,58,138,0.03)', border: '1px solid #F1F5F9' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div className="tp-card-soft" style={{ padding: '1.25rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <div style={{ padding: 12, background: 'rgba(255,95,31,0.08)', borderRadius: 12 }}>
+              <div style={{ padding: 12, background: 'rgba(255,95,31,0.08)', borderRadius: 16 }}>
                 <Briefcase className="w-6 h-6 text-[#FF5F1F]" />
               </div>
             </div>
-            <div style={{ fontSize: 32, fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>{activeApplications.length}</div>
-            <div style={{ color: '#64748B', fontSize: 14 }}>Active Applications</div>
+            <div style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>{activeApplications.length}</div>
+            <div style={{ color: '#64748B', fontSize: 14 }}>Active applications</div>
           </div>
 
-          <div style={{ background: '#fff', borderRadius: 16, padding: 24, boxShadow: '0 1px 4px rgba(30,58,138,0.03)', border: '1px solid #F1F5F9' }}>
+          <div className="tp-card-soft" style={{ padding: '1.25rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <div style={{ padding: 12, background: '#D1FAE5', borderRadius: 12 }}>
+              <div style={{ padding: 12, background: '#D1FAE5', borderRadius: 16 }}>
                 <CheckCircle2 className="w-6 h-6 text-green-600" />
               </div>
             </div>
-            <div style={{ fontSize: 32, fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>
-              {mockApplications.filter((a) => a.status === 'interview_scheduled').length}
-            </div>
-            <div style={{ color: '#64748B', fontSize: 14 }}>Interviews Scheduled</div>
+            <div style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>{mockApplications.filter((a) => a.status === 'interview_scheduled').length}</div>
+            <div style={{ color: '#64748B', fontSize: 14 }}>Interviews scheduled</div>
           </div>
 
-          <div style={{ background: '#fff', borderRadius: 16, padding: 24, boxShadow: '0 1px 4px rgba(30,58,138,0.03)', border: '1px solid #F1F5F9' }}>
+          <div className="tp-card-soft" style={{ padding: '1.25rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <div style={{ padding: 12, background: '#DBEAFE', borderRadius: 12 }}>
+              <div style={{ padding: 12, background: '#DBEAFE', borderRadius: 16 }}>
                 <AlertCircle className="w-6 h-6 text-blue-600" />
               </div>
             </div>
-            <div style={{ fontSize: 32, fontWeight: 600, color: '#0F172A', marginBottom: 4 }}>
-              {mockApplications.filter((a) => a.status === 'under_review').length}
-            </div>
-            <div style={{ color: '#64748B', fontSize: 14 }}>Pending Review</div>
+            <div style={{ fontSize: 32, fontWeight: 800, color: '#0F172A', marginBottom: 4 }}>{mockApplications.filter((a) => a.status === 'under_review').length}</div>
+            <div style={{ color: '#64748B', fontSize: 14 }}>Pending review</div>
           </div>
         </div>
 
         <div style={{ marginBottom: 24 }}>
-          <h2 style={{ marginBottom: 16 }}>Active Applications</h2>
+          <h2 style={{ marginBottom: 16, fontSize: '1.5rem', letterSpacing: '-0.03em', color: '#0f172a' }}>Active applications</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {activeApplications.map((app) => {
               const status = statusConfig[app.status];
@@ -156,6 +160,7 @@ export function MyApplications() {
                   }}
                   onMouseOver={e => (e.currentTarget.style.boxShadow = '0 4px 16px rgba(30,58,138,0.08)')}
                   onMouseOut={e => (e.currentTarget.style.boxShadow = '0 1px 4px rgba(30,58,138,0.03)')}
+                  className="tp-card-soft"
                 >
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
                     <div style={{ flex: 1 }}>
@@ -214,7 +219,7 @@ export function MyApplications() {
 
         {pastApplications.length > 0 && (
           <div>
-            <h3 style={{ marginBottom: 16 }}>Past Applications</h3>
+            <h3 style={{ marginBottom: 16, fontSize: '1.25rem', letterSpacing: '-0.02em', color: '#0f172a' }}>Past applications</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {pastApplications.map((app) => {
                 const status = statusConfig[app.status];
@@ -223,14 +228,8 @@ export function MyApplications() {
                 return (
                   <div
                     key={app.id}
-                    style={{
-                      background: '#fff',
-                      borderRadius: 16,
-                      padding: 24,
-                      boxShadow: '0 1px 4px rgba(30,58,138,0.03)',
-                      border: '1px solid #F1F5F9',
-                      opacity: 0.75,
-                    }}
+                    className="tp-card-soft"
+                    style={{ opacity: 0.75 }}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                       <div style={{ flex: 1 }}>
@@ -253,7 +252,8 @@ export function MyApplications() {
                       </div>
                     </div>
                   </div>
-                );
+                )}
+              </div>
               })}
             </div>
           </div>

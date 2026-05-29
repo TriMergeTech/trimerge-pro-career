@@ -1,9 +1,10 @@
 "use client"
 
-import Image from 'next/image'
 import React from 'react'
 import { useRouter } from 'next/navigation';
 import { useCandidateOnboardingStepTwo } from '@/hooks/useCandidateOnboardingStepTwo';
+import { AuthShell } from '../../../../components/ui/AuthShell';
+import { ArrowRight, FileUp, Globe, MapPin, Phone, UserRound } from 'lucide-react';
 
 function Page() {
     const router = useRouter();
@@ -72,154 +73,93 @@ function Page() {
     };
 
     return (
-        <div style={{
-            minHeight: '90vh',
-            display: 'flex',
-            paddingTop: '2rem',
-            justifyContent: 'space-around',
-            paddingBottom: '2rem',
-        }}>
-            <form onSubmit={handleSubmit} style={{
-                maxHeight: '100vh',
-                height: 'fit-content',
-                paddingBottom: '2rem',
-                display: 'flex',
-                alignItems: 'start',
-                flexDirection: 'column',
-                justifyContent: 'start',
-                width: '40%',
-                backgroundColor: '#0b1f3a',
-                marginLeft: '3rem',
-                borderRadius: '0.8rem',
-                paddingLeft: '2rem',
-                paddingRight: '2rem',
-            }}>
-                <span style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'end',
-                    width: '100%',
-                    height: 'fit-content',
-                    paddingTop: '0.6rem',
-                }}>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'white', textAlign: 'center' }}>
-                        Personal Information
-                    </h1>
-                    <div style={{ color: 'white' }}>
-                        Step 2/3
-                    </div>
-                </span>
-                <span style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'start',
-                    rowGap: '1rem',
-                    width: '80%',
-                }}>
-                    <input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} type="text" placeholder="Phone Number *" style={{
-                        padding: '0.75rem',
-                        border: '1px solid #D1D5DB',
-                        width: '90%',
-                        borderRadius: '0.375rem',
-                        marginTop: '2rem',
-                        backgroundColor: 'white',
-                    }} />
-                        {fieldErrors.phoneNumber && <div style={{ color: '#fecaca', marginTop: 6 }}>{fieldErrors.phoneNumber}</div>}
-                    <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" placeholder="Location *" style={{
-                        padding: '0.75rem',
-                        border: '1px solid #D1D5DB',
-                        width: '90%',
-                        borderRadius: '0.375rem',
-                        backgroundColor: 'white',
-                    }} />
-                        {fieldErrors.location && <div style={{ color: '#fecaca', marginTop: 6 }}>{fieldErrors.location}</div>}
-                    <input value={jobTitleOrDesiredRole} onChange={(e) => setJobTitleOrDesiredRole(e.target.value)} type="text" placeholder="Job Title / Desired Role *" style={{
-                        padding: '0.75rem',
-                        border: '1px solid #D1D5DB',
-                        width: '90%',
-                        borderRadius: '0.375rem',
-                        backgroundColor: 'white',
-                    }} />
-                        {fieldErrors.jobTitleOrDesiredRole && <div style={{ color: '#fecaca', marginTop: 6 }}>{fieldErrors.jobTitleOrDesiredRole}</div>}
-                        <input value={yearsOfExperience} onChange={(e) => setYearsOfExperience(e.target.value)} type="number" min={0} placeholder="Years of Experience *" style={{
-                        padding: '0.75rem',
-                        border: '1px solid #D1D5DB',
-                        width: '90%',
-                        borderRadius: '0.375rem',
-                        backgroundColor: 'white',
-                    }} />
-                        {fieldErrors.yearsOfExperience && <div style={{ color: '#fecaca', marginTop: 6 }}>{fieldErrors.yearsOfExperience}</div>}
-                    <input value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} type="text" placeholder="LinkedIn URL *" style={{
-                        padding: '0.75rem',
-                        border: '1px solid #D1D5DB',
-                        width: '90%',
-                        borderRadius: '0.375rem',
-                        backgroundColor: 'white',
-                    }} />
-                        {fieldErrors.linkedinUrl && <div style={{ color: '#fecaca', marginTop: 6 }}>{fieldErrors.linkedinUrl}</div>}
-                </span>
-                <div style={{ fontSize: '1rem', fontWeight: 'bold', marginTop: '.2rem', width: '100%', color: 'white' }}>
-                    Please upload your resume below. We accept PDF and Word (.doc, .docx) formats.
-                </div>
-                <input type="file" accept=".pdf,.doc,.docx" onChange={(e)=>{
-                    const f = e.target.files?.[0] ?? null;
-                    setResumeFile(f);
-                }} style={{ display: 'none' }} id="resume-upload" />
-                <Image
-                    src="/upload.svg"
-                    alt='Upload Resume Illustration'
-                    width={200}
-                    height={100}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => document.getElementById('resume-upload')?.click()}
-                />
-                {resumeFile && <div style={{ color: 'white', marginTop: 8 }}>{resumeFile.name}</div>}
+                <AuthShell
+                    eyebrow="Candidate onboarding"
+                    title="Shape the profile recruiters will actually see."
+                    subtitle="This first onboarding step captures the essentials so the backend can build a strong candidate profile and move you to the next stage."
+                    bullets={[
+                        'Add your contact details, desired role, and location in one pass.',
+                        'Upload your resume to keep the profile aligned with the backend flow.',
+                        'We keep the journey focused on matching you with relevant jobs faster.',
+                    ]}
+                    footer={<span style={{ color: 'var(--tp-muted)' }}>Step 1 of 3</span>}
+                >
+                    <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
+                        <div>
+                            <div className="tp-kicker">Candidate profile</div>
+                            <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Tell us the basics.</h2>
+                            <p className="tp-lead" style={{ marginTop: '0.6rem' }}>You can complete the whole profile in a couple of quick steps.</p>
+                        </div>
 
-                <div style={{ height: 8 }} />
-                {error && <div style={{ color: '#fecaca', marginBottom: '0.5rem' }}>{error}</div>}
-                <button type="submit" disabled={!isValid || loading} style={{
-                    backgroundColor: '#1e3a8a',
-                    color: 'white',
-                    padding: '0.75rem 1.5rem',
-                    border: 'none',
-                    borderRadius: '0.375rem',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    width: '60%',
-                    marginTop: '2rem',
-                    alignSelf: 'center',
-                }}>
-                    {loading ? 'Saving…' : 'Save and Continue'}
-                </button>
-            </form>
-            <div style={{
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                flexDirection: 'column',
-                justifyContent: 'start',
-                width: '50%',
-                paddingRight: '3rem',
-            }}>
-                <h1 style={{ fontSize: '3rem', fontWeight: 'bold', color: '#111827', textAlign: 'center' }}>
-                    Welcome Username
-                </h1>
-                <div style={{ fontSize: '1.25rem', color: '#6B7280', textAlign: 'right', marginTop: '3rem' }}>
-                    Complete your personal information to continue your application and get matched with top IT opportunities.
-                </div>
-                <Image
-                    style={{
-                        marginTop: '3rem',
-                        borderRadius: '0.5rem',
-                        width: '70%',
-                        height: '90%',
-                    }}
-                    src="/personal_info.svg"
-                    alt="Personal Info Illustration"
-                    width={500}
-                    height={300}
-                />
-            </div>
-        </div>
+                        <label style={{ display: 'grid', gap: '0.45rem' }}>
+                            <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Phone number</span>
+                            <div style={{ position: 'relative' }}>
+                                <Phone size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                <input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} type="text" placeholder="Phone number *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                            </div>
+                            {fieldErrors.phoneNumber && <div style={{ color: '#b91c1c', fontWeight: 700 }}>{fieldErrors.phoneNumber}</div>}
+                        </label>
+
+                        <label style={{ display: 'grid', gap: '0.45rem' }}>
+                            <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Location</span>
+                            <div style={{ position: 'relative' }}>
+                                <MapPin size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" placeholder="Location *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                            </div>
+                            {fieldErrors.location && <div style={{ color: '#b91c1c', fontWeight: 700 }}>{fieldErrors.location}</div>}
+                        </label>
+
+                        <label style={{ display: 'grid', gap: '0.45rem' }}>
+                            <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Desired role</span>
+                            <div style={{ position: 'relative' }}>
+                                <UserRound size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                <input value={jobTitleOrDesiredRole} onChange={(e) => setJobTitleOrDesiredRole(e.target.value)} type="text" placeholder="Job title / desired role *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                            </div>
+                            {fieldErrors.jobTitleOrDesiredRole && <div style={{ color: '#b91c1c', fontWeight: 700 }}>{fieldErrors.jobTitleOrDesiredRole}</div>}
+                        </label>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem' }}>
+                            <label style={{ display: 'grid', gap: '0.45rem' }}>
+                                <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Years of experience</span>
+                                <input value={yearsOfExperience} onChange={(e) => setYearsOfExperience(e.target.value)} type="number" min={0} placeholder="Years of experience *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                                {fieldErrors.yearsOfExperience && <div style={{ color: '#b91c1c', fontWeight: 700 }}>{fieldErrors.yearsOfExperience}</div>}
+                            </label>
+
+                            <label style={{ display: 'grid', gap: '0.45rem' }}>
+                                <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>LinkedIn URL</span>
+                                <div style={{ position: 'relative' }}>
+                                    <Globe size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                    <input value={linkedinUrl} onChange={(e) => setLinkedinUrl(e.target.value)} type="text" placeholder="LinkedIn profile URL" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                                </div>
+                                {fieldErrors.linkedinUrl && <div style={{ color: '#b91c1c', fontWeight: 700 }}>{fieldErrors.linkedinUrl}</div>}
+                            </label>
+                        </div>
+
+                        <div style={{ display: 'grid', gap: '0.65rem' }}>
+                            <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Resume</span>
+                            <input type="file" accept=".pdf,.doc,.docx" onChange={(e) => setResumeFile(e.target.files?.[0] ?? null)} style={{ display: 'none' }} id="resume-upload" />
+                            <label htmlFor="resume-upload" style={{ display: 'grid', gap: '0.75rem', padding: '1rem', borderRadius: '18px', border: '1px dashed rgba(29,78,216,0.35)', background: 'rgba(29,78,216,0.04)', cursor: 'pointer' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                    <div style={{ width: '2.6rem', height: '2.6rem', borderRadius: '16px', background: 'rgba(29,78,216,0.1)', color: 'var(--tp-primary)', display: 'grid', placeItems: 'center' }}>
+                                        <FileUp size={16} />
+                                    </div>
+                                    <div>
+                                        <div style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Upload your resume</div>
+                                        <div style={{ color: 'var(--tp-muted)', fontSize: '0.92rem' }}>PDF, DOC, or DOCX</div>
+                                    </div>
+                                </div>
+                                {resumeFile ? <div style={{ color: 'var(--tp-primary)', fontWeight: 800 }}>{resumeFile.name}</div> : <div style={{ color: 'var(--tp-muted)' }}>Click to choose a file</div>}
+                            </label>
+                        </div>
+
+                        {error && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{error}</div>}
+
+                        <button type="submit" disabled={!isValid || loading} className="tp-btn-primary" style={{ width: '100%', cursor: loading ? 'not-allowed' : 'pointer' }}>
+                            {loading ? 'Saving…' : 'Save and continue'}
+                            {!loading && <ArrowRight size={16} />}
+                        </button>
+                    </form>
+                </AuthShell>
     );
 }
 

@@ -1,14 +1,19 @@
 "use client"
 
 import { useRegister } from '@/hooks/useRegister';
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
+import { AuthShell } from '../../components/ui/AuthShell';
+import { CheckCircle2, ChevronRight, Eye, EyeOff, Mail, Users } from 'lucide-react';
 
 function Page() {
     const { register, loading, error, setError } = useRegister();
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const initialRole = searchParams?.get('role')?.toLowerCase() === 'recruiter' ? 'Recruiter' : 'Candidate';
 
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -16,7 +21,15 @@ function Page() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [terms, setTerms] = useState(false);
     const [updates, setUpdates] = useState(false);
-    const [role, setRole] = useState<'Candidate' | 'Recruiter'>('Candidate');
+    const [role, setRole] = useState<'Candidate' | 'Recruiter'>(initialRole);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    useEffect(() => {
+        const queryRole = searchParams?.get('role')?.toLowerCase();
+        if (queryRole === 'recruiter') setRole('Recruiter');
+        if (queryRole === 'candidate') setRole('Candidate');
+    }, [searchParams]);
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -44,223 +57,108 @@ function Page() {
     }, [error, setError]);
 
     return (
-        <div style={{
-            minHeight: '90vh',
-            display: 'flex',
-            paddingTop: '2rem',
-            justifyContent: 'space-around',
-            paddingBottom: '2rem',
-        }}>
-            <div style={{
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                flexDirection: 'column',
-                justifyContent: 'start',
-                width: '50%',
-                paddingLeft: '3rem',
-            }}>
-                <h1 style={{ fontSize: '3rem', fontWeight: 'bold', color: '#111827', textAlign: 'center' }}>
-                    Welcome to TrimergePRO
-                </h1>
-                <div style={{ fontSize: '1.25rem', color: '#6B7280', textAlign: 'center', marginTop: '3rem' }}>
-                    Connecting top IT professionals with leading organizations across Florida and beyond. Create your account to get started.
-                </div>
-                        <Image
-                            style={{
-                                marginTop: '3rem',
-                                borderRadius: '0.5rem',
-                                width: '70%',
-                                height: '90%',
-                            }}
-                            src='/sign_up.png'
-                            alt='Welcome Illustration'
-                            width={500}
-                            height={300}
-                        />
-            </div>
+                <AuthShell
+                    eyebrow="Join TriMergePro Careers"
+                    title="Build your account in a cleaner, guided flow."
+                    subtitle="Choose the path that matches how you work, then continue into verification and onboarding without losing the backend sequence we already have."
+                    bullets={[
+                        'Candidate and employer paths stay separate from the first step.',
+                        'Email verification is still required before onboarding continues.',
+                        'The form maps directly to the current register API contract.',
+                    ]}
+                    footer={(
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Link href="/login" className="tp-footer-link" style={{ fontWeight: 800, color: 'var(--tp-primary)' }}>
+                                Already have an account? Log in
+                            </Link>
+                            <span style={{ color: 'var(--tp-muted)' }}>Step 1 of 3</span>
+                        </div>
+                    )}
+                >
+                    <form onSubmit={onSubmit} style={{ display: 'grid', gap: '1rem' }}>
+                        <div>
+                            <div className="tp-kicker">Create account</div>
+                            <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Start with your role and keep moving.</h2>
+                            <p className="tp-lead" style={{ marginTop: '0.6rem' }}>We&apos;ll send you to the right verification and onboarding flow once your account is created.</p>
+                        </div>
 
-            <form
-                onSubmit={onSubmit}
-                style={{
-                    maxHeight: '90vh',
-                    height: 'fit-content',
-                    paddingBottom: '2rem',
-                    display: 'flex',
-                    alignItems: 'start',
-                    flexDirection: 'column',
-                    justifyContent: 'start',
-                    width: '40%',
-                    backgroundColor: '#0b1f3a',
-                    marginRight: '3rem',
-                    borderRadius: '0.8rem',
-                    paddingLeft: '2rem',
-                    paddingRight: '2rem',
-                }}>
-                <span style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'end',
-                    width: '100%',
-                    height: 'fit-content',
-                    paddingTop: '0.6rem',
-                }}>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: 'white', textAlign: 'center' }}>
-                        Create Account
-                    </h1>
-                    <div style={{ color: 'white' }}>Step 1/3</div>
-                </span>
+                        <div style={{ display: 'grid', gap: '1rem' }}>
+                            <label style={{ display: 'grid', gap: '0.45rem' }}>
+                                <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Full name</span>
+                                <input type='text' placeholder='Full name *' value={username} onChange={(e) => setUsername(e.target.value)} className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                            </label>
 
-                <Link href='/login' style={{ color: 'white', textDecoration: 'underline', marginTop: '1rem' }}>
-                    Already have an account? Log in
-                </Link>
+                            <label style={{ display: 'grid', gap: '0.45rem' }}>
+                                <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Email</span>
+                                <div style={{ position: 'relative' }}>
+                                    <Mail size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                    <input type='email' placeholder='Email *' value={email} onChange={(e) => setEmail(e.target.value)} className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                                </div>
+                            </label>
 
-                <span style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'start',
-                    rowGap: '1rem',
-                    width: '80%',
-                }}>
-                    <input type='text' placeholder='Full Name *'
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        style={{
-                            padding: '0.75rem',
-                            border: '1px solid #D1D5DB',
-                            width: '90%',
-                            borderRadius: '0.375rem',
-                            marginTop: '2rem',
-                            backgroundColor: 'white',
-                        }} />
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem' }}>
+                                <label style={{ display: 'grid', gap: '0.45rem' }}>
+                                    <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Password</span>
+                                    <div style={{ position: 'relative' }}>
+                                        <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label="Toggle password visibility" style={{ position: 'absolute', right: '0.9rem', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--tp-muted)' }}>{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+                                        <input type={showPassword ? 'text' : 'password'} placeholder='Password *' value={password} onChange={(e) => setPassword(e.target.value)} className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 2.5rem 0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                                    </div>
+                                </label>
+                                <label style={{ display: 'grid', gap: '0.45rem' }}>
+                                    <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Confirm password</span>
+                                    <div style={{ position: 'relative' }}>
+                                        <button type="button" onClick={() => setShowConfirmPassword((current) => !current)} aria-label="Toggle confirm password visibility" style={{ position: 'absolute', right: '0.9rem', top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--tp-muted)' }}>{showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+                                        <input type={showConfirmPassword ? 'text' : 'password'} placeholder='Confirm password *' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 2.5rem 0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
 
-                    <input type='email' placeholder='Email *'
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        style={{
-                            padding: '0.75rem',
-                            border: '1px solid #D1D5DB',
-                            width: '90%',
-                            borderRadius: '0.375rem',
-                            backgroundColor: 'white',
-                        }} />
+                        <div style={{ display: 'grid', gap: '0.8rem' }}>
+                            <div style={{ display: 'grid', gap: '0.65rem' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
+                                    {([
+                                        { value: 'Candidate', title: 'Candidate', text: 'Find roles and build your profile', icon: Users },
+                                        { value: 'Recruiter', title: 'Recruiter', text: 'Hire talent and manage openings', icon: CheckCircle2 },
+                                    ] as const).map((item) => {
+                                        const Icon = item.icon
+                                        const active = role === item.value
+                                        return (
+                                            <button key={item.value} type="button" onClick={(e) => { e.preventDefault(); setRole(item.value) }} style={{ textAlign: 'left', borderRadius: '20px', border: active ? '1px solid rgba(29,78,216,0.3)' : '1px solid rgba(148,163,184,0.2)', background: active ? 'rgba(29,78,216,0.08)' : 'white', padding: '1rem', cursor: 'pointer', boxShadow: active ? '0 18px 35px -28px rgba(29,78,216,0.8)' : 'none' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                                                    <div style={{ width: '2.6rem', height: '2.6rem', borderRadius: '16px', background: active ? 'linear-gradient(135deg, var(--tp-primary), #0b3aa7)' : 'rgba(148,163,184,0.1)', color: active ? 'white' : 'var(--tp-primary)', display: 'grid', placeItems: 'center' }}>
+                                                        <Icon size={16} />
+                                                    </div>
+                                                    <div>
+                                                        <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--tp-ink)' }}>{item.title}</div>
+                                                        <div style={{ color: 'var(--tp-muted)', fontSize: '0.9rem', lineHeight: 1.5 }}>{item.text}</div>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
 
-                    <input type='password' placeholder='Password *'
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        style={{
-                            padding: '0.75rem',
-                            border: '1px solid #D1D5DB',
-                            width: '90%',
-                            borderRadius: '0.375rem',
-                            backgroundColor: 'white',
-                        }} />
+                            <label style={{ display: 'flex', gap: '0.7rem', alignItems: 'flex-start', color: 'var(--tp-muted)', fontSize: '0.95rem', lineHeight: 1.55 }}>
+                                <input type='checkbox' id='terms' name='terms' checked={terms} onChange={(e) => setTerms(e.target.checked)} style={{ marginTop: '0.2rem' }} />
+                                I agree to the Terms and Conditions.
+                            </label>
 
-                    <input type='password' placeholder='Confirm Password *'
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        style={{
-                            padding: '0.75rem',
-                            border: '1px solid #D1D5DB',
-                            width: '90%',
-                            borderRadius: '0.375rem',
-                            backgroundColor: 'white',
-                        }} />
-                </span>
+                            <label style={{ display: 'flex', gap: '0.7rem', alignItems: 'flex-start', color: 'var(--tp-muted)', fontSize: '0.95rem', lineHeight: 1.55 }}>
+                                <input type='checkbox' id='updates' name='updates' checked={updates} onChange={(e) => setUpdates(e.target.checked)} style={{ marginTop: '0.2rem' }} />
+                                I&apos;d like to receive updates, job opportunities, and news from TriMergePro.
+                            </label>
+                        </div>
 
-                <div style={{ color: 'white', marginTop: '1rem', fontSize: '1rem' }}>
-                    Are you a Candidate or a Recruiter?
-                </div>
+                        {error && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{error}</div>}
 
-                <span style={{
-                    marginTop: '1rem',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    width: '70%',
-                }}>
-                    <div
-                        onClick={(e) => { e.preventDefault(); setRole('Candidate') }}
-                        style={{
-                            backgroundColor: `${role === 'Candidate' ? '#1e3a8a' : '#3b82f6'}`,
-                            color: 'white',
-                            padding: '0.75rem 1.5rem',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            cursor: 'pointer',
-                        }}>
-                        Candidate
-                    </div>
-
-                    <div
-                        onClick={(e) => { e.preventDefault(); setRole('Recruiter') }}
-                        style={{
-                            backgroundColor: `${role === 'Recruiter' ? '#1e3a8a' : '#3b82f6'}`,
-                            color: 'white',
-                            padding: '0.75rem 1.5rem',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            cursor: 'pointer',
-                        }}>
-                        Recruiter
-                    </div>
-                </span>
-
-                {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
-
-                <span style={{
-                    marginTop: '2rem',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    flexDirection: 'column',
-                    alignItems: 'start',
-                    rowGap: '1rem',
-                }}>
-                    <span style={{
-                        display: 'flex',
-                        justifyContent: 'start',
-                        alignItems: 'initial',
-                        columnGap: '0.5rem',
-                    }}>
-                        <input type='checkbox' id='terms' name='terms'
-                            checked={terms}
-                            onChange={(e) => setTerms(e.target.checked)}
-                        />
-                        <label htmlFor='terms' style={{ color: 'white' }}>
-                            I agree to the Terms and Conditions
-                        </label>
-                    </span>
-
-                    <span style={{
-                        display: 'flex',
-                        justifyContent: 'start',
-                        alignItems: 'initial',
-                        columnGap: '0.5rem',
-                    }}>
-                        <input type='checkbox' id='updates' name='updates'
-                            checked={updates}
-                            onChange={(e) => setUpdates(e.target.checked)}
-                        />
-                        <label htmlFor='updates' style={{ color: 'white' }}>
-                            I’d like to receive updates, job opportunities, and news from TriMergePro
-                        </label>
-                    </span>
-                </span>
-
-                <button type='submit' disabled={loading} style={{
-                    backgroundColor: '#1e3a8a',
-                    color: 'white',
-                    padding: '0.75rem 1.5rem',
-                    border: 'none',
-                    borderRadius: '0.375rem',
-                    cursor: 'pointer',
-                    width: '60%',
-                    marginTop: '2rem',
-                    alignSelf: 'center',
-                }}>
-                    {loading ? 'Signing up...' : 'Sign up'}
-                </button>
-            </form>
-        </div>
+                        <button type='submit' disabled={loading} className="tp-btn-primary" style={{ width: '100%', cursor: loading ? 'not-allowed' : 'pointer' }}>
+                            {loading ? 'Creating account…' : 'Create account'}
+                            {!loading && <ChevronRight size={16} />}
+                        </button>
+                    </form>
+                </AuthShell>
     )
 }
 

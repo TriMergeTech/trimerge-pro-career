@@ -1,9 +1,10 @@
 "use client"
 
-import Image from 'next/image'
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { useCandidateOnboardingStepThree } from '@/hooks/useCandidateOnboardingStepThree'
+import { AuthShell } from '../../../../components/ui/AuthShell'
+import { ArrowRight } from 'lucide-react'
 
 function Page() {
     const router = useRouter()
@@ -22,117 +23,47 @@ function Page() {
 
         const result = await submit(payload)
         if (result) {
-            // navigate to home or dashboard after successful onboarding
-            router.replace('/')
+            router.replace('/personal-information/registration-complete')
         }
     }
 
     return (
-        <div style={{
-        minHeight: '90vh',
-        display: 'flex',
-        paddingTop: '2rem',
-        justifyContent: 'end',
-        paddingBottom: '2rem',
-        position: 'relative',
-    }}>
-        
-            <Image
-            style={{
-                marginTop: '3rem',
-                borderRadius: '0.5rem',
-                width: '50%',
-                height: '80%',
-                left: '10%',
-                bottom: '0',
-                position: 'absolute',
-            }}
-             src="/candidate.svg"
-             alt="Candidate Illustration"
-             width={300}
-             height={200}
-            />
-        <form style={{
-            height: '83vh',
-            paddingBottom: '2rem',
-            display: 'flex',
-            alignItems: 'start',
-            flexDirection: 'column',
-            justifyContent: 'start',
-            width: '40%',
-            backgroundColor: '#f8fafc',
-            marginRight: '3rem',
-            borderRadius: '0.8rem',
-            paddingLeft: '2rem',
-            paddingRight: '2rem',
-            border: '2px solid #f5a929',
-        }}>
-            <span style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'end',
-                width: '100%',
-                height: 'fit-content',
-                paddingTop: '0.6rem',
-            }}>
-                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', textAlign: 'center' }}>
-                    Tell Us About Your Skills & Experience
-                </h1>
-                <div style={{ color: 'white'}}>
-                    Step 3/3
-                </div>
-            </span>
-            <span style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'start',
-                rowGap: '1rem',
-                width: '80%',
-            }}>
-                <h1 style={{ marginTop: '3rem' }}>
-                    Skills
-                </h1>
-                <textarea name='skills' value={skillsText} onChange={(e) => setSkillsText(e.target.value)} placeholder="Search or add skills (e.g., Python, AutoCAD, Project Management)" style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    height: '5rem',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                    resize: 'none',
-                }}></textarea>
+        <AuthShell
+          eyebrow="Candidate onboarding"
+          title="Turn your experience into a stronger profile."
+          subtitle="This is the final candidate step before completion. Skills and summary data flow straight into the current backend onboarding API."
+          bullets={[
+            'Add skills the recruiter search can understand.',
+            'Write a concise summary that clarifies your strongest experience.',
+            'Finish this step and your candidate profile will be ready to use.',
+          ]}
+          footer={<span style={{ color: 'var(--tp-muted)' }}>Step 2 of 3</span>}
+        >
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
+            <div>
+              <div className="tp-kicker">Skills and summary</div>
+              <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Show recruiters the value you bring.</h2>
+              <p className="tp-lead" style={{ marginTop: '0.6rem' }}>Keep it focused and easy to scan.</p>
+            </div>
 
-                <h1>
-                    Professional Summary
-                </h1>
-                <textarea name='professionalSummary' value={professionalSummary} onChange={(e) => setProfessionalSummary(e.target.value)} placeholder="Professional Summary *" style={{
-                    padding: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    width: '90%',
-                    borderRadius: '0.375rem',
-                    backgroundColor: 'white',
-                    resize: 'none',
-                    height: '10rem',
-                }}></textarea>
+            <label style={{ display: 'grid', gap: '0.45rem' }}>
+              <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Skills</span>
+              <textarea name='skills' value={skillsText} onChange={(e) => setSkillsText(e.target.value)} placeholder="Search or add skills (e.g., Python, AutoCAD, Project Management)" className="tp-card" style={{ width: '100%', minHeight: '9rem', resize: 'vertical', boxSizing: 'border-box', padding: '1rem', borderRadius: '18px', border: '1px solid rgba(148,163,184,0.2)' }} />
+            </label>
 
-             
-            </span>
-            {error && <div style={{ color: '#fecaca', marginTop: 8 }}>{error}</div>}
-            <button onClick={handleSubmit} disabled={loading} style={{
-                backgroundColor: '#1e3a8a',
-                color: 'white',
-                padding: '0.75rem 1.5rem',
-                border: 'none',
-                borderRadius: '0.375rem',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                width: '60%',
-                marginTop: '2rem',
-                alignSelf: 'center',
-            }}>
-                {loading ? 'Saving…' : 'Save and Continue'}
+            <label style={{ display: 'grid', gap: '0.45rem' }}>
+              <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Professional summary</span>
+              <textarea name='professionalSummary' value={professionalSummary} onChange={(e) => setProfessionalSummary(e.target.value)} placeholder="Professional Summary *" className="tp-card" style={{ width: '100%', minHeight: '12rem', resize: 'vertical', boxSizing: 'border-box', padding: '1rem', borderRadius: '18px', border: '1px solid rgba(148,163,184,0.2)' }} />
+            </label>
+
+            {error && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{error}</div>}
+
+            <button onClick={handleSubmit} disabled={loading} className="tp-btn-primary" style={{ width: '100%', cursor: loading ? 'not-allowed' : 'pointer' }}>
+              {loading ? 'Saving…' : 'Save and continue'}
+              {!loading && <ArrowRight size={16} />}
             </button>
-        </form>
-    </div>
+          </form>
+        </AuthShell>
   )
 }
 

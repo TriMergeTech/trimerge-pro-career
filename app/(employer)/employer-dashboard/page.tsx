@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 // icons and extra components removed from this view because they are unused here
 import { useUser } from '@/contexts/userContext/userContext';
 import useGetEmployer from '@/hooks/useGetEmployer';
+import { Building2, Globe, ShieldCheck, Users2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 
@@ -54,12 +55,13 @@ export function EmployerDashboard() {
   const accountType = String(state.user?.accountType ?? '');
   useEffect(() => {
     console.log(userData)
-    if (accountType === 'TALENT') router.replace('/talent-dashboard');
-  }, [accountType, router, userData]);
-  // recruiter profile accessed directly from state.user?.profile when needed
+
+  },[userData])
+  const recruiterProfile = (state.user?.profile ?? {}) as Record<string, unknown>;
+  const recruiterPhone = String(recruiterProfile['phone'] ?? recruiterProfile['phoneNumber'] ?? '');
   
   return (
-    <div className="flex-1 bg-[#F4F4F9] overflow-hidden h-[90vh] " style={{ display: 'flex', flexDirection: 'column', padding: '2rem' }}>
+    <div className="flex-1 bg-[#F4F4F9] overflow-hidden h-[90vh]" style={{ display: 'flex', flexDirection: 'column', padding: '2rem' }}>
       <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0b1f3a', marginBottom: '1.5rem' }}>
         My Profile
       </h1>
@@ -69,24 +71,16 @@ export function EmployerDashboard() {
           <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: activeTab === 'accountSettings' ? '#1E5DAA' : '#A0AEC0', cursor: 'pointer', textUnderlineOffset: '10px', textDecoration: activeTab === 'accountSettings' ? 'underline' : 'none' }} onClick={() => setActiveTab('accountSettings')}>Account Settings</p>
           <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: activeTab === 'privacySecurity' ? '#1E5DAA' : '#A0AEC0', cursor: 'pointer', textUnderlineOffset: '10px', textDecoration: activeTab === 'privacySecurity' ? 'underline' : 'none' }} onClick={() => setActiveTab('privacySecurity')}>Privacy and Security</p>
         </div>
-      </span>
-      <hr style={{ border: 'none', borderTop: '1px solid #E2E8F0', margin: '4px' }} />
+      </div>
       {
         activeTab === 'accountInfo' ? (
-          <div className="hide-scrollbar" style={{ flex: 1, overflowY: 'auto', paddingRight: '1rem', flexWrap: 'wrap', display: 'flex', columnGap: '1rem', paddingTop: '1rem' }}>
+          <div style={{ flex: 1, overflowY: 'auto', paddingRight: '1rem', flexWrap: 'wrap', display: 'flex', columnGap: '1rem', paddingTop: '1rem' }}>
             <div style={{ backgroundColor: 'white', width: '45%', height: 'fit-content', borderRadius: '0.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.5rem' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between' }}>
                 <p>
                   Recruiter Contact Info
                 </p>
-                <button style={{
-                  backgroundColor: 'white',
-                  color: '#1e3a8a',
-                  padding: '0.25rem 0.75rem',
-                  border: '1px solid #1e3a8a',
-                  cursor: 'pointer',
-                  borderRadius: '0.375rem',
-                }} >
+                <button className="tp-btn-secondary" style={{ padding: '0.55rem 0.9rem' }}>
                   Edit
                 </button>
               </span>
@@ -103,19 +97,12 @@ export function EmployerDashboard() {
                 <input value={recruiterRole} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
               </div>
             </div>
-            <div style={{ backgroundColor: 'white', width: '45%', height: 'fit-content', borderRadius: '0.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.5rem' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between' }}>
+            <div className="tp-card-soft" style={{ width: '45%', height: 'fit-content', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.75rem' }}>
+              <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <p>
                   Company Profile
                 </p>
-                <button style={{
-                  backgroundColor: 'white',
-                  color: '#1e3a8a',
-                  padding: '0.25rem 0.75rem',
-                  border: '1px solid #1e3a8a',
-                  cursor: 'pointer',
-                  borderRadius: '0.375rem',
-                }} >
+                <button className="tp-btn-secondary" style={{ padding: '0.55rem 0.9rem' }}>
                   Edit
                 </button>
               </span>
@@ -138,23 +125,16 @@ export function EmployerDashboard() {
                 </div>
               </div>
             </div>
-            <div style={{ backgroundColor: 'white', width: '45%', height: 'fit-content', borderRadius: '0.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.5rem' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between' }}>
+            <div className="tp-card-soft" style={{ width: '45%', height: 'fit-content', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.75rem' }}>
+              <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <p>
                   Company Overview
                 </p>
-                <button style={{
-                  backgroundColor: 'white',
-                  color: '#1e3a8a',
-                  padding: '0.25rem 0.75rem',
-                  border: '1px solid #1e3a8a',
-                  cursor: 'pointer',
-                  borderRadius: '0.375rem',
-                }} >
+                <button className="tp-btn-secondary" style={{ padding: '0.55rem 0.9rem' }}>
                   Edit
                 </button>
               </span>
-                <input value={companyOverview} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
+                <input value={companyOverview} style={{ border: '1px solid rgba(148,163,184,0.2)', borderRadius: '16px', padding: '0.75rem 0.9rem', width: '100%', background: '#f8fafc' }} />
             </div>
             <div style={{ backgroundColor: 'white', width: '45%', marginTop:10,  height: 'fit-content', borderRadius: '0.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.5rem' }}>
               <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between' }}>
@@ -241,16 +221,19 @@ export function EmployerDashboard() {
             </div>
           </div>
         ) : activeTab === 'accountSettings' ? (
-          <div>
+          <div className="tp-card-soft" style={{ marginTop: '1rem', padding: '1.5rem', borderRadius: '24px' }}>
+            <p style={{ margin: 0, color: 'var(--tp-muted)' }}>Account settings will land here next.</p>
 
           </div>
         ):
         (
-          <div>
+          <div className="tp-card-soft" style={{ marginTop: '1rem', padding: '1.5rem', borderRadius: '24px' }}>
+            <p style={{ margin: 0, color: 'var(--tp-muted)' }}>Privacy and security settings will land here next.</p>
             </div>
         )
        
       }
+      </div>
     </div>
   );
 }

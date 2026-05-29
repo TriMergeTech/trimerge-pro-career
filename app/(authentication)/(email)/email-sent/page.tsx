@@ -2,10 +2,11 @@
 
 import { useResendEmail } from '@/hooks/useResendEmail';
 import { useVerifyEmail } from '@/hooks/useVerifyEmail';
-import Image from 'next/image'
 import React, { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUser } from '@/contexts/userContext/userContext';
+import { AuthShell } from '../../../components/ui/AuthShell';
+import { ArrowRight, RotateCcw } from 'lucide-react';
 
 function Page() {
         const [code, setCode] = React.useState(['', '', '', '', '', '']);
@@ -128,122 +129,85 @@ function Page() {
         };
 
   return (  
-    <div style={{
-        minHeight: '90vh',
-        display: 'flex',
-        position: 'relative',
-        flexDirection: 'column',
-        backgroundColor: 'white',
-        padding: '2rem',
-        rowGap: '1rem',
-        alignItems: 'center',
-        justifyContent: 'center',
-    }}>
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'absolute',
-            top: '0%',
-            paddingTop: '7rem',
-            width: '80%',
-            height: '90%',
-            borderBottomLeftRadius: '0.5rem',
-            borderBottomRightRadius: '0.5rem',
-            border: '2px solid #f5a929',
-            borderTop: 'none',
-            alignItems: 'center',
-            justifyContent: 'start ',
-        }}>
-            <Image src="/logo.png" alt="Email Sent Illustration" width={120} height={80} />
-            <h1 style={{
-                fontSize: '1rem',
-                fontWeight: 'bold',
-                textAlign: 'center',
-                marginTop: '2rem',
-                width: '40%',
-                textAlignLast: 'center',
-            }}>
-                We’ve sent a verification code to your email. Check your inbox and enter the code to verify your account and complete your sign-up.
-            </h1>
-                        <span style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                width: '40%',
-                                marginTop: '3rem',
-                        }} onPaste={handlePaste}>
-                                {code.map((c, i) => (
-                                                        <input
-                                                            key={i}
-                                                            ref={((el: HTMLInputElement | null) => {
-                                                                (inputsRef.current as Array<HTMLInputElement | null>)[i] = el;
-                                                                return undefined;
-                                                            }) as React.LegacyRef<HTMLInputElement>}
-                                        inputMode="numeric"
-                                        pattern="\d*"
-                                        maxLength={1}
-                                        aria-label={`digit-${i + 1}`}
-                                        value={c}
-                                        onChange={(e) => handleChange(e, i)}
-                                        onKeyDown={(e) => handleKeyDown(e, i)}
-                                        style={{
-                                            width: '3rem',
-                                            height: '3rem',
-                                            textAlign: 'center',
-                                            fontSize: '1.25rem',
-                                            borderRadius: '0.5rem',
-                                            border: '1px solid #d1d5db',
-                                            boxShadow: 'inset 0 1px 0 rgba(0,0,0,0.03)',
-                                            outline: 'none',
-                                        }}
-                                    />
-                                ))}
-                        </span>
-         
-                        <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', rowGap: '0.5rem' }}>
-                            {verifyError && <div style={{ color: '#fda4af', marginBottom: '0.5rem' }}>{verifyError}</div>}
-                            {message && <div style={{ color: '#bbf7d0', marginBottom: '0.5rem' }}>{message}</div>}
-                            <button
-                                onClick={callVerify}
-                                disabled={verifying}
-                                style={{
-                                    backgroundColor: '#1e3a8a',
-                                    color: 'white',
-                                    padding: '0.75rem 1.5rem',
-                                    border: 'none',
-                                    borderRadius: '0.375rem',
-                                    cursor: verifying ? 'not-allowed' : 'pointer',
-                                    marginTop: '0',
-                                    justifySelf: 'center',
-                                }}
-                            >
-                                {verifying ? 'Verifying…' : 'Verify'}
-                            </button>
-                        </div>
-                        <h2>
-                                Didn’t receive the email?{' '}
-                                <button
-                                    onClick={async () => {
-                                        setMessage(null);
-                                        if (!emailFromQuery) {
-                                            setMessage('No email available to resend to.');
-                                            return;
-                                        }
-                                        const res = await resend({ email: emailFromQuery });
-                                        if (res) {
-                                            setMessage('Verification email resent. Check your inbox.');
-                                        }
-                                    }}
-                                    disabled={resendLoading}
-                                    style={{ background: 'none', border: 'none', padding: 0, color: '#1e40af', textDecoration: 'underline', cursor: resendLoading ? 'not-allowed' : 'pointer' }}
-                                >
-                                    {resendLoading ? 'Resending…' : 'Resend Code'}
-                                </button>
-                        </h2>
-                        {resendError && <div style={{ color: '#fecaca' }}>{resendError}</div>}
-        </div>
-        
+        <AuthShell
+            eyebrow="Verify your account"
+            title="Enter the six-digit code to continue."
+            subtitle={`We sent a verification code to ${emailFromQuery || 'your email address'}. Finish this step and we will route you into the correct onboarding path.`}
+            bullets={[
+                'Keep the code handy from the email you received.',
+                'Verification continues into the current candidate or employer onboarding flow.',
+                'If the code expires, you can request a new one without leaving the page.',
+            ]}
+            footer={(
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--tp-muted)' }}>Need a different account? You can log out and start over.</span>
+                    <Link href="/login" className="tp-footer-link" style={{ fontWeight: 800, color: 'var(--tp-primary)' }}>
+                        Back to login
+                    </Link>
+                </div>
+            )}
+        >
+            <div style={{ display: 'grid', gap: '1rem' }}>
+                <div>
+                    <div className="tp-kicker">Verification</div>
+                    <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Check your inbox and paste the code here.</h2>
+                    <p className="tp-lead" style={{ marginTop: '0.6rem' }}>The code should be six digits long and tied to {roleFromQuery || 'your account'}.</p>
+                </div>
 
-    </div>
+                <div onPaste={handlePaste} style={{ display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0, 1fr))', gap: '0.6rem' }}>
+                    {code.map((c, i) => (
+                        <input
+                            key={i}
+                            ref={(el: HTMLInputElement | null) => {
+                                inputsRef.current[i] = el
+                                return undefined
+                            }}
+                            inputMode='numeric'
+                            pattern='\d*'
+                            maxLength={1}
+                            aria-label={`digit-${i + 1}`}
+                            value={c}
+                            onChange={(e) => handleChange(e, i)}
+                            onKeyDown={(e) => handleKeyDown(e, i)}
+                            className="tp-card"
+                            style={{ width: '100%', aspectRatio: '1 / 1', textAlign: 'center', fontSize: '1.2rem', fontWeight: 800, borderRadius: '18px', border: '1px solid rgba(148,163,184,0.2)', outline: 'none' }}
+                        />
+                    ))}
+                </div>
+
+                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                    {verifyError && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{verifyError}</div>}
+                    {message && <div style={{ color: '#166534', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{message}</div>}
+                    {resendError && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{resendError}</div>}
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.85rem' }}>
+                    <button onClick={callVerify} disabled={verifying} className="tp-btn-primary" style={{ flex: '1 1 16rem', cursor: verifying ? 'not-allowed' : 'pointer' }}>
+                        {verifying ? 'Verifying…' : 'Verify account'}
+                        {!verifying && <ArrowRight size={16} />}
+                    </button>
+                    <button
+                        onClick={async () => {
+                            setMessage(null)
+                            if (!emailFromQuery) {
+                                setMessage('No email available to resend to.')
+                                return
+                            }
+                            const res = await resend({ email: emailFromQuery })
+                            if (res) {
+                                setMessage('Verification email resent. Check your inbox.')
+                            }
+                        }}
+                        disabled={resendLoading}
+                        className="tp-btn-secondary"
+                        style={{ flex: '1 1 14rem', cursor: resendLoading ? 'not-allowed' : 'pointer' }}
+                    >
+                        {resendLoading ? 'Resending…' : 'Resend code'}
+                        <RotateCcw size={16} />
+                    </button>
+                </div>
+            </div>
+        </AuthShell>
   )
 }
 

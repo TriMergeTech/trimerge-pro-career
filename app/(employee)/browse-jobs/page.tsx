@@ -214,7 +214,7 @@ function BrowseJobs() {
     const payload = {
       title,
       description,
-      department: departmentMap[departmentInput],
+      department: departmentInput.toUpperCase(),
       requirements,
       location: locationInput,
       employmentType,
@@ -224,6 +224,8 @@ function BrowseJobs() {
       skills: skillsArray,
       status: statusInput,
     }
+
+    console.log(payload)
 
     const res = await createJob(payload)
     if (res) {

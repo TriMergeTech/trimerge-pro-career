@@ -201,10 +201,20 @@ function BrowseJobs() {
   const handleCreateSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
   const skillsArray = skills.map(s => String(s).trim()).filter(Boolean)
+    const departmentMap: { [key: string]: string } = {
+        'Engineering': 'ENGINEERING',
+        'Marketing': 'MARKETING',
+        'HR': 'HR',
+        'Sales': 'SALES',
+        'Design': 'DESIGN',
+        'Operations': 'OPERATIONS',
+    }
+
+
     const payload = {
       title,
       description,
-      department: departmentInput,
+      department: departmentMap[departmentInput],
       requirements,
       location: locationInput,
       employmentType,

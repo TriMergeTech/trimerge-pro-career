@@ -10,8 +10,6 @@ export const handler = async (event: unknown) => {
     return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
   }
 
-  const token = ev.headers?.authorization?.replace?.('Bearer ', '') || '';
-
   const qs = ev.queryStringParameters ?? {};
 
   const allowedStatus = new Set(['OPEN', 'CLOSED', 'DRAFT']);
@@ -38,21 +36,26 @@ export const handler = async (event: unknown) => {
   const url = `${process.env.BASEURL}/api/v1/jobs${params.toString() ? `?${params.toString()}` : ''}`;
 
   try {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        'Content-Type': 'application/json',
-      },
-    });
+    const token = ev.headers?.authorization?.replace?.('Bearer ', '') || '';
 
-    const data = await response.json();
+    const fetchOpts: RequestInit = { method: 'GET', headers: {} };
+    if (token) (fetchOpts.headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
 
-    if (!response.ok) {
-      throw new Error(data?.message || data?.error || 'Failed to fetch jobs');
+    const response = await fetch(url, fetchOpts);
+
+    const rawBody = await response.text();
+    let data: unknown = rawBody;
+
+    try {
+      data = rawBody ? JSON.parse(rawBody) : {};
+    } catch {
+      // Keep raw text when the upstream response isn't JSON.
     }
 
-    return { statusCode: 200, body: JSON.stringify(data) };
+    return {
+      statusCode: response.status,
+      body: typeof data === 'string' ? JSON.stringify({ error: data }) : JSON.stringify(data),
+    };
   } catch (err: unknown) {
     console.log('getJobs error:', err);
     const message = err instanceof Error ? err.message : String(err);

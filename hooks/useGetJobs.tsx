@@ -27,12 +27,13 @@ export const useGetJobs = () => {
 
       const url = `/.netlify/functions/getJobs${qs.toString() ? `?${qs.toString()}` : ''}`
 
+      const token = typeof window !== 'undefined' ? localStorage.getItem('tm_token') : null;
+      const headers: Record<string, string> = {};
+      if (token) headers.Authorization = `Bearer ${token}`;
+
       const response = await fetch(url, {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('tm_token')}`,
-          'Content-Type': 'application/json',
-        },
+        headers,
       })
 
       const data = await response.json()

@@ -22,12 +22,18 @@ export const useCreateJob = () => {
     setLoading(true)
     setError(null)
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('tm_token') : null
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`
+      }
+
       const response = await fetch('/.netlify/functions/createJob', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('tm_token')}`,
-        },
+        headers,
         body: JSON.stringify(payload),
       })
 

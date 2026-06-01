@@ -15,7 +15,8 @@ function Page() {
     useEffect(() => {
         if (!success) return
         const timer = setTimeout(() => {
-            router.replace(`/link-sent?email=${encodeURIComponent(email)}`)
+            // redirect user straight to the reset form with email prefilled
+            router.replace(`/reset-password?email=${encodeURIComponent(email)}`)
         }, 400)
         return () => clearTimeout(timer)
     }, [email, router, success])

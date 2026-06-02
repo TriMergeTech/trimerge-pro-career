@@ -241,7 +241,7 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
             <Calendar className="w-5 h-5 text-[#FF5F1F]" />
             <div>
               <div style={{ fontSize: 12, color: '#6B7280' }}>Posted</div>
-              <div style={{ fontWeight: 600, color: '#0F172A' }}>{posted ? new Date(posted).toLocaleString() : 'Unknown'}</div>
+              <div style={{ fontWeight: 600, color: '#0F172A' }}>{posted ? new Date(posted).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }) : 'Unknown'}</div>
             </div>
           </div>
         </div>
@@ -376,25 +376,6 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
               {/* "new ai check" */}
             </>
           )}
-          {
-            state.user?.accountType === "EMPLOYER" && (
-              <Link 
-                href={`/candidate-overview?jobId=${job._id ?? job.id ?? ''}`}
-                style={{
-                  width: '100%',
-                  marginTop: 8,
-                  background: aiLoading ? '#F3F4F6' : '#0f172a',
-                  color: '#fff',
-                  padding: '12px 16px',
-                  borderRadius: 8,
-                  border: 'none',
-                  cursor: aiLoading ? 'wait' : 'pointer',
-                }}
-              >
-                View All Applicants
-              </Link>
-            )
-          }
             {applyError && <div style={{ color: '#fecaca', marginTop: 8 }}>{applyError}</div>}
             {successMessage && <div style={{ color: '#16A34A', marginTop: 8 }}>{successMessage}</div>}
           </div>

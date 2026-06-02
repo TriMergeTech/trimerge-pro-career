@@ -33,9 +33,9 @@ interface Applicant {
   coverLetter?: string;
 }
 
-export default function CandidateOverviewClient() {
+export default function CandidateOverviewClient({ jobId: jobIdOverride }: { jobId?: string } = {}) {
   const searchParams = useSearchParams();
-  const jobId = searchParams.get('jobId') ?? undefined;
+  const jobId = jobIdOverride ?? searchParams.get('jobId') ?? undefined;
 
   const appsParams = useMemo(() => ({ page: 1, limit: 50 }), []);
   const { data: appsResponse, loading: appsLoading, error: appsError } = useGetApplicationsForJob(jobId ?? undefined, appsParams);
@@ -396,7 +396,7 @@ export default function CandidateOverviewClient() {
                     <p style={{ margin: 0, fontSize: "12px", color: "#dc2626" }}>Evaluation failed</p>
                   )}
 
-                  <p style={{ margin: "4px 0 0 0", fontSize: "12px", color: "#64748b" }}>Applied {new Date(applicant.appliedDate).toLocaleDateString()}</p>
+                  <p style={{ margin: "4px 0 0 0", fontSize: "12px", color: "#64748b" }}>Applied {new Date(applicant.appliedDate).toLocaleDateString('en-US', { dateStyle: 'medium', timeZone: 'UTC' })}</p>
                 </button>
               );
             })}

@@ -33,13 +33,8 @@ export default function EmailSentClient() {
         setUser(result)
 
         if (result) {
-            if(roleFromQuery.toLocaleLowerCase() === 'candidate') {
-                router.replace('/personal-information/step-one');
-                return;
-            }else if(roleFromQuery.toLocaleLowerCase() === 'recruiter') {
-                router.replace('/recruiter-information/step-one');
-                return;
-            }
+            router.replace(`/email-verified?email=${encodeURIComponent(emailFromQuery)}&role=${encodeURIComponent(roleFromQuery || 'Candidate')}`);
+            return;
         }
     }
 

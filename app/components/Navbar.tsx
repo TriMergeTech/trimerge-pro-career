@@ -12,12 +12,15 @@ function Navbar() {
   const user = state.user
   const [open, setOpen] = React.useState(false)
   const displayName = user?.profile?.firstName ? `${user.profile.firstName}${user.profile.lastName ? ' ' + user.profile.lastName : ''}` : (user?.email ?? null)
+  const isEmployer = user?.accountType === 'EMPLOYER'
 
   const navLinks = [
     { href: '/browse-jobs', label: 'Browse Jobs' },
     { href: '/about', label: 'About Us' },
     { href: '/join-now', label: 'Join Now' },
   ]
+
+  const employerLink = { href: '/employer-dashboard', label: 'Employer Dashboard' }
 
   return (
     <nav
@@ -43,6 +46,11 @@ function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {isEmployer && (
+              <Link href={employerLink.href} className="tp-nav-link" style={{ fontWeight: 800, color: 'var(--tp-primary)' }}>
+                {employerLink.label}
+              </Link>
+            )}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -83,6 +91,11 @@ function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              {isEmployer && (
+                <Link href={employerLink.href} className="tp-nav-link" onClick={() => setOpen(false)}>
+                  {employerLink.label}
+                </Link>
+              )}
               {!user && (
                 <Link href="/login" className="tp-nav-link" onClick={() => setOpen(false)}>
                   Log In

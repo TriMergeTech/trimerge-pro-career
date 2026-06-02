@@ -24,6 +24,7 @@ export default function JoinNowClient() {
     const [role, setRole] = useState<'Candidate' | 'Recruiter'>(initialRole);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [localError, setLocalError] = useState<string | null>(null);
 
     useEffect(() => {
         const queryRole = searchParams?.get('role')?.toLowerCase();
@@ -37,10 +38,34 @@ export default function JoinNowClient() {
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setLocalError(null);
+
+        const trimmedName = username.trim();
+        const trimmedEmail = email.trim();
+
+        if (!trimmedName || !trimmedEmail || !password || !confirmPassword) {
+            setLocalError('Complete all required fields to continue.');
+            return;
+        }
+
+        if (!terms) {
+            setLocalError('You must accept the Terms and Conditions to continue.');
+            return;
+        }
+
+        if (password.length < 8) {
+            setLocalError('Use at least 8 characters for your password.');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setLocalError('Passwords do not match.');
+            return;
+        }
 
         const data = {
-            name: username,
-            email,
+            name: trimmedName,
+            email: trimmedEmail,
             password,
             confirmPassword,
             terms,
@@ -50,15 +75,18 @@ export default function JoinNowClient() {
 
         const result = await register(data);
         if (result) {
-            router.replace('/email-sent?email=' + encodeURIComponent(email) + '&role=' + encodeURIComponent(role));
+            router.replace('/email-sent?email=' + encodeURIComponent(trimmedEmail) + '&role=' + encodeURIComponent(role));
         }
     };
 
     useEffect(() => {
-        if (!error) return;
-        const t = setTimeout(() => setError(null), 3000);
+        if (!error && !localError) return;
+        const t = setTimeout(() => {
+            setError(null);
+            setLocalError(null);
+        }, 3500);
         return () => clearTimeout(t);
-    }, [error, setError]);
+    }, [error, localError, setError]);
 
     return (
         <AuthShell
@@ -84,6 +112,11 @@ export default function JoinNowClient() {
                     <div className="tp-kicker">Create account</div>
                     <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Start with your role and keep moving.</h2>
                     <p className="tp-lead" style={{ marginTop: '0.6rem' }}>We&apos;ll send you to the right verification and onboarding flow once your account is created.</p>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+                        <span className="tp-chip" style={{ background: 'rgba(29,78,216,0.08)', color: 'var(--tp-primary)' }}>Step 1: Account</span>
+                        <span className="tp-chip" style={{ background: 'rgba(255,95,31,0.08)', color: 'var(--tp-accent)' }}>Step 2: Verify email</span>
+                        <span className="tp-chip" style={{ background: 'rgba(15,23,42,0.05)', color: 'var(--tp-ink)' }}>Step 3: Onboarding</span>
+                    </div>
                 </div>
 
                 <div style={{ display: 'grid', gap: '1rem' }}>
@@ -138,6 +171,9 @@ export default function JoinNowClient() {
                                                 <div style={{ color: 'var(--tp-muted)', fontSize: '0.9rem', lineHeight: 1.5 }}>{item.text}</div>
                                             </div>
                                         </div>
+                                        <div style={{ marginTop: '0.65rem', fontSize: '0.85rem', fontWeight: 700, color: active ? 'var(--tp-primary)' : 'var(--tp-muted)' }}>
+                                            {active ? 'Selected' : 'Select this path'}
+                                        </div>
                                     </button>
                                 )
                             })}
@@ -155,7 +191,11 @@ export default function JoinNowClient() {
                     </label>
                 </div>
 
-                {error && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{error}</div>}
+                {(localError || error) && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', padding: '0.85rem 1rem', borderRadius: '16px', fontWeight: 700 }}>{localError || error}</div>}
+
+                <div style={{ fontSize: '0.92rem', color: 'var(--tp-muted)', lineHeight: 1.6 }}>
+                    Password must be at least 8 characters. We will send you to email verification after registration.
+                </div>
 
                 <button type='submit' disabled={loading} className="tp-btn-primary" style={{ width: '100%', cursor: loading ? 'not-allowed' : 'pointer' }}>
                     {loading ? 'Creating account…' : 'Create account'}

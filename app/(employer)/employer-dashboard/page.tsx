@@ -1,25 +1,56 @@
 "use client";
 
-import { useEffect, useState, useMemo } from 'react';
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { ArrowRight, BriefcaseBusiness, Building2, LayoutDashboard, Settings2, Sparkles, Users } from 'lucide-react';
 import { useUser } from '@/contexts/userContext/userContext';
 import useGetEmployer from '@/hooks/useGetEmployer';
-import { useRouter } from 'next/navigation';
+import { useGetJobs } from '@/hooks/useGetJobs';
+import CandidateOverviewClient from '../candidate-overview/CandidateOverviewClient';
+
+type Tab = 'overview' | 'jobs' | 'applications' | 'company';
+type JobRecord = {
+  id?: number | string;
+  _id?: string;
+  title?: string;
+  department?: string;
+  location?: string;
+  status?: string;
+  description?: string;
+  employerId?: string;
+};
+
+const tabMeta: Array<{ id: Tab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }> = [
+  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'jobs', label: 'Jobs', icon: BriefcaseBusiness },
+  { id: 'applications', label: 'Applications', icon: Users },
+  { id: 'company', label: 'Company', icon: Building2 },
+];
 
 export function EmployerDashboard() {
-  const [activeTab, setActiveTab] = useState<'accountInfo' | 'accountSettings' | 'privacySecurity'>('accountInfo');
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get('tab') as Tab | null) ?? 'overview';
+  const initialJobId = searchParams.get('jobId') ?? '';
+
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
+  const [selectedJobId, setSelectedJobId] = useState(initialJobId);
   const { state } = useUser();
-  const router = useRouter();
   const { data: userData } = useGetEmployer();
+  const { fetchJobs } = useGetJobs();
+  const [jobs, setJobs] = useState<JobRecord[]>([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
 
   const profile = (userData as Record<string, unknown> | null)?.['profile'] ?? {};
   const profileRecord = profile as Record<string, unknown>;
-  const companyName = String(profileRecord['companyName'] ?? '');
-  const companyWebsite = String(profileRecord['companyWebsite'] ?? '');
-  const industry = String(profileRecord['industry'] ?? '');
-  const companySize = String(profileRecord['companySize'] ?? '');
-  const recruiterRole = String(profileRecord['yourRole'] ?? profileRecord['role'] ?? '');
-  const companyOverview = String(profileRecord['companyOverview'] ?? '');
-  
+  const companyName = String(profileRecord['companyName'] ?? 'Your company');
+  const companyWebsite = String(profileRecord['companyWebsite'] ?? 'Add website');
+  const industry = String(profileRecord['industry'] ?? 'Industry');
+  const companySize = String(profileRecord['companySize'] ?? 'N/A');
+  const recruiterRole = String(profileRecord['yourRole'] ?? profileRecord['role'] ?? 'Recruiter');
+  const companyOverview = String(profileRecord['companyOverview'] ?? 'Add a short overview so candidates know what your team does.');
+  const benefits = String(profileRecord['benefitsAndOpportunities'] ?? 'Add benefits, perks, and what makes your company stand out.');
+
   const memoPrimaryHiringNeeds = useMemo(() => {
     const primaryHiringNeeds = profileRecord['primaryHiringNeeds'] ?? [];
     return Array.isArray(primaryHiringNeeds)
@@ -27,136 +58,300 @@ export function EmployerDashboard() {
       : primaryHiringNeeds ? [String(primaryHiringNeeds)] : [];
   }, [profileRecord]);
 
-  const opportunitiesAndBenefits = String(profileRecord['benefitsAndOpportunities'] ?? '');
-  const [localAdds, setLocalAdds] = useState<string[]>([]);
-  const [removedNeeds, setRemovedNeeds] = useState<string[]>([]);
-  const [newHiringNeed, setNewHiringNeed] = useState('');
+  useEffect(() => {
+    let mounted = true;
 
-  const displayedNeeds = useMemo(() => {
-    const result: string[] = [];
-    const seen = new Set<string>();
-    for (const p of memoPrimaryHiringNeeds) {
-      if (removedNeeds.includes(p)) continue;
-      if (!seen.has(p)) { seen.add(p); result.push(p); }
-    }
-    for (const p of localAdds) {
-      if (!seen.has(p)) { seen.add(p); result.push(p); }
-    }
-    return result;
-  }, [memoPrimaryHiringNeeds, localAdds, removedNeeds]);
+    const loadJobs = async () => {
+      const response = await fetchJobs({ page: 1, limit: 100 });
+      if (!mounted) return;
+
+      const payload = Array.isArray(response)
+        ? response
+        : Array.isArray((response as { data?: unknown[] } | null)?.data)
+          ? (response as { data: JobRecord[] }).data
+          : Array.isArray((response as { jobs?: unknown[] } | null)?.jobs)
+            ? (response as { jobs: JobRecord[] }).jobs
+            : Array.isArray((response as { items?: unknown[] } | null)?.items)
+              ? (response as { items: JobRecord[] }).items
+              : [];
+
+      setJobs(payload as JobRecord[]);
+      setLoadingJobs(false);
+    };
+
+    loadJobs();
+    return () => { mounted = false; };
+  }, [fetchJobs]);
+
+  const employerJobs = useMemo(() => {
+    const userId = String(state.user?.id ?? '');
+    return jobs.filter((job) => {
+      if (!userId) return true;
+      if (job.employerId && String(job.employerId) !== userId) return false;
+      return true;
+    });
+  }, [jobs, state.user?.id]);
 
   useEffect(() => {
-    console.log(userData);
-  }, [userData]);
+    if (!selectedJobId && employerJobs.length > 0) {
+      setSelectedJobId(String(employerJobs[0].id ?? employerJobs[0]._id ?? ''));
+    }
+  }, [employerJobs, selectedJobId]);
+
+  const selectedJob = useMemo(() => {
+    if (!selectedJobId) return employerJobs[0] ?? null;
+    return employerJobs.find((job) => String(job.id ?? job._id ?? '') === selectedJobId) ?? employerJobs[0] ?? null;
+  }, [employerJobs, selectedJobId]);
+
+  const metrics = useMemo(() => ({
+    totalJobs: employerJobs.length,
+    openJobs: employerJobs.filter((job) => String(job.status ?? '').toUpperCase() === 'OPEN').length,
+    draftJobs: employerJobs.filter((job) => String(job.status ?? '').toUpperCase() === 'DRAFT').length,
+  }), [employerJobs]);
 
   return (
-    <div className="flex-1 bg-[#F4F4F9] overflow-hidden h-[90vh]" style={{ display: 'flex', flexDirection: 'column', padding: '2rem' }}>
-      <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#0b1f3a', marginBottom: '1.5rem' }}>
-        My Profile
-      </h1>
-      
-      {/* Fixed Structure: Replaced span/div hierarchy with clean div */}
-      <div style={{ display: 'flex', columnGap: '1rem', marginBottom: '1rem' }}>
-        <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: activeTab === 'accountInfo' ? '#1E5DAA' : '#A0AEC0', cursor: 'pointer', textDecoration: activeTab === 'accountInfo' ? 'underline' : 'none', textUnderlineOffset: '10px' }} onClick={() => setActiveTab('accountInfo')}>Account Info</p>
-        <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: activeTab === 'accountSettings' ? '#1E5DAA' : '#A0AEC0', cursor: 'pointer', textDecoration: activeTab === 'accountSettings' ? 'underline' : 'none', textUnderlineOffset: '10px' }} onClick={() => setActiveTab('accountSettings')}>Account Settings</p>
-        <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: activeTab === 'privacySecurity' ? '#1E5DAA' : '#A0AEC0', cursor: 'pointer', textDecoration: activeTab === 'privacySecurity' ? 'underline' : 'none', textUnderlineOffset: '10px' }} onClick={() => setActiveTab('privacySecurity')}>Privacy and Security</p>
-      </div>
-
-      {activeTab === 'accountInfo' ? (
-        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '1rem', flexWrap: 'wrap', display: 'flex', columnGap: '1rem', paddingTop: '1rem' }}>
-          <div style={{ backgroundColor: 'white', width: '45%', height: 'fit-content', borderRadius: '0.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.5rem' }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between' }}>
-              <p>Recruiter Contact Info</p>
-              <button className="tp-btn-secondary" style={{ padding: '0.55rem 0.9rem' }}>Edit</button>
-            </span>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>Full Name</label>
-              <input value={`${state.user?.profile?.firstName ?? ''} ${state.user?.profile?.lastName ?? ''}`} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
+    <div style={{ minHeight: '90vh', background: 'linear-gradient(180deg, #f7faff 0%, #eef4fb 48%, #eaf1f9 100%)' }}>
+      <div className="tp-container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+        <div className="tp-card-soft tp-fade-up" style={{ marginBottom: '1rem', padding: '1.5rem', background: 'linear-gradient(135deg, #07172e 0%, #1d4ed8 100%)', color: 'white', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', inset: 'auto -5rem -5rem auto', width: '16rem', height: '16rem', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', filter: 'blur(32px)' }} />
+          <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ maxWidth: '42rem' }}>
+              <div className="tp-chip" style={{ background: 'rgba(255,255,255,0.12)', color: 'white', borderColor: 'rgba(255,255,255,0.14)' }}>
+                Employer dashboard
+              </div>
+              <h1 style={{ margin: '0.85rem 0 0.45rem', fontSize: 'clamp(2rem, 4vw, 3.1rem)', letterSpacing: '-0.05em' }}>
+                Manage jobs, applications, and company identity in one place.
+              </h1>
+              <p style={{ margin: 0, maxWidth: '44rem', color: 'rgba(255,255,255,0.84)', lineHeight: 1.75 }}>
+                This is the unified employer surface: profile settings, live postings, and applicant review stay in the same workflow so you do not bounce between disconnected screens.
+              </p>
             </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>Email</label>
-              <input value={state.user?.email ?? ''} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>Role/Title</label>
-              <input value={recruiterRole} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
-            </div>
-          </div>
-          <div className="tp-card-soft" style={{ width: '45%', height: 'fit-content', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.75rem' }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p>Company Profile</p>
-              <button className="tp-btn-secondary" style={{ padding: '0.55rem 0.9rem' }}>Edit</button>
-            </span>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>Company Name</label>
-              <input value={companyName} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>Company Website</label>
-              <input value={companyWebsite} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>Company Industry</label>
-              <input value={industry} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#4A5568', marginBottom: '0.25rem' }}>Company Size</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input value={`${companySize} People`} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
+            <div style={{ display: 'grid', gap: '0.65rem', minWidth: '16rem' }}>
+              <div style={{ padding: '0.95rem 1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                <div style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.68)' }}>Active jobs</div>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{metrics.openJobs}</div>
+              </div>
+              <div style={{ padding: '0.95rem 1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                <div style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.68)' }}>Total postings</div>
+                <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{metrics.totalJobs}</div>
               </div>
             </div>
           </div>
-          <div className="tp-card-soft" style={{ width: '45%', height: 'fit-content', borderRadius: '24px', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.75rem' }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p>Company Overview</p>
-              <button className="tp-btn-secondary" style={{ padding: '0.55rem 0.9rem' }}>Edit</button>
-            </span>
-            <input value={companyOverview} style={{ border: '1px solid rgba(148,163,184,0.2)', borderRadius: '16px', padding: '0.75rem 0.9rem', width: '100%', background: '#f8fafc' }} />
-          </div>
-          <div style={{ backgroundColor: 'white', width: '45%', marginTop: 10, height: 'fit-content', borderRadius: '0.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.5rem' }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between' }}>
-              <p>Primary Hiring Needs</p>
-              <button style={{ backgroundColor: 'white', color: '#1e3a8a', padding: '0.25rem 0.75rem', border: '1px solid #1e3a8a', cursor: 'pointer', borderRadius: '0.375rem' }}>Edit</button>
-            </span>
-            <div style={{ display: 'flex', gap: 8, width: '100%', flexWrap: 'wrap' }}>
-              {displayedNeeds.map((need: string, index: number) => (
-                <div key={need + '-' + index} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ border: '1px solid #E2E8F0', borderRadius: '0.775rem', backgroundColor:'#ddeeff', color:'#2b5881', padding: '0.25rem 2rem 0.25rem 0.5rem', width: 'fit-content', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span>{need}</span>
-                    <button type="button" onClick={() => { if (memoPrimaryHiringNeeds.includes(need)) { setRemovedNeeds(prev => prev.includes(need) ? prev : [need, ...prev]); } else { setLocalAdds(prev => prev.filter(x => x !== need)); } }} style={{ background: 'transparent', border: 'none', color: '#ff5f1f', cursor: 'pointer', fontSize: 14, paddingLeft: 8 }}>×</button>
+        </div>
+
+        <div className="tp-card" style={{ padding: '0.65rem', marginBottom: '1.25rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', background: 'rgba(255,255,255,0.86)' }}>
+          {tabMeta.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.55rem',
+                  padding: '0.8rem 1rem',
+                  borderRadius: '14px',
+                  border: '1px solid transparent',
+                  background: isActive ? 'linear-gradient(135deg, #07172e 0%, #1d4ed8 100%)' : 'transparent',
+                  color: isActive ? 'white' : '#475569',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                <Icon size={16} />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {activeTab === 'overview' && (
+          <div style={{ display: 'grid', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))', gap: '1rem' }}>
+              {[
+                { label: 'Open jobs', value: metrics.openJobs, tone: '#1d4ed8' },
+                { label: 'Draft jobs', value: metrics.draftJobs, tone: '#FF5F1F' },
+                { label: 'Company profile fields', value: 6, tone: '#0f172a' },
+              ].map((item) => (
+                <div key={item.label} className="tp-card-soft" style={{ padding: '1.25rem' }}>
+                  <div style={{ fontSize: '0.82rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--tp-muted)', marginBottom: '0.45rem' }}>
+                    {item.label}
                   </div>
+                  <div style={{ fontSize: '2.2rem', lineHeight: 1, fontWeight: 800, color: item.tone }}>{item.value}</div>
                 </div>
               ))}
             </div>
-            <div style={{ width: '100%', display:'flex', justifyContent:'space-between', marginTop: '1rem' }}>
-              <input placeholder="Add a hiring need" value={newHiringNeed} onChange={e => setNewHiringNeed(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); const v = newHiringNeed.trim(); if (v) { setLocalAdds(prev => [v, ...prev]); setNewHiringNeed(''); } } }} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '80%' }} />
-              <button type="button" onClick={() => { const v = newHiringNeed.trim(); if (!v) return; setLocalAdds(prev => [v, ...prev]); setNewHiringNeed(''); }} style={{ backgroundColor: '#1d5ae8', color: 'white', padding: '0.25rem 0.75rem', border: '1px solid #1e3a8a', cursor: 'pointer', borderRadius: '0.375rem' }}>Add</button>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))', gap: '1rem' }}>
+              <div className="tp-card-soft" style={{ padding: '1.25rem' }}>
+                <div className="tp-kicker">Quick actions</div>
+                <h2 style={{ margin: '0.35rem 0 0', fontSize: '1.5rem', letterSpacing: '-0.04em' }}>Keep the employer workflow together.</h2>
+                <div style={{ display: 'grid', gap: '0.8rem', marginTop: '1rem' }}>
+                  <Link href="/browse-jobs" className="tp-btn-secondary">
+                    Review public listings
+                  </Link>
+                  <button type="button" onClick={() => setActiveTab('applications')} className="tp-btn-primary">
+                    Review applications
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="tp-card-soft" style={{ padding: '1.25rem' }}>
+                <div className="tp-kicker">Identity</div>
+                <h2 style={{ margin: '0.35rem 0 0', fontSize: '1.5rem', letterSpacing: '-0.04em' }}>{companyName}</h2>
+                <p className="tp-lead" style={{ marginTop: '0.7rem' }}>{companyOverview}</p>
+              </div>
             </div>
           </div>
-          <div style={{ backgroundColor: 'white', width: '45%', height: 'fit-content', marginTop: 20, borderRadius: '0.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.5rem' }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between' }}>
-              <p>Opportunities and Benefits</p>
-              <button style={{ backgroundColor: 'white', color: '#1e3a8a', padding: '0.25rem 0.75rem', border: '1px solid #1e3a8a', cursor: 'pointer', borderRadius: '0.375rem' }}>Edit</button>
-            </span>
-            <input value={opportunitiesAndBenefits} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
+        )}
+
+        {activeTab === 'jobs' && (
+          <div className="tp-card-soft" style={{ padding: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem' }}>
+              <div>
+                <div className="tp-kicker">Your jobs</div>
+                <h2 style={{ margin: '0.35rem 0 0', fontSize: '1.8rem', letterSpacing: '-0.04em' }}>Posted jobs and their application entry point.</h2>
+              </div>
+              <Link href="/browse-jobs" className="tp-btn-primary">
+                Create or review jobs
+              </Link>
+            </div>
+
+            {loadingJobs ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--tp-muted)' }}>Loading jobs...</div>
+            ) : employerJobs.length === 0 ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--tp-muted)' }}>No employer jobs found yet.</div>
+            ) : (
+              <div style={{ display: 'grid', gap: '0.85rem' }}>
+                {employerJobs.map((job, index) => {
+                  const jobId = String(job.id ?? job._id ?? `${index}`);
+                  return (
+                    <div key={jobId} className="tp-card" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--tp-ink)' }}>{job.title ?? 'Untitled job'}</div>
+                        <div style={{ color: 'var(--tp-muted)', marginTop: '0.35rem' }}>{job.department ?? 'General'} · {job.location ?? 'Remote'}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedJobId(jobId);
+                          setActiveTab('applications');
+                        }}
+                        className="tp-btn-secondary"
+                      >
+                        View applications
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-          <div style={{ backgroundColor: 'white', width: '45%', marginTop: 20, height: 'fit-content', borderRadius: '0.5rem', padding: '2rem', display: 'flex', flexDirection: 'column', rowGap: '0.5rem' }}>
-            <span style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0b1f3a', width: '100%', display:'flex', justifyContent: 'space-between' }}>
-              <p>Company Links</p>
-              <button style={{ backgroundColor: 'white', color: '#1e3a8a', padding: '0.25rem 0.75rem', border: '1px solid #1e3a8a', cursor: 'pointer', borderRadius: '0.375rem' }}>Edit</button>
-            </span>
-            <input value={opportunitiesAndBenefits} style={{ border: '1px solid #E2E8F0', borderRadius: '0.375rem', padding: '0.25rem 0.5rem', width: '100%' }} />
+        )}
+
+        {activeTab === 'applications' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(18rem, 24rem) 1fr', gap: '1rem', alignItems: 'start' }}>
+            <div className="tp-card-soft" style={{ padding: '1.25rem', position: 'sticky', top: '1rem' }}>
+              <div className="tp-kicker">Pick a job</div>
+              <h2 style={{ margin: '0.35rem 0 0', fontSize: '1.5rem', letterSpacing: '-0.04em' }}>Choose the posting you want to review.</h2>
+              <div style={{ display: 'grid', gap: '0.75rem', marginTop: '1rem' }}>
+                {employerJobs.length === 0 ? (
+                  <div style={{ color: 'var(--tp-muted)' }}>No jobs available yet.</div>
+                ) : employerJobs.map((job, index) => {
+                  const jobId = String(job.id ?? job._id ?? `${index}`);
+                  const isActive = selectedJobId ? selectedJobId === jobId : index === 0;
+                  return (
+                    <button
+                      key={jobId}
+                      type="button"
+                      onClick={() => setSelectedJobId(jobId)}
+                      style={{
+                        textAlign: 'left',
+                        padding: '0.95rem 1rem',
+                        borderRadius: '16px',
+                        border: isActive ? '1px solid rgba(29,78,216,0.25)' : '1px solid rgba(148,163,184,0.16)',
+                        background: isActive ? 'linear-gradient(135deg, rgba(29,78,216,0.08), rgba(255,255,255,0.95))' : 'white',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ fontWeight: 800, color: '#0f172a' }}>{job.title ?? 'Untitled job'}</div>
+                      <div style={{ marginTop: '0.35rem', color: 'var(--tp-muted)', fontSize: '0.92rem' }}>{job.department ?? 'General'} · {job.location ?? 'Remote'}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              {selectedJob ? (
+                <CandidateOverviewClient jobId={String(selectedJob.id ?? selectedJob._id ?? '')} />
+              ) : (
+                <div className="tp-card-soft" style={{ padding: '2rem' }}>
+                  <div className="tp-kicker">Applications</div>
+                  <h2 style={{ margin: '0.35rem 0 0', fontSize: '1.8rem', letterSpacing: '-0.04em' }}>No posting selected yet.</h2>
+                  <p className="tp-lead" style={{ marginTop: '0.75rem' }}>Select a job on the left to load the applicant dashboard inline.</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      ) : activeTab === 'accountSettings' ? (
-        <div className="tp-card-soft" style={{ marginTop: '1rem', padding: '1.5rem', borderRadius: '24px' }}>
-          <p style={{ margin: 0, color: 'var(--tp-muted)' }}>Account settings will land here next.</p>
-        </div>
-      ) : (
-        <div className="tp-card-soft" style={{ marginTop: '1rem', padding: '1.5rem', borderRadius: '24px' }}>
-          <p style={{ margin: 0, color: 'var(--tp-muted)' }}>Privacy and security settings will land here next.</p>
-        </div>
-      )}
+        )}
+
+        {activeTab === 'company' && (
+          <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))' }}>
+            <div className="tp-card-soft" style={{ padding: '1.25rem' }}>
+              <div className="tp-kicker">Profile</div>
+              <h2 style={{ margin: '0.35rem 0 0', fontSize: '1.55rem', letterSpacing: '-0.04em' }}>{companyName}</h2>
+              <div style={{ display: 'grid', gap: '0.8rem', marginTop: '1rem' }}>
+                {[
+                  { label: 'Full name', value: `${state.user?.profile?.firstName ?? ''} ${state.user?.profile?.lastName ?? ''}`.trim() || 'Unknown' },
+                  { label: 'Email', value: state.user?.email ?? 'Unknown' },
+                  { label: 'Role/title', value: recruiterRole },
+                ].map((item) => (
+                  <div key={item.label} style={{ display: 'grid', gap: '0.35rem' }}>
+                    <span style={{ color: 'var(--tp-muted)', fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.12em' }}>{item.label}</span>
+                    <div style={{ padding: '0.85rem 0.95rem', borderRadius: '14px', background: '#f8fafc', border: '1px solid rgba(148,163,184,0.15)' }}>{item.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="tp-card-soft" style={{ padding: '1.25rem' }}>
+              <div className="tp-kicker">Company details</div>
+              <div style={{ display: 'grid', gap: '0.8rem', marginTop: '1rem' }}>
+                {[
+                  { label: 'Website', value: companyWebsite },
+                  { label: 'Industry', value: industry },
+                  { label: 'Size', value: `${companySize} people` },
+                ].map((item) => (
+                  <div key={item.label} style={{ display: 'grid', gap: '0.35rem' }}>
+                    <span style={{ color: 'var(--tp-muted)', fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.12em' }}>{item.label}</span>
+                    <div style={{ padding: '0.85rem 0.95rem', borderRadius: '14px', background: '#f8fafc', border: '1px solid rgba(148,163,184,0.15)' }}>{item.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="tp-card-soft" style={{ padding: '1.25rem' }}>
+              <div className="tp-kicker">Hiring focus</div>
+              <p className="tp-lead" style={{ marginTop: '0.75rem' }}>{companyOverview}</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem' }}>
+                {memoPrimaryHiringNeeds.length > 0 ? memoPrimaryHiringNeeds.map((need) => (
+                  <span key={need} className="tp-chip" style={{ background: '#dbeafe' }}>{need}</span>
+                )) : (
+                  <span className="tp-chip" style={{ background: '#f8fafc' }}>No hiring needs added yet</span>
+                )}
+              </div>
+              <div style={{ marginTop: '1rem', padding: '1rem', borderRadius: '16px', background: 'rgba(29,78,216,0.06)' }}>
+                {benefits}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

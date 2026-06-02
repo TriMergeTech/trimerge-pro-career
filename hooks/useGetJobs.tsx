@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { useRefreshToken } from './useAuth'
 
 type GetJobsParams = {
   page?: number 
@@ -12,11 +13,13 @@ type GetJobsParams = {
 export const useGetJobs = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { refresh } = useRefreshToken()
 
-  const fetchJobs = async (params: GetJobsParams = {}) => {
+  const fetchJobs = useCallback(async (params: GetJobsParams = {}) => {
     setLoading(true)
     setError(null)
-    try {
+
+    const runRequest = async () => {
       const qs = new URLSearchParams()
       if (params.page !== undefined) qs.append('page', String(params.page))
       if (params.limit !== undefined) qs.append('limit', String(params.limit))
@@ -26,18 +29,44 @@ export const useGetJobs = () => {
       if (params.search) qs.append('search', params.search)
 
       const url = `/.netlify/functions/getJobs${qs.toString() ? `?${qs.toString()}` : ''}`
+      const token = typeof window !== 'undefined' ? localStorage.getItem('tm_token') : null
+      const headers: Record<string, string> = {}
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`
+      }
 
       const response = await fetch(url, {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('tm_token')}`,
-          'Content-Type': 'application/json',
-        },
+        headers,
       })
 
-      const data = await response.json()
+      const raw = await response.text()
+      let data: unknown = raw
+
+      try {
+        data = raw ? JSON.parse(raw) : {}
+      } catch {
+        // keep raw text if backend returns plain text
+      }
+
+      return { response, data }
+    }
+
+    try {
+      let { response, data } = await runRequest()
+
+      if (response.status === 401) {
+        const refreshed = await refresh()
+        if (refreshed) {
+          const retry = await runRequest()
+          response = retry.response
+          data = retry.data
+        }
+      }
+
       if (!response.ok) {
-        const message = data?.error || data?.message || 'Failed to fetch jobs'
+        const message = (data as Record<string, unknown>)?.error || (data as Record<string, unknown>)?.message || 'Failed to fetch jobs'
         setError(message)
         return null
       }
@@ -50,7 +79,7 @@ export const useGetJobs = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [refresh])
 
   return { fetchJobs, loading, error, setError } as const
 }

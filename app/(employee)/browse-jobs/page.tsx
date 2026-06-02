@@ -373,9 +373,16 @@ function BrowseJobs() {
             ) : (
               displayedJobs.map((job, index) => (
                 // Map the API job object to the JobCard props. JobCard expects a few fields; ensure defaults.
+                (() => {
+                  const jobKey = String(job.id ?? job._id ?? `${job.title ?? 'job'}-${index}`)
+                  const jobId = typeof job.id === 'number'
+                    ? job.id
+                    : Number(job.id ?? job._id ?? index + 1) || index + 1
+
+                  return (
                 <JobCard
-                  key={String(job.id)}
-                  id={Number(job.id) || 0}
+                  key={jobKey}
+                  id={jobId}
                   title={job.title}
                   department={job.department ?? 'General'}
                   location={job.location ?? 'Remote'}
@@ -386,6 +393,8 @@ function BrowseJobs() {
                   matchScore={index === 0 && candidateSkills.length > 0 ? (job.matchScore ?? 0) : undefined}
                   isTopMatch={index === 0 && candidateSkills.length > 0}
                 />
+                  )
+                })()
               ))
             )}
           </div>
@@ -419,14 +428,6 @@ function BrowseJobs() {
         )}
         </div>
       </div>
-      {state.user?.accountType === "EMPLOYER" && (
-        <div style={{ position: 'fixed', right: 32, bottom: 32 }}>
-          <button onClick={() => setShowCreateModal(true)} className="tp-btn-primary" style={{ boxShadow: '0 18px 35px -20px rgba(255,95,31,0.95)' }}>
-            Create Job Posting
-          </button>
-        </div>
-      )}
-
       {showCreateModal && (
         <div style={{ position: 'fixed', top: '80px', inset: 0, background: 'rgba(2,6,23,0.55)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(148,163,184,0.2)', padding: '1rem' }}>
           <div className="tp-card-soft" style={{ width: 760, background: 'white', borderRadius: 24, padding: 32, maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 30px 80px -30px rgba(15,23,42,0.45)' }}>
@@ -553,6 +554,14 @@ function BrowseJobs() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {state.user?.accountType === "EMPLOYER" && (
+        <div style={{ position: 'fixed', right: 32, bottom: 32 }}>
+          <button onClick={() => setShowCreateModal(true)} className="tp-btn-primary" style={{ boxShadow: '0 18px 35px -20px rgba(255,95,31,0.95)' }}>
+            Create Job Posting
+          </button>
         </div>
       )}
     </div>

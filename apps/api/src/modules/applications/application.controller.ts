@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { AppError } from '../../utils/app-error';
 import { applicationService } from './application.service';
 
 export const createApplication = async (req: Request, res: Response, next: NextFunction) => {
@@ -20,6 +21,37 @@ export const getMyApplications = async (req: Request, res: Response, next: NextF
     const page = Number(req.query.page ?? 1);
     const limit = Number(req.query.limit ?? 10);
     const result = await applicationService.getMyApplications(req.user!.userId, page, limit);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getApplicationsForJobByQuery = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const jobId = String(req.query.jobId ?? '').trim();
+
+    if (!jobId) {
+      throw new AppError('jobId query parameter is required', 400);
+    }
+
+    const page = Number(req.query.page ?? 1);
+    const limit = Number(req.query.limit ?? 10);
+
+    const result = await applicationService.getApplicationsForJob(req.user!.userId, jobId, {
+      page,
+      limit,
+      sortBy: String(req.query.sortBy ?? 'newest'),
+      recommendation: req.query.recommendation ? String(req.query.recommendation) : undefined,
+      confidenceLevel: req.query.confidenceLevel ? String(req.query.confidenceLevel) : undefined,
+      aiMatchStatus: req.query.aiMatchStatus ? String(req.query.aiMatchStatus) : undefined,
+      staleOnly: String(req.query.staleOnly ?? 'false') === 'true',
+    });
+
     res.status(200).json(result);
   } catch (error) {
     next(error);

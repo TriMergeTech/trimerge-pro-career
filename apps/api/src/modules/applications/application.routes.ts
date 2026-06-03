@@ -12,6 +12,7 @@ import {
 import {
   createApplication,
   getMyApplications,
+  getApplicationsForJobByQuery,
   getApplicationsForJob,
   updateApplicationStatus,
   retryApplicationAiMatch,
@@ -140,6 +141,85 @@ router.get(
   requireAuth,
   requireRole('TALENT'),
   getMyApplications
+);
+
+/**
+ * @swagger
+ * /api/v1/applications/job/{jobId}:
+ *   get:
+ *     summary: Get applications for a specific job
+ *     description: Returns applications for a job, including candidate profile data, AI match score, confidence score, evidence, and freshness status.
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: jobId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Job ID
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number.
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of applications per page.
+ *       - in: query
+ *         name: sortBy
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [newest, oldest, aiScore, aiScoreLow]
+ *           default: newest
+ *         description: Sort applications by newest, oldest, highest AI score, or lowest AI score.
+ *       - in: query
+ *         name: recommendation
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [STRONG_MATCH, GOOD_MATCH, PARTIAL_MATCH, LOW_MATCH]
+ *         description: Filter applications by AI recommendation.
+ *       - in: query
+ *         name: confidenceLevel
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [HIGH, MEDIUM, LOW]
+ *         description: Filter applications by AI confidence level.
+ *       - in: query
+ *         name: aiMatchStatus
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [NOT_STARTED, PENDING, COMPLETED, FAILED, SKIPPED]
+ *         description: Filter applications by AI match status.
+ *       - in: query
+ *         name: staleOnly
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: If true, only returns applications whose AI evaluation is outdated.
+ *     responses:
+ *       200:
+ *         description: Applications for job returned successfully
+ *       404:
+ *         description: Job not found
+ */
+router.get(
+  '/',
+  requireAuth,
+  requireRole('EMPLOYER'),
+  getApplicationsForJobByQuery
 );
 
 /**

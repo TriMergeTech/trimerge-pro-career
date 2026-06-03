@@ -130,8 +130,37 @@ export const authService = {
     if (input.type === 'VERIFY_EMAIL') {
       user.isVerified = true;
       user.status = 'ACTIVE';
+      user.lastLoginAt = new Date();
       await user.save();
-      return { message: 'Email verified successfully.' };
+
+      const tokens = generateTokens({
+        userId: user._id.toString(),
+        email: user.email,
+        accountType: user.accountType,
+      });
+
+      const refreshTokenHash = crypto.createHash('sha256').update(tokens.refreshToken).digest('hex');
+      const expiresAt = getRefreshTokenExpiryDate();
+
+      await RefreshTokenModel.create({
+        userId: user._id,
+        tokenHash: refreshTokenHash,
+        expiresAt,
+      });
+
+      return {
+        message: 'Email verified successfully.',
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        user: {
+          id: user._id,
+          email: user.email,
+          accountType: user.accountType,
+          isVerified: user.isVerified,
+          status: user.status,
+          profile: user.profile,
+        },
+      };
     }
 
     return { message: 'OTP verified successfully.' };
@@ -310,6 +339,7 @@ export const authService = {
     return {
       message: 'Token refreshed successfully.',
       accessToken,
+      refreshToken: input.refreshToken,
     };
   },
 

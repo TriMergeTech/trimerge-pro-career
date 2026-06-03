@@ -10,6 +10,7 @@ import bookmarkRouter from '../modules/bookmarks/bookmark.routes';
 import adminRouter from '../modules/admin/admin.routes';
 import dashboardRouter from '../modules/dashboard/dashboard.routes';
 import settingsRouter from '../modules/settings/settings.routes';
+import publicJobsRouter from '../modules/jobs/public-jobs.routes';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/api/v1/bookmarks', bookmarkRouter);
 router.use('/api/v1/admin', adminRouter);
 router.use('/api/v1/dashboard', dashboardRouter);
 router.use('/api/v1/settings', settingsRouter);
+router.use('/api/v1/public/jobs', publicJobsRouter);
 
 export default router;

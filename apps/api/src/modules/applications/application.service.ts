@@ -15,6 +15,7 @@ import { aiMatchService } from '../ai-matching/ai-match.service';
 import { CandidateProfileModel } from '../candidates/candidate.model';
 import { AiMatchEvaluationModel } from '../ai-matching/ai-match.model';
 import { extractResumeText } from '../resumes/resume-parser.service';
+import { formatApplication, formatJob } from '../../utils/response-formatters';
 
 type CloudinaryUploadResult = {
   secure_url: string;
@@ -260,7 +261,15 @@ export const applicationService = {
       console.error('Failed to send new application notification email:', error);
     }
 
-    return { application, aiEvaluation };
+    return {
+      application: {
+        ...formatApplication(application),
+        jobId: input.jobId,
+        employerId: job.employerId.toString(),
+        job: formatJob(job),
+      },
+      aiEvaluation,
+    };
   },
 
   async getMyApplications(candidateId: string, page = 1, limit = 10) {
@@ -268,14 +277,26 @@ export const applicationService = {
 
     const [applications, total] = await Promise.all([
       ApplicationModel.find({ candidateId })
+        .populate('jobId', 'title description requirements location employmentType department status skills employerId createdAt updatedAt')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
       ApplicationModel.countDocuments({ candidateId }),
     ]);
 
+    const formattedApplications = applications.map((application: any) => {
+      const formattedApplication = formatApplication(application);
+      const job = formatJob(application.jobId);
+
+      return {
+        ...formattedApplication,
+        job,
+        employerId: job?.employerId ?? formattedApplication?.employerId,
+      };
+    });
+
     return {
-      applications,
+      applications: formattedApplications,
       pagination: {
         page,
         limit,
@@ -381,7 +402,8 @@ export const applicationService = {
         : null;
 
       return {
-        ...application,
+        ...formatApplication(application),
+        employerId: job.employerId.toString(),
 
         candidate: {
           user: candidate,
@@ -463,8 +485,18 @@ export const applicationService = {
 
     const paginatedApplications = enrichedApplications.slice(skip, skip + limit);
 
+    const formattedJob = formatJob(job);
+
     return {
+      job: formattedJob,
       applications: paginatedApplications,
+      emptyState:
+        paginatedApplications.length === 0
+          ? {
+              title: 'No applicants yet',
+              message: 'Applications for this job will appear here once candidates start applying.',
+            }
+          : undefined,
       filters: {
         sortBy,
         recommendation: options.recommendation,
@@ -515,7 +547,7 @@ export const applicationService = {
 
     return {
       message: 'AI match evaluation completed successfully.',
-      application: updatedApplication,
+      application: formatApplication(updatedApplication),
       aiEvaluation,
     };
   },

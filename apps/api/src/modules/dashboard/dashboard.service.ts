@@ -5,6 +5,7 @@ import { JobModel } from '../jobs/job.model';
 import { BookmarkModel } from '../bookmarks/bookmark.model';
 import { CandidateProfileModel } from '../candidates/candidate.model';
 import { EmployerApplicantsQueryInput } from './dashboard.schemas';
+import { formatApplication, formatJob } from '../../utils/response-formatters';
 
 function normalizeText(value?: string): string {
   return (value || '').trim().toLowerCase();
@@ -119,7 +120,10 @@ export const dashboardService = {
         hiredApplications,
         totalBookmarks,
       },
-      recentApplications,
+      recentApplications: recentApplications.map((application: any) => ({
+        ...formatApplication(application),
+        job: formatJob(application.jobId),
+      })),
     };
   },
 
@@ -179,7 +183,10 @@ export const dashboardService = {
         rejectedApplications,
         hiredApplications,
       },
-      recentApplications,
+      recentApplications: recentApplications.map((application: any) => ({
+        ...formatApplication(application),
+        job: formatJob(application.jobId),
+      })),
     };
   },
 
@@ -212,7 +219,10 @@ export const dashboardService = {
       .limit(10);
 
     return {
-      recentApplications,
+      recentApplications: recentApplications.map((application: any) => ({
+        ...formatApplication(application),
+        job: formatJob(application.jobId),
+      })),
     };
   },
 
@@ -272,12 +282,12 @@ export const dashboardService = {
     ]);
 
     const applicants = applications.map((application: any) => ({
-      applicationId: application._id,
+      applicationId: application._id.toString(),
       status: application.status,
       coverLetter: application.coverLetter,
       createdAt: application.createdAt,
       updatedAt: application.updatedAt,
-      job: application.jobId,
+      job: formatJob(application.jobId),
       candidate: application.candidateId,
     }));
 
@@ -359,14 +369,7 @@ export const dashboardService = {
       .sort((a: any, b: any) => b.matchScore - a.matchScore);
 
     return {
-      job: {
-        id: job._id,
-        title: job.title,
-        location: job.location,
-        employmentType: job.employmentType,
-        status: job.status,
-        skills: job.skills,
-      },
+      job: formatJob(job),
       totalMatches: matches.length,
       matches,
     };

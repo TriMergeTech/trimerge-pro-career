@@ -85,6 +85,7 @@ router.post('/register', validateRequest(registerSchema), authController.registe
  *         description: OTP verified successfully
  */
 router.post('/verify-otp', validateRequest(verifyOtpSchema), authController.verifyOtp);
+router.post('/verify-email', validateRequest(verifyOtpSchema), authController.verifyOtp);
 
 /**
  * @swagger
@@ -112,6 +113,7 @@ router.post('/verify-otp', validateRequest(verifyOtpSchema), authController.veri
  *         description: OTP resent
  */
 router.post('/resend-otp', validateRequest(resendOtpSchema), authController.resendOtp);
+router.post('/resend-email', validateRequest(resendOtpSchema), authController.resendOtp);
 
 /**
  * @swagger
@@ -213,6 +215,7 @@ router.post('/reset-password', validateRequest(resetPasswordSchema), authControl
  *         description: Token refreshed successfully
  */
 router.post('/refresh-token', validateRequest(refreshTokenSchema), authController.refreshToken);
+router.post('/refresh', validateRequest(refreshTokenSchema), authController.refreshToken);
 
 /**
  * @swagger

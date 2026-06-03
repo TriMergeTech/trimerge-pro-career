@@ -1,4 +1,5 @@
 import { AppError } from '../../utils/app-error';
+import { formatJob } from '../../utils/response-formatters';
 import { UserModel } from '../users/user.model';
 import { JobModel } from './job.model';
 import { CreateJobInput, UpdateJobInput, ListJobsQuery } from './job.schemas';
@@ -21,7 +22,7 @@ export const jobService = {
       status: input.status ?? 'OPEN',
     });
 
-    return { job };
+    return { job: formatJob(job) };
   },
 
   async list(query: ListJobsQuery) {
@@ -49,7 +50,7 @@ export const jobService = {
     ]);
 
     return {
-      jobs,
+      jobs: jobs.map((job) => formatJob(job)),
       pagination: {
         page,
         limit,
@@ -66,7 +67,7 @@ export const jobService = {
       throw new AppError('Job not found', 404);
     }
 
-    return { job };
+    return { job: formatJob(job) };
   },
 
   async update(employerId: string, jobId: string, input: UpdateJobInput) {
@@ -83,7 +84,7 @@ export const jobService = {
     Object.assign(job, input);
     await job.save();
 
-    return { job };
+    return { job: formatJob(job) };
   },
 
   async remove(employerId: string, jobId: string) {
@@ -111,7 +112,7 @@ export const jobService = {
     ]);
 
     return {
-      jobs,
+      jobs: jobs.map((job) => formatJob(job)),
       pagination: {
         page,
         limit,

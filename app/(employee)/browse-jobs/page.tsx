@@ -641,7 +641,7 @@ function BrowseJobs() {
             ))}
           </div>
 
-          <div className="flex gap-10 flex-col overflow-y-scroll max-h-[70vh] hide-scrollbar" style={{ rowGap: 20, paddingBottom: "4rem" }}>
+          <div className="flex gap-10 flex-col overflow-y-scroll max-h-[70vh] hide-scrollbar" style={{ rowGap: 20, paddingBottom: "5rem" }}>
             {/* top-match card removed — anonymous users now see public jobs, and personalized top-match is hidden */}
             {loadingJobs ? (
               <div style={{ padding: 32, textAlign: 'center', color: '#64748B' }}>Loading jobs...</div>

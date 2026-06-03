@@ -27,11 +27,11 @@ export function JobCard({ title, department, location, isNew, description, onCli
         width: fullWidth ? '100%' : undefined,
         maxWidth: fullWidth ? 'none' : 1120,
         background: isTopMatch
-          ? 'linear-gradient(135deg, rgba(255,95,31,0.06) 0%, #ffffff 34%, #ffffff 100%)'
+          ? 'linear-gradient(135deg, rgba(60,100,220,0.06) 0%, #ffffff 34%, #ffffff 100%)'
           : 'linear-gradient(135deg, #f8fafc 0%, #fff 100%)',
-        border: isTopMatch ? '1.5px solid rgba(255,95,31,0.22)' : '1.5px solid #e5e7eb',
+        border: isTopMatch ? '1.5px solid rgba(60,100,220,0.22)' : '1.5px solid #e5e7eb',
         boxShadow: isTopMatch
-          ? '0 12px 30px rgba(255,95,31,0.10)'
+          ? '0 12px 30px rgba(60,100,220,0.10)'
           : '0 2px 8px rgba(30,58,138,0.03)',
         borderRadius: '1.25rem',
         transform: 'translateY(0)',
@@ -39,8 +39,8 @@ export function JobCard({ title, department, location, isNew, description, onCli
     >
       {typeof matchScore === 'number' && isTopMatch && (
         <span
-          style={{
-            background: 'linear-gradient(135deg, #FF5F1F 0%, #FB923C 100%)',
+            style={{
+            background: 'linear-gradient(135deg, #3C64DC 0%, #5A84E6 100%)',
             color: '#fff',
             borderRadius: 9999,
             fontSize: '0.78rem',
@@ -51,7 +51,7 @@ export function JobCard({ title, department, location, isNew, description, onCli
             position: 'absolute',
             top: 16,
             left: 16,
-            boxShadow: '0 8px 16px rgba(255,95,31,0.18)',
+            boxShadow: '0 8px 16px rgba(60,100,220,0.18)',
             letterSpacing: '0.02em',
           }}
         >
@@ -60,7 +60,7 @@ export function JobCard({ title, department, location, isNew, description, onCli
       )}
       {isNew && (
         <span
-          style={{ background: '#FF5F1F', color: '#fff', borderRadius: 9999, fontSize: '0.75rem', paddingLeft: 12, paddingRight: 12, paddingTop: 4, paddingBottom: 4, position: 'absolute', top: 16, right: 16, boxShadow: '0 2px 8px rgba(255,95,31,0.10)' }}
+          style={{ background: '#3C64DC', color: '#fff', borderRadius: 9999, fontSize: '0.75rem', paddingLeft: 12, paddingRight: 12, paddingTop: 4, paddingBottom: 4, position: 'absolute', top: 16, right: 16, boxShadow: '0 2px 8px rgba(60,100,220,0.10)' }}
         >
           New Posting
         </span>
@@ -77,7 +77,7 @@ export function JobCard({ title, department, location, isNew, description, onCli
           lineHeight: 1.2,
           textShadow: '0 1px 0 #f1f5f9',
         }}
-        className="group-hover:text-[#FF5F1F]"
+  className="group-hover:text-[#3C64DC]"
       >
         {title}
       </h3>
@@ -100,8 +100,8 @@ export function JobCard({ title, department, location, isNew, description, onCli
           e.stopPropagation();
           onClick();
         }}
-        style={{ width: '100%', background: 'linear-gradient(135deg, #FF5F1F 0%, #FB7A33 100%)', color: '#fff', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 24, paddingRight: 24, paddingTop: 13, paddingBottom: 13, gap: 8, transition: 'transform 0.2s ease, box-shadow 0.2s ease, background 0.2s', fontWeight: 600, fontSize: '1rem', boxShadow: '0 10px 22px rgba(255,95,31,0.18)' }}
-        className="group-hover:bg-[#E55519]"
+  style={{ width: '100%', background: 'linear-gradient(135deg, #3C64DC 0%, #5A84E6 100%)', color: '#fff', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 24, paddingRight: 24, paddingTop: 13, paddingBottom: 13, gap: 8, transition: 'transform 0.2s ease, box-shadow 0.2s ease, background 0.2s', fontWeight: 600, fontSize: '1rem', boxShadow: '0 10px 22px rgba(60,100,220,0.18)' }}
+  className="group-hover:bg-[#345bd1]"
       >
         {state.user?.accountType === 'EMPLOYER' ?  'View Job Details' : 'Apply Now'}
         <ArrowRight className="w-4 h-4" />

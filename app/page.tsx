@@ -123,7 +123,7 @@ export default function Home() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
                 {[
-                  { label: 'Location', value: 'Lagos, Nigeria' },
+                  { label: 'Location', value: 'Remote' },
                   { label: 'Type', value: 'Full-time' },
                   { label: 'Salary', value: '$90k - $120k' },
                 ].map((field) => (

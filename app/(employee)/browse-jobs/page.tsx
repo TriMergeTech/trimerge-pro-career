@@ -565,7 +565,7 @@ function BrowseJobs() {
                 onClick={() => setActiveCategory(category)}
                 className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
                   activeCategory === category
-                    ? 'bg-[#1343bd] text-white shadow-md'
+                    ? 'bg-[#3C64DC] text-white shadow-md'
                     : 'bg-white text-gray-700 hover:bg-gray-100'
                 }`}
                 style={{paddingInline: 30, paddingBlock: 5}}
@@ -584,10 +584,10 @@ function BrowseJobs() {
                   borderRadius: 16,
                   padding: '16px 18px',
                   marginBottom: 4,
-                  boxShadow: '0 6px 18px rgba(19,67,189,0.08)',
+                  boxShadow: '0 6px 18px rgba(60,100,220,0.08)',
                 }}
               >
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#1343bd', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#3C64DC', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
                   Best match for you
                 </div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
@@ -653,7 +653,7 @@ function BrowseJobs() {
       </div>
       {state.user?.accountType === "EMPLOYER" && (
         <div style={{ position: 'fixed', right: 32, bottom: 32 }}>
-          <button onClick={() => setShowCreateModal(true)} className="tp-btn-primary" style={{ boxShadow: '0 18px 35px -20px rgba(19,67,189,0.95)' }}>
+          <button onClick={() => setShowCreateModal(true)} className="tp-btn-primary" style={{ boxShadow: '0 18px 35px -20px rgba(60,100,220,0.95)' }}>
             Create Job Posting
           </button>
         </div>

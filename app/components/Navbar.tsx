@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,6 +12,10 @@ function Navbar() {
   const user = state.user
   const [open, setOpen] = React.useState(false)
   const displayName = user?.profile?.firstName ? `${user.profile.firstName}${user.profile.lastName ? ' ' + user.profile.lastName : ''}` : (user?.email ?? null)
+
+  useEffect(()=>{
+    console.log(displayName)
+  }, [state])
 
   const navLinks = [
     { href: '/browse-jobs', label: 'Browse Jobs' },
@@ -48,9 +52,9 @@ function Navbar() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             {user ? (
               <>
-                <div style={{ display: 'none', alignItems: 'center', gap: '0.65rem', padding: '0.55rem 0.8rem', borderRadius: '999px', background: 'rgba(29,78,216,0.08)', color: 'var(--tp-primary-dark)' }} className="md:flex">
+                <div style={{alignItems: 'center', gap: '0.65rem', padding: '0.55rem 0.8rem', borderRadius: '999px', background: 'rgba(29,78,216,0.08)', color: 'var(--tp-primary-dark)' }} className="md:flex">
                   <span style={{ width: '0.55rem', height: '0.55rem', borderRadius: '999px', background: 'var(--tp-success)' }} />
-                  <span style={{ fontWeight: 800, fontSize: '0.92rem' }}>{displayName}</span>
+                  <span style={{ fontWeight: 800, fontSize: '0.92rem', color: 'black' }}>{displayName}</span>
                 </div>
                 <button onClick={() => logout()} className="tp-btn-ghost" style={{ padding: '0.8rem 1rem' }}>
                   <LogOut size={16} />

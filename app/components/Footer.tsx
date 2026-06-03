@@ -39,7 +39,7 @@ function Footer() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '1rem' }}>
               {[
                 { title: 'Explore', links: [{ href: '/browse-jobs', label: 'Browse Jobs' }, { href: '/join-now', label: 'Join Now' }, { href: '/login', label: 'Log In' }] },
-                { title: 'Company', links: [{ href: '/about', label: 'About Us' }, { href: '/email-sent', label: 'Email Verification' }, { href: '/forgot-password', label: 'Forgot Password' }] },
+                { title: 'Company', links: [{ href: '/about', label: 'About Us' }, { href: '/forgot-password', label: 'Forgot Password' }] },
               ].map((column) => (
                 <div key={column.title} className="tp-card" style={{ padding: '1.1rem 1.1rem 1rem' }}>
                   <div className="tp-kicker" style={{ marginBottom: '0.8rem' }}>{column.title}</div>

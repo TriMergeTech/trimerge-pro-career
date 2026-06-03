@@ -20,7 +20,7 @@ function Navbar() {
   const navLinks = [
     { href: '/browse-jobs', label: 'Browse Jobs' },
     { href: '/about', label: 'About Us' },
-    { href: '/join-now', label: 'Join Now' },
+    { href: `/join-now`, label: 'Join Now' },
   ]
 
   return (
@@ -42,11 +42,28 @@ function Navbar() {
           </Link>
 
           <div className="hidden md:flex" style={{ alignItems: 'center', gap: '0.35rem' }}>
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="tp-nav-link">
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              // If the link is the Join Now route and the user is logged in,
+              // show a Log out button instead of the Join Now link.
+              if (link.href === '/join-now' && user) {
+                return (
+                  <button
+                    key="logout"
+                    onClick={() => logout()}
+                    className="tp-nav-link"
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', marginLeft: '0.35rem', paddingLeft: '0.35rem' }}
+                  >
+                    Log out
+                  </button>
+                );
+              }
+
+              return (
+                <Link key={link.href} href={link.href} className="tp-nav-link">
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -56,10 +73,6 @@ function Navbar() {
                   <span style={{ width: '0.55rem', height: '0.55rem', borderRadius: '999px', background: 'var(--tp-success)' }} />
                   <span style={{ fontWeight: 800, fontSize: '0.92rem', color: 'black' }}>{displayName}</span>
                 </div>
-                <button onClick={() => logout()} className="tp-btn-ghost" style={{ padding: '0.8rem 1rem' }}>
-                  <LogOut size={16} />
-                  <span className="hidden md:inline">Logout</span>
-                </button>
               </>
             ) : (
               <>
@@ -82,11 +95,29 @@ function Navbar() {
         {open && (
           <div className="tp-card-soft md:hidden tp-fade-up" style={{ marginTop: '0.9rem', padding: '0.85rem' }}>
             <div style={{ display: 'grid', gap: '0.4rem' }}>
-              {navLinks.map((link) => (
-                <Link key={link.href} href={link.href} className="tp-nav-link" onClick={() => setOpen(false)}>
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                if (link.href === '/join-now' && user) {
+                  return (
+                    <button
+                      key="logout-mobile"
+                      onClick={() => {
+                        setOpen(false);
+                        logout();
+                      }}
+                      className="tp-nav-link"
+                      style={{ textAlign: 'left', background: 'transparent', border: 'none', paddingLeft: '0.7em', cursor: 'pointer' }}
+                    >
+                      Log out
+                    </button>
+                  );
+                }
+
+                return (
+                  <Link key={link.href} href={link.href} className="tp-nav-link" onClick={() => setOpen(false)}>
+                    {link.label}
+                  </Link>
+                );
+              })}
               {!user && (
                 <Link href="/login" className="tp-nav-link" onClick={() => setOpen(false)}>
                   Log In

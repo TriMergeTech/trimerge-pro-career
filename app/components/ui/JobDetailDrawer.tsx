@@ -198,7 +198,7 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
     >
       <div style={{ position: 'sticky', top: 0, background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.92) 100%)', backdropFilter: 'blur(14px)', borderBottom: '1px solid rgba(229,231,235,0.9)', padding: 24, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, zIndex: 10, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
         <div style={{ display: 'grid', gap: 8 }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', width: 'fit-content', background: 'rgba(255,95,31,0.10)', color: '#FF5F1F', padding: '6px 12px', borderRadius: 9999, fontSize: 12, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', width: 'fit-content', background: 'rgba(37,99,235,0.10)', color: '#2563EB', padding: '6px 12px', borderRadius: 9999, fontSize: 12, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
             Job details
           </span>
           <span style={{fontSize: 'clamp(1.75rem, 3vw, 2.15rem)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1.05, color: '#0F172A'}}>{job.title}</span>
@@ -213,35 +213,35 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
 
       <div style={{ padding: 24 }}>
         {isNew && (
-          <span style={{ display: 'inline-block', background: 'linear-gradient(135deg, #FF5F1F 0%, #FB7A33 100%)', color: '#fff', padding: '8px 16px', borderRadius: 9999, fontSize: '0.875rem', marginBottom: 16, boxShadow: '0 10px 20px rgba(255,95,31,0.16)' }}>
+          <span style={{ display: 'inline-block', background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)', color: '#fff', padding: '8px 16px', borderRadius: 9999, fontSize: '0.875rem', marginBottom: 16, boxShadow: '0 10px 20px rgba(59,130,246,0.16)' }}>
             New Posting
           </span>
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 14, marginBottom: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-            <Briefcase className="w-5 h-5 text-[#FF5F1F]" />
+            <Briefcase className="w-5 h-5 text-[#2563EB]" />
             <div>
               <div style={{ fontSize: 12, color: '#6B7280' }}>Department</div>
               <div style={{ fontWeight: 600, color: '#0F172A' }}>{department}</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-            <MapPin className="w-5 h-5 text-[#FF5F1F]" />
+            <MapPin className="w-5 h-5 text-[#2563EB]" />
             <div>
               <div style={{ fontSize: 12, color: '#6B7280' }}>Location</div>
               <div style={{ fontWeight: 600, color: '#0F172A' }}>{job.location}</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-            <DollarSign className="w-5 h-5 text-[#FF5F1F]" />
+            <DollarSign className="w-5 h-5 text-[#2563EB]" />
             <div>
               <div className="text-xs text-gray-500">Salary Range</div>
               <div style={{ fontWeight: 600, color: '#0F172A' }}>{salaryDisplay ?? '$0 - $0'}</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-            <Calendar className="w-5 h-5 text-[#FF5F1F]" />
+            <Calendar className="w-5 h-5 text-[#2563EB]" />
             <div>
               <div style={{ fontSize: 12, color: '#6B7280' }}>Posted</div>
               <div style={{ fontWeight: 600, color: '#0F172A' }}>{posted ? new Date(posted).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }) : 'Unknown'}</div>
@@ -266,7 +266,7 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
             <h3 style={{ marginBottom: 12, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Skills</h3>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               {job.skills.map((s, idx) => (
-                <span key={idx} style={{ background: '#FFF7F2', padding: '8px 12px', borderRadius: 9999, color: '#9A3412', fontSize: 12, fontWeight: 600, border: '1px solid #FED7C3' }}>{s}</span>
+                <span key={idx} style={{ background: '#EEF6FF', padding: '8px 12px', borderRadius: 9999, color: '#1D4ED8', fontSize: 12, fontWeight: 600, border: '1px solid #DBEAFE' }}>{s}</span>
               ))}
             </div>
           </div>
@@ -293,14 +293,14 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
                   <button
                     type="button"
                     onClick={() => { setCoverType('file'); setCoverText(''); setCoverError(null); }}
-                    style={{ padding: '8px 12px', borderRadius: 8, border: coverType === 'file' ? '2px solid #FF5F1F' : '1px solid #E5E7EB', background: coverType === 'file' ? '#FFF7F5' : '#fff' }}
+                    style={{ padding: '8px 12px', borderRadius: 8, border: coverType === 'file' ? '2px solid #2563EB' : '1px solid #E5E7EB', background: coverType === 'file' ? '#EEF6FF' : '#fff' }}
                   >
                     Upload PDF
                   </button>
                   <button
                     type="button"
                     onClick={() => { setCoverType('text'); setCoverFile(null); setCoverError(null); }}
-                    style={{ padding: '8px 12px', borderRadius: 8, border: coverType === 'text' ? '2px solid #FF5F1F' : '1px solid #E5E7EB', background: coverType === 'text' ? '#FFF7F5' : '#fff' }}
+                    style={{ padding: '8px 12px', borderRadius: 8, border: coverType === 'text' ? '2px solid #2563EB' : '1px solid #E5E7EB', background: coverType === 'text' ? '#EEF6FF' : '#fff' }}
                   >
                     Write cover letter
                   </button>
@@ -362,7 +362,7 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
                 disabled={applying || !(coverType === 'file' ? !!coverFile : coverText.trim().length > 0)}
                 style={{
                   width: '100%',
-                  background: (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? '#FF5F1F' : '#FFB4A4',
+                  background: (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? '#2563EB' : '#93C5FD',
                   color: '#fff',
                   padding: '16px 24px',
                   borderRadius: 12,

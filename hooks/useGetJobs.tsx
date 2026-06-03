@@ -36,8 +36,7 @@ export const useGetJobs = () => {
         headers.Authorization = `Bearer ${token}`
       }
 
-      const token = typeof window !== 'undefined' ? localStorage.getItem('tm_token') : null;
-      const headers: Record<string, string> = {};
+  
       if (token) headers.Authorization = `Bearer ${token}`;
 
       const response = await fetch(url, {

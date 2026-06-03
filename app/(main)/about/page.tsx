@@ -28,67 +28,47 @@ const benefits = [
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white font-sans antialiased text-gray-900">
-
-      {/* About Section (The Second Page Content) */}
-      <section id="about" style={{ paddingTop: '5rem', paddingBottom: '5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', background: 'linear-gradient(to bottom right, #f9fafb, #eff6ff)' }}>
+      <section style={{ paddingTop: '5rem', paddingBottom: '4rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', background: 'linear-gradient(to bottom right, #07172e, #1d4ed8)' }}>
         <div style={{ maxWidth: '80rem', marginLeft: 'auto', marginRight: 'auto' }}>
-          <div className="grid md:grid-cols-2 gap-12 items-center" style={{ margin: 0 }}>
-            <div style={{ margin: 0 }}>
-              <h2 style={{ fontSize: '2.25rem', color: '#111827', marginBottom: '1.5rem' }}>Global Staffing Partner</h2>
-              <p style={{ fontSize: '1.125rem', color: '#4b5563', marginBottom: '1.5rem', lineHeight: 1.625 }}>
-                Trimerge specializes in providing qualified professionals for critical government and enterprise technology initiatives. With over 25 years of combined leadership experience, we understand the unique requirements of Florida's public sector.
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))', gap: '1.5rem', alignItems: 'center' }}>
+            <div style={{ color: 'white' }}>
+              <div className="tp-chip" style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.12)', color: 'white', borderColor: 'rgba(255,255,255,0.15)' }}>About TriMergePro</div>
+              <h1 style={{ fontSize: 'clamp(2.5rem, 6vw, 4.6rem)', margin: '1rem 0 1rem', letterSpacing: '-0.05em', lineHeight: 1.02 }}>A careers platform with sharper flows and cleaner handoffs.</h1>
+              <p style={{ fontSize: '1.08rem', color: 'rgba(255,255,255,0.86)', lineHeight: 1.75, maxWidth: '42rem' }}>
+                TriMergePro is the front door for candidates and employers who need structured onboarding, job discovery, and applicant review without the clutter that usually slows hiring down.
               </p>
+            </div>
+            <div style={{ backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '1.25rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.22)', padding: '2rem', border: '1px solid rgba(255,255,255,0.35)' }}>
+              <h3 style={{ fontSize: '1.5rem', color: '#111827', marginBottom: '1.25rem' }}>By the numbers</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {[
-                  { title: 'Rigorous Vetting Process', desc: 'Every candidate undergoes comprehensive technical and security screenings' },
-                  { title: 'Rapid Placement', desc: 'Average time-to-placement of 14 days for critical positions' },
-                  { title: 'Long-term Support', desc: 'Ongoing candidate support and client communication throughout engagements' }
-                ].map((item, idx) => (
-                  <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-                    <CheckCircle style={{ width: '1.5rem', height: '1.5rem', color: '#16a34a', flexShrink: 0, marginTop: '0.25rem' }} />
-                    <div style={{ margin: 0 }}>
-                      <h4 style={{ color: '#111827', marginBottom: '0.25rem', fontWeight: 600 }}>{item.title}</h4>
-                      <p style={{ color: '#4b5563', fontSize: '0.875rem' }}>{item.desc}</p>
+                  { label: 'Candidate journeys', val: '3 core flows', tone: '#2563eb' },
+                  { label: 'Employer workflows', val: 'Unified dashboard', tone: '#16a34a' },
+                  { label: 'Email recovery paths', val: 'Verified and routed', tone: '#9333ea' },
+                ].map((stat) => (
+                  <div key={stat.label}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <span style={{ color: '#4b5563', fontSize: '0.875rem' }}>{stat.label}</span>
+                      <span style={{ color: stat.tone, fontWeight: 700 }}>{stat.val}</span>
+                    </div>
+                    <div style={{ height: '0.5rem', backgroundColor: '#e5e7eb', borderRadius: '9999px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: '100%', background: `linear-gradient(to right, ${stat.tone}, rgba(255,255,255,0.4))` }} />
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-            <div style={{ position: 'relative', margin: 0 }}>
-              <div style={{ position: 'absolute', inset: '-1rem', background: 'linear-gradient(to right, #2563eb, #4f46e5)', borderRadius: '1rem', opacity: 0.2, filter: 'blur(48px)', }}></div>
-              <div style={{ position: 'relative', backgroundColor: 'white', borderRadius: '1rem', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', padding: '2rem', border: '1px solid #e5e7eb',   marginTop: '2rem' }}>
-                <h3 style={{ fontSize: '1.5rem', color: '#111827', marginBottom: '1.5rem' }}>By the Numbers</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  {[
-                    { label: 'Client Satisfaction', val: '98%', color: 'linear-gradient(to right, #2563eb, #4f46e5)', text: '#2563eb' },
-                    { label: 'Placement Success Rate', val: '95%', color: 'linear-gradient(to right, #16a34a, #10b981)', text: '#16a34a' },
-                    { label: 'Candidate Retention (1yr)', val: '92%', color: 'linear-gradient(to right, #9333ea, #db2777)', text: '#9333ea' }
-                  ].map((stat) => (
-                    <div key={stat.label} style={{ margin: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                        <span style={{ color: '#4b5563', fontSize: '0.875rem' }}>{stat.label}</span>
-                        <span style={{ color: stat.text, fontWeight: 700 }}>{stat.val}</span>
-                      </div>
-                      <div style={{ height: '0.5rem', backgroundColor: '#e5e7eb', borderRadius: '9999px', overflow: 'hidden' }}>
-                        <div style={{ height: '100%', background: stat.color, width: stat.val }}></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Core Values Section (First Page Content) */}
-      <section style={{ paddingTop: '5rem', paddingBottom: '5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', backgroundColor: 'white' }}>
+      <section style={{ paddingTop: '4.5rem', paddingBottom: '5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', backgroundColor: 'white' }}>
         <div style={{ maxWidth: '80rem', marginLeft: 'auto', marginRight: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <div style={{ padding: '0.5rem', backgroundColor: '#2563eb', borderRadius: '0.5rem' }}>
               <Heart style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
             </div>
-            <h2 style={{ fontSize: '1.875rem', fontWeight: 700 }}>Core Values</h2>
+            <h2 style={{ fontSize: '1.875rem', fontWeight: 700 }}>Core values</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6" style={{ margin: 0 }}>
             {coreValues.map((value) => (
@@ -104,14 +84,13 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Benefits Section */}
       <section style={{ paddingTop: '5rem', paddingBottom: '5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', backgroundColor: '#f8fafc' }}>
         <div style={{ maxWidth: '80rem', marginLeft: 'auto', marginRight: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <div style={{ padding: '0.5rem', backgroundColor: '#2563eb', borderRadius: '0.5rem' }}>
               <Trophy style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
             </div>
-            <h2 style={{ fontSize: '1.875rem', fontWeight: 700 }}>Benefits & Perks</h2>
+            <h2 style={{ fontSize: '1.875rem', fontWeight: 700 }}>Benefits and perks</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6" style={{ margin: 0 }}>
             {benefits.map((benefit) => (
@@ -136,13 +115,12 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section style={{ padding: '5rem 1.5rem' }}>
         <div style={{ maxWidth: '64rem', marginLeft: 'auto', marginRight: 'auto', background: 'linear-gradient(to right, #2563eb, #4338ca)', borderRadius: '1.5rem', padding: '3rem', textAlign: 'center', color: 'white', position: 'relative', overflow: 'hidden' }}>
-          <h2 style={{ fontSize: '2.25rem', fontWeight: 700, marginBottom: '1rem', color: 'white' }}>Ready to Advance Your Career?</h2>
-          <p style={{ fontSize: '1.125rem', marginBottom: '2rem', opacity: 0.9 }}>Join Florida's premier network of professionals.</p>
+          <h2 style={{ fontSize: '2.25rem', fontWeight: 700, marginBottom: '1rem', color: 'white' }}>Ready to explore the next step?</h2>
+          <p style={{ fontSize: '1.125rem', marginBottom: '2rem', opacity: 0.9 }}>Jump into jobs, onboarding, or employer review without losing the thread.</p>
           <Link href="/browse-jobs" style={{ padding: '1rem 2.5rem', backgroundColor: 'white', color: '#2563eb', fontWeight: 700, borderRadius: '0.75rem', border: 'none', cursor: 'pointer' }}>
-            View Open Positions
+            View open positions
           </Link>
         </div>
       </section>

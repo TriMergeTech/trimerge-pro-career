@@ -63,7 +63,7 @@ export default function Home() {
                     Find jobs, apply fast, and grow your career with TriMerge.
                   </h1>
                   <p className="tp-lead" style={{ fontSize: '1.08rem', marginTop: '1.2rem', maxWidth: '40rem' }}>
-                    Search current openings, compare your best matches, and apply to roles at companies that are hiring now — all powered by TriMerge's streamlined hiring flows.
+                    A focused careers platform for candidates and employers, with polished onboarding, job discovery, and applicant review built around the workflows the product already supports.
                   </p>
                 </div>
 
@@ -105,7 +105,7 @@ export default function Home() {
                 <div>
                   <div className="tp-kicker" style={{ color: '#93c5fd' }}>Featured Role</div>
                   <h2 style={{ margin: '0.4rem 0 0', fontSize: '1.6rem', letterSpacing: '-0.04em' }}>Frontend Developer</h2>
-                  <p style={{ margin: '0.55rem 0 0', color: 'rgba(255,255,255,0.76)', lineHeight: 1.65 }}>Build elegant interfaces for a platform that serves both talented candidates and the employers hiring them.</p>
+                  <p style={{ margin: '0.55rem 0 0', color: 'rgba(255,255,255,0.76)', lineHeight: 1.65 }}>Build elegant interfaces for a platform that serves both candidates and the employers reviewing them.</p>
                 </div>
                 <div style={{ width: '3.8rem', height: '3.8rem', borderRadius: '22px', display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,0.08)' }}>
                   <BriefcaseBusiness size={20} />
@@ -136,20 +136,20 @@ export default function Home() {
             </div>
 
             <div className="tp-card" style={{ padding: '1.25rem' }}>
-              <div className="tp-kicker">Why TriMerge</div>
-                <h3 style={{ margin: '0.4rem 0 0', fontSize: '1.45rem', letterSpacing: '-0.04em' }}>A simpler, job-first experience.</h3>
-                <div style={{ display: 'grid', gap: '0.75rem', marginTop: '1rem' }}>
-                  {[
-                    'Create an account, verify your email, and finish onboarding to start applying.',
-                    'Browse curated jobs with salary, location, and key skills displayed up front.',
-                    'Track your applications and stay in sync with employers through a clear flow.',
-                  ].map((text) => (
-                    <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--tp-muted)', lineHeight: 1.6 }}>
-                      <Target size={16} color="var(--tp-primary)" style={{ marginTop: '0.2rem', flexShrink: 0 }} />
-                      <span>{text}</span>
-                    </div>
-                  ))}
-                </div>
+              <div className="tp-kicker">What makes this different</div>
+              <h3 style={{ margin: '0.4rem 0 0', fontSize: '1.45rem', letterSpacing: '-0.04em' }}>Built to match the flow the product already supports.</h3>
+              <div style={{ display: 'grid', gap: '0.75rem', marginTop: '1rem' }}>
+                {[
+                  'Signup routes cleanly into email verification and role-aware onboarding.',
+                  'Login, jobs, and applications stay aligned with the current API contracts.',
+                  'Reset password, resend email, and session recovery are first-class flows.',
+                ].map((text) => (
+                  <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--tp-muted)', lineHeight: 1.6 }}>
+                    <Target size={16} color="var(--tp-primary)" style={{ marginTop: '0.2rem', flexShrink: 0 }} />
+                    <span>{text}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -248,9 +248,9 @@ export default function Home() {
               <div style={{ position: 'absolute', inset: 'auto -3rem -3rem auto', width: '14rem', height: '14rem', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', filter: 'blur(24px)' }} />
               <div style={{ position: 'relative', zIndex: 1 }}>
                 <div className="tp-kicker" style={{ color: '#bfdbfe' }}>For employers and talent teams</div>
-                <h2 style={{ margin: '0.35rem 0 0', fontSize: 'clamp(1.8rem, 3vw, 2.6rem)', letterSpacing: '-0.04em' }}>Recruiting and career discovery, redesigned like a premium product.</h2>
+                <h2 style={{ margin: '0.35rem 0 0', fontSize: 'clamp(1.8rem, 3vw, 2.6rem)', letterSpacing: '-0.04em' }}>Recruiting and career discovery, designed as one coherent experience.</h2>
                 <p style={{ margin: '0.9rem 0 0', color: 'rgba(255,255,255,0.82)', lineHeight: 1.7, maxWidth: '42rem' }}>
-                  TriMerge Consulting already stands for trust, service, and precision. This careers portal should feel like the modern extension of that reputation: sharper visuals, cleaner interactions, and backend-aligned flows that stay reliable.
+                  TriMergePro already stands for trust, service, and precision. This careers portal should feel like the modern extension of that reputation: sharper visuals, cleaner interactions, and reliable flows that stay aligned with the product.
                 </p>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(10rem, 1fr))', gap: '0.85rem', marginTop: '1.2rem' }}>

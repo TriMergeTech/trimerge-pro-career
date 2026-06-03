@@ -12,16 +12,15 @@ function Navbar() {
   const user = state.user
   const [open, setOpen] = React.useState(false)
   const displayName = user?.profile?.firstName ? `${user.profile.firstName}${user.profile.lastName ? ' ' + user.profile.lastName : ''}` : (user?.email ?? null)
-
-  useEffect(()=>{
-    console.log(displayName)
-  }, [state])
+  const isEmployer = user?.accountType === 'EMPLOYER'
 
   const navLinks = [
     { href: '/browse-jobs', label: 'Browse Jobs' },
     { href: '/about', label: 'About Us' },
     { href: `/join-now`, label: 'Join Now' },
   ]
+
+  const employerLink = { href: '/employer-dashboard', label: 'Employer Dashboard' }
 
   return (
     <nav

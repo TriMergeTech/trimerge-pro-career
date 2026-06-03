@@ -34,9 +34,9 @@ export default function AboutPage() {
         <div style={{ maxWidth: '80rem', marginLeft: 'auto', marginRight: 'auto' }}>
           <div className="grid md:grid-cols-2 gap-12 items-center" style={{ margin: 0 }}>
             <div style={{ margin: 0 }}>
-              <h2 style={{ fontSize: '2.25rem', color: '#111827', marginBottom: '1.5rem' }}>Florida's Premier IT Staffing Partner</h2>
+              <h2 style={{ fontSize: '2.25rem', color: '#111827', marginBottom: '1.5rem' }}>Global Staffing Partner</h2>
               <p style={{ fontSize: '1.125rem', color: '#4b5563', marginBottom: '1.5rem', lineHeight: 1.625 }}>
-                Trimerge specializes in providing qualified IT professionals for critical government and enterprise technology initiatives. With over 25 years of combined leadership experience, we understand the unique requirements of Florida's public sector.
+                Trimerge specializes in providing qualified professionals for critical government and enterprise technology initiatives. With over 25 years of combined leadership experience, we understand the unique requirements of Florida's public sector.
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {[
@@ -140,7 +140,7 @@ export default function AboutPage() {
       <section style={{ padding: '5rem 1.5rem' }}>
         <div style={{ maxWidth: '64rem', marginLeft: 'auto', marginRight: 'auto', background: 'linear-gradient(to right, #2563eb, #4338ca)', borderRadius: '1.5rem', padding: '3rem', textAlign: 'center', color: 'white', position: 'relative', overflow: 'hidden' }}>
           <h2 style={{ fontSize: '2.25rem', fontWeight: 700, marginBottom: '1rem', color: 'white' }}>Ready to Advance Your Career?</h2>
-          <p style={{ fontSize: '1.125rem', marginBottom: '2rem', opacity: 0.9 }}>Join Florida's premier network of IT professionals.</p>
+          <p style={{ fontSize: '1.125rem', marginBottom: '2rem', opacity: 0.9 }}>Join Florida's premier network of professionals.</p>
           <Link href="/browse-jobs" style={{ padding: '1rem 2.5rem', backgroundColor: 'white', color: '#2563eb', fontWeight: 700, borderRadius: '0.75rem', border: 'none', cursor: 'pointer' }}>
             View Open Positions
           </Link>

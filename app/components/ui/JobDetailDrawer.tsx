@@ -37,6 +37,7 @@ interface JobDetailDrawerProps {
 
 export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
   const { state } = useUser();
+  // Note: we can't call hooks conditionally; we'll use a simple window.location fallback for now.
   const [visible, setVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(!!job);
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -377,6 +378,29 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
               {/* "new ai check" */}
               {/* "new ai check" */}
             </>
+          )}
+          {!state.user && (
+            <div style={{ marginTop: 12 }}>
+              {/* When not logged in, offer to go to login. Temporarry function below logs out and redirects. */}
+              <button
+                onClick={() => {
+                  // Temporarry function: clear client-side auth/local storage and redirect to /login
+                  // NOTE: Replace this with real auth sign-out once auth context is available.
+                  try {
+                    // Example cleanup: remove token/local state used by the app
+                    localStorage.removeItem('auth_token')
+                    localStorage.removeItem('user')
+                  } catch (e) {
+                    // ignore (server environments won't have localStorage)
+                  }
+                  // Navigate to login page
+                  if (typeof window !== 'undefined') window.location.href = '/login'
+                }}
+                style={{ marginTop: 8, padding: '10px 12px', borderRadius: 8, background: '#fff', border: '1px solid #E2E8F0', cursor: 'pointer' }}
+              >
+                Go to login page
+              </button>
+            </div>
           )}
             {applyError && <div style={{ color: '#fecaca', marginTop: 8 }}>{applyError}</div>}
             {successMessage && <div style={{ color: '#16A34A', marginTop: 8 }}>{successMessage}</div>}

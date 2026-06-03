@@ -8,10 +8,12 @@ const FALLBACK_COUNTRIES: { country: string; cities?: string[] }[] = [
 
 
 import React, { useState, useEffect, useRef } from 'react';
+// avoid useSearchParams (requires Suspense boundary) — read from window.location in effects instead
 import { JobCard } from '@/app/components/ui/JobCard';
 import { JobDetailDrawer } from '@/app/components/ui/JobDetailDrawer';
 import { Tag } from 'lucide-react';
 import { useGetJobs } from '@/hooks/useGetJobs';
+import { useGetPublicJobs } from '@/hooks/useGetPublicJobs';
 import { useCreateJob } from '@/hooks/useCreateJob';
 import { useUser } from '@/contexts/userContext/userContext';
 
@@ -113,6 +115,7 @@ function BrowseJobs() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [activeCategory, setActiveCategory] = useState('All');
   const { fetchJobs } = useGetJobs()
+  const { fetchJobs: fetchPublicJobs } = useGetPublicJobs()
 
   const [jobs, setJobs] = useState<Job[] | null>(null)
   const [loadingJobs, setLoadingJobs] = useState(true)
@@ -498,19 +501,71 @@ function BrowseJobs() {
     return matchesSearch && matchesDepartment && matchesLocation && matchesCategory;
   });
 
-  const topMatchIndex = candidateSkills.length > 0
-    ? filteredJobs.reduce<{ index: number; score: number }>((best, job, index) => {
-        const score = job.matchScore ?? 0;
-        if (index === 0 || score > best.score) return { index, score };
-        return best;
-      }, { index: -1, score: -1 }).index
-    : -1;
+  // If there's no logged-in user, load public jobs. Otherwise use authenticated fetchJobs.
+  useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      let res
+      if (!state.user) {
+        res = await fetchPublicJobs({ page: 1, limit: 50 })
+      } else {
+        res = await fetchJobs({ page: 1, limit: 50 })
+      }
+      if (!mounted) return
 
-  const displayedJobs = topMatchIndex > -1
-    ? [filteredJobs[topMatchIndex], ...filteredJobs.filter((_, index) => index !== topMatchIndex)]
-    : filteredJobs;
+      // Be defensive about response shape — backend may return array or envelope
+      const r = res as unknown
+      let payload: unknown = res
+      if (r && typeof r === 'object') {
+        const obj = r as Record<string, unknown>
+        if (Array.isArray(obj.data)) payload = obj.data
+        else if (Array.isArray(obj.jobs)) payload = obj.jobs
+        else if (Array.isArray(obj.items)) payload = obj.items
+      }
+      // If we got nothing for authenticated fetch, fall back to public jobs
+      if (Array.isArray(payload) && (payload as unknown[]).length > 0) {
+        setJobs(payload as Job[])
+      } else {
+        // Try to fetch public jobs as a fallback (covers empty or unexpected auth responses)
+        try {
+          const pub = await fetchPublicJobs({ page: 1, limit: 50 })
+          const pr = pub as unknown
+          let pubPayload: unknown = pub
+          if (pr && typeof pr === 'object') {
+            const pobj = pr as Record<string, unknown>
+            if (Array.isArray(pobj.data)) pubPayload = pobj.data
+            else if (Array.isArray(pobj.jobs)) pubPayload = pobj.jobs
+            else if (Array.isArray(pobj.items)) pubPayload = pobj.items
+          }
+          if (Array.isArray(pubPayload)) setJobs(pubPayload as Job[])
+          else setJobs([])
+        } catch (err) {
+          setJobs([])
+        }
+      }
+    }
+    load()
+    return () => { mounted = false }
+  }, [state.user, fetchJobs, fetchPublicJobs])
 
-  const topMatch = displayedJobs[0];
+  // If a details query param is present, open that job (when jobs load)
+  useEffect(() => {
+    // Read details param from the URL directly to avoid CSR bailout from next/navigation
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const details = params.get('details')
+    if (!details) return
+    if (!jobs || jobs.length === 0) return
+
+    // Try to match by id/_id/title
+    const found = jobs.find(j => String(j.id ?? j._id ?? j.title) === details || String(j._id ?? j.id ?? j.title) === details)
+    if (found) {
+      // Defer to avoid synchronous setState inside effect (keeps parity with other effects)
+      setTimeout(() => setSelectedJob(found), 0)
+    }
+  }, [jobs])
+
+  const displayedJobs = filteredJobs
 
   // Salary slider positions (percent) for custom thumbs
   const salaryRangeWidth = SALARY_MAX - SALARY_MIN || 1
@@ -536,10 +591,6 @@ function BrowseJobs() {
               <div style={{ padding: '0.95rem 1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
                 <div style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.68)' }}>Matched jobs</div>
                 <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{filteredJobs.length}</div>
-              </div>
-              <div style={{ padding: '0.95rem 1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                <div style={{ fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.68)' }}>Best match</div>
-                <div style={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.5 }}>{topMatch ? topMatch.title : 'No match yet'}</div>
               </div>
             </div>
           </div>
@@ -591,28 +642,7 @@ function BrowseJobs() {
           </div>
 
           <div className="flex gap-10 flex-col overflow-y-scroll max-h-[70vh] hide-scrollbar" style={{ rowGap: 20 }}>
-            {candidateSkills.length > 0 && topMatch && typeof topMatch.matchScore === 'number' && (
-              <div
-                style={{
-                  background: 'linear-gradient(135deg, #fff7f2 0%, #ffffff 100%)',
-                  border: '1px solid #fed7c3',
-                  borderRadius: 16,
-                  padding: '16px 18px',
-                  marginBottom: 4,
-                  boxShadow: '0 6px 18px rgba(60,100,220,0.08)',
-                }}
-              >
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#3C64DC', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
-                  Best match for you
-                </div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
-                  {topMatch.title}
-                </div>
-                <div style={{ color: '#475569', fontSize: 14 }}>
-                  You have a {topMatch.matchScore}% match based on your saved skills.
-                </div>
-              </div>
-            )}
+            {/* top-match card removed — anonymous users now see public jobs, and personalized top-match is hidden */}
             {loadingJobs ? (
               <div style={{ padding: 32, textAlign: 'center', color: '#64748B' }}>Loading jobs...</div>
             ) : filteredJobs.length === 0 ? (

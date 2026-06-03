@@ -1,7 +1,9 @@
 "use client"
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { ArrowRight, BadgeCheck, BriefcaseBusiness, CheckCircle2, ChevronRight, CloudCog, Code2, Compass, Database, ShieldCheck, Sparkles, Star, Target, Users, Workflow, BrainCircuit } from 'lucide-react'
+import { useGetPublicJobs } from '@/hooks/useGetPublicJobs'
 
 const highlights = [
   { value: '22+', label: 'years of delivery', icon: ShieldCheck },
@@ -19,11 +21,9 @@ const tracks = [
   { name: 'AI & Product', icon: BrainCircuit, tone: 'rgba(234,179,8,0.14)' },
 ]
 
-const featuredRoles = [
-  { title: 'Frontend Developer', company: 'TriMerge', location: 'Lagos, Nigeria', salary: '$90k - $120k', tags: ['React', 'TypeScript', 'Remote'] },
-  { title: 'Backend Engineer', company: 'TriMerge', location: 'Austin, TX', salary: '$110k - $145k', tags: ['Node.js', 'APIs', 'Cloud'] },
-  { title: 'Product Manager', company: 'TriMerge', location: 'Miami, FL', salary: '$120k - $160k', tags: ['Strategy', 'Delivery', 'Stakeholders'] },
-]
+// featuredRoles will be populated from the public jobs API
+type SimpleJob = { title?: string; company?: string; location?: string; salary?: string; tags?: string[], _id?: string }
+const featuredRoles: SimpleJob[] = []
 
 const steps = [
   {
@@ -41,6 +41,30 @@ const steps = [
 ]
 
 export default function Home() {
+  const { fetchJobs } = useGetPublicJobs()
+  const [publicJobs, setPublicJobs] = useState<SimpleJob[] | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      const res = await fetchJobs({ page: 1, limit: 3 })
+      if (!mounted) return
+      const r = res as unknown
+      let payload: unknown = res
+      if (r && typeof r === 'object') {
+        const obj = r as Record<string, unknown>
+        if (Array.isArray(obj.data)) payload = obj.data
+        else if (Array.isArray(obj.jobs)) payload = obj.jobs
+        else if (Array.isArray(obj.items)) payload = obj.items
+      }
+      if (Array.isArray(payload)) setPublicJobs(payload)
+    }
+    load()
+    return () => { mounted = false }
+  }, [fetchJobs])
+
+  const displayed: SimpleJob[] = (publicJobs ?? featuredRoles)
+
   return (
     <div className="tp-shell" style={{ overflow: 'hidden' }}>
       <section style={{ padding: '3rem 0 5rem' }}>
@@ -192,7 +216,7 @@ export default function Home() {
           </div>
 
           <div style={{ display: 'grid', gap: '1rem' }}>
-            {featuredRoles.map((job) => (
+            {displayed.map((job) => (
               <article key={job.title} className="tp-card" style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
@@ -207,13 +231,13 @@ export default function Home() {
                         <span>{job.salary}</span>
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.9rem' }}>
-                        {job.tags.map((tag) => (
+                        {(job.tags ?? []).map((tag: string) => (
                           <span key={tag} style={{ padding: '0.4rem 0.75rem', borderRadius: '999px', background: 'rgba(29,78,216,0.08)', color: 'var(--tp-primary)', fontWeight: 700, fontSize: '0.85rem' }}>{tag}</span>
                         ))}
                       </div>
                     </div>
                   </div>
-                  <Link href="/browse-jobs" className="tp-btn-secondary">
+                  <Link href={`/browse-jobs?details=${encodeURIComponent(String(job._id ?? ''))}`} className="tp-btn-secondary">
                     View details
                   </Link>
                 </div>

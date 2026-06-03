@@ -565,7 +565,7 @@ function BrowseJobs() {
                 onClick={() => setActiveCategory(category)}
                 className={`px-4 py-2 rounded-full whitespace-nowrap transition-all ${
                   activeCategory === category
-                    ? 'bg-[#FF5F1F] text-white shadow-md'
+                    ? 'bg-[#1343bd] text-white shadow-md'
                     : 'bg-white text-gray-700 hover:bg-gray-100'
                 }`}
                 style={{paddingInline: 30, paddingBlock: 5}}
@@ -584,10 +584,10 @@ function BrowseJobs() {
                   borderRadius: 16,
                   padding: '16px 18px',
                   marginBottom: 4,
-                  boxShadow: '0 6px 18px rgba(255,95,31,0.08)',
+                  boxShadow: '0 6px 18px rgba(19,67,189,0.08)',
                 }}
               >
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#FF5F1F', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1343bd', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>
                   Best match for you
                 </div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
@@ -653,7 +653,7 @@ function BrowseJobs() {
       </div>
       {state.user?.accountType === "EMPLOYER" && (
         <div style={{ position: 'fixed', right: 32, bottom: 32 }}>
-          <button onClick={() => setShowCreateModal(true)} className="tp-btn-primary" style={{ boxShadow: '0 18px 35px -20px rgba(255,95,31,0.95)' }}>
+          <button onClick={() => setShowCreateModal(true)} className="tp-btn-primary" style={{ boxShadow: '0 18px 35px -20px rgba(19,67,189,0.95)' }}>
             Create Job Posting
           </button>
         </div>
@@ -886,7 +886,7 @@ function BrowseJobs() {
                       {skills.map((s) => (
                         <div key={s} style={{ background: '#F1F5F9', padding: '6px 10px', borderRadius: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
                           <span style={{ fontSize: 13 }}>{s}</span>
-                          <button type='button' onClick={() => removeSkill(s)} style={{ background: 'transparent', border: 'none', color: '#ff5f1f', cursor: 'pointer' }}>×</button>
+                          <button type='button' onClick={() => removeSkill(s)} style={{ background: 'transparent', border: 'none', color: '#1343bd', cursor: 'pointer' }}>×</button>
                         </div>
                       ))}
 

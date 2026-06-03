@@ -1,3 +1,5 @@
+"use client"
+
 import { X, MapPin, Briefcase, Calendar, DollarSign } from 'lucide-react';
 
 interface Job {

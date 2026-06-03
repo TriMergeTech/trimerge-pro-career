@@ -1,5 +1,11 @@
 "use client"
 
+// Fallback country dataset (kept at module scope so it's stable for hooks deps)
+const FALLBACK_COUNTRIES: { country: string; cities?: string[] }[] = [
+  { country: 'Nigeria', cities: ['Lagos', 'Abuja'] },
+  { country: 'United States', cities: ['Austin', 'Miami', 'Remote'] },
+]
+
 
 import React, { useState, useEffect, useRef } from 'react';
 import { JobCard } from '@/app/components/ui/JobCard';
@@ -17,6 +23,7 @@ function BrowseJobs() {
   // Job shape coming from the API - using the fields you specified
   interface Job {
     id: number | string;
+    _id?: string;
     title: string;
     description: string;
     requirements?: string;
@@ -122,10 +129,10 @@ function BrowseJobs() {
   const [countriesLoading, setCountriesLoading] = useState(false)
   const [country, setCountry] = useState('')
   const [statesForCountry, setStatesForCountry] = useState<string[] | null>(null)
-  const [statesLoading, setStatesLoading] = useState(false)
+  const [_statesLoading, setStatesLoading] = useState(false)
   const [stateProvince, setStateProvince] = useState('')
   const [citiesForState, setCitiesForState] = useState<string[] | null>(null)
-  const [citiesLoading, setCitiesLoading] = useState(false)
+  const [_citiesLoading, setCitiesLoading] = useState(false)
   const [city, setCity] = useState('')
 
   // Salary slider bounds (numbers in local currency units)
@@ -231,9 +238,10 @@ function BrowseJobs() {
     // Sync the textual location used by the backend
     if (!country) return
     if (stateProvince) {
-      setLocationInput(city ? `${city}, ${stateProvince}, ${country}` : `${stateProvince}, ${country}`)
+      // defer to avoid synchronous setState within effect
+      setTimeout(() => setLocationInput(city ? `${city}, ${stateProvince}, ${country}` : `${stateProvince}, ${country}`), 0)
     } else {
-      setLocationInput(city ? `${city}, ${country}` : country)
+      setTimeout(() => setLocationInput(city ? `${city}, ${country}` : country), 0)
     }
   }, [country, stateProvince, city])
 
@@ -241,12 +249,14 @@ function BrowseJobs() {
     // Load countries list when the create modal opens
     if (!showCreateModal) return
     if (countriesData || countriesLoading) return
-    setCountriesLoading(true)
+    // defer loading state update to avoid synchronous setState in effect
+    setTimeout(() => setCountriesLoading(true), 0)
     fetch('https://countriesnow.space/api/v0.1/countries')
       .then(res => res.json())
       .then((json) => {
-        if (json && Array.isArray(json.data)) {
-          const normalized = json.data.map((c: any) => ({ country: c.country, cities: Array.isArray(c.cities) ? c.cities : [] }))
+        const list = Array.isArray(json?.data) ? json.data : null
+        if (Array.isArray(list)) {
+          const normalized = list.map((c: any) => ({ country: c.country, cities: Array.isArray(c.cities) ? c.cities : [] }))
           setCountriesData(normalized)
           if (normalized.length > 0) {
             setCountry(normalized[0].country)
@@ -263,16 +273,16 @@ function BrowseJobs() {
         setCountry(FALLBACK_COUNTRIES[0].country)
         setCity(FALLBACK_COUNTRIES[0].cities[0])
       })
-      .finally(() => setCountriesLoading(false))
+      .finally(() => setTimeout(() => setCountriesLoading(false), 0))
   }, [showCreateModal, countriesData, countriesLoading])
 
   // When country changes, attempt to load administrative states for that country.
   useEffect(() => {
     if (!showCreateModal || !country) return
-    setStatesLoading(true)
-    setStatesForCountry(null)
-    setCitiesForState(null)
-    setStateProvince('')
+  setTimeout(() => setStatesLoading(true), 0)
+  setStatesForCountry(null)
+  setCitiesForState(null)
+  setStateProvince('')
 
     fetch('https://countriesnow.space/api/v0.1/countries/states', {
       method: 'POST',
@@ -300,15 +310,15 @@ function BrowseJobs() {
         setCitiesForState(cent?.cities ?? null)
         setCity(cent?.cities?.[0] ?? '')
       })
-      .finally(() => setStatesLoading(false))
+    .finally(() => setTimeout(() => setStatesLoading(false), 0))
   }, [country, showCreateModal, countriesData])
 
   // When state/province changes, attempt to load cities for that state
   useEffect(() => {
     if (!showCreateModal || !country) return
     if (!stateProvince) return
-    setCitiesLoading(true)
-    setCitiesForState(null)
+  setTimeout(() => setCitiesLoading(true), 0)
+  setCitiesForState(null)
 
     fetch('https://countriesnow.space/api/v0.1/countries/state/cities', {
       method: 'POST',
@@ -333,7 +343,7 @@ function BrowseJobs() {
         setCitiesForState(cent?.cities ?? null)
         setCity(cent?.cities?.[0] ?? '')
       })
-      .finally(() => setCitiesLoading(false))
+      .finally(() => setTimeout(() => setCitiesLoading(false), 0))
   }, [stateProvince, country, showCreateModal, countriesData])
 
   const DEPARTMENTS = ['Engineering', 'Marketing', 'HR', 'Sales', 'Design', 'Operations']
@@ -444,7 +454,6 @@ function BrowseJobs() {
       title,
       description,
       department: departmentInput.toUpperCase(),
-      department: departmentInput.toUpperCase(),
       requirements,
       location: locationInput,
       employmentType,
@@ -460,8 +469,11 @@ function BrowseJobs() {
     const res = await createJob(payload)
     if (res) {
       // refresh jobs
-      const refreshed = await fetchJobs({ page: 1, limit: 50 })
-      const payloadJobs = refreshed?.data ?? refreshed?.jobs ?? refreshed?.items ?? refreshed
+  const refreshed = await fetchJobs({ page: 1, limit: 50 })
+  // `fetchJobs` can return several shapes depending on the adapter (array, { data: [...] }, { jobs: [...] }, etc.).
+  // Cast to `any` for property access so TypeScript doesn't complain while keeping runtime behavior.
+  const r = refreshed as { data?: unknown; jobs?: unknown; items?: unknown } | undefined
+  const payloadJobs = r?.data ?? r?.jobs ?? r?.items ?? refreshed
       if (Array.isArray(payloadJobs)) setJobs(payloadJobs as Job[])
       closeCreateModal()
     }

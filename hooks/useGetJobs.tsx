@@ -69,7 +69,15 @@ export const useGetJobs = () => {
       }
 
       if (!response.ok) {
-        const message = (data as Record<string, unknown>)?.error || (data as Record<string, unknown>)?.message || 'Failed to fetch jobs'
+        let message = 'Failed to fetch jobs'
+        if (data && typeof data === 'object') {
+          const obj = data as Record<string, unknown>
+          if (typeof obj.error === 'string') message = obj.error
+          else if (typeof obj.message === 'string') message = obj.message
+        } else if (typeof data === 'string' && data.trim().length > 0) {
+          message = data
+        }
+
         setError(message)
         return null
       }

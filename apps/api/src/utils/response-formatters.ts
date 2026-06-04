@@ -7,29 +7,49 @@ function toId(value: any): string | undefined {
     return value;
   }
 
-  if (typeof value === 'object') {
-    if (typeof value._id !== 'undefined') {
-      return toId(value._id);
-    }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
 
-    if (typeof value.toString === 'function') {
-      const stringValue = value.toString();
-      if (stringValue && stringValue !== '[object Object]') {
-        return stringValue;
-      }
+  // Mongoose ObjectId / Mongo ObjectId
+  // This must happen BEFORE checking value._id.
+  if (typeof value === 'object' && typeof value.toHexString === 'function') {
+    return value.toHexString();
+  }
+
+  // Populated document or normal object with _id.
+  // value._id !== value prevents infinite recursion.
+  if (
+    typeof value === 'object' &&
+    value._id !== undefined &&
+    value._id !== value
+  ) {
+    return toId(value._id);
+  }
+
+  if (typeof value === 'object' && typeof value.toString === 'function') {
+    const stringValue = value.toString();
+
+    if (stringValue && stringValue !== '[object Object]') {
+      return stringValue;
     }
   }
 
   return String(value);
 }
 
-function toPlainObject<T extends Record<string, any>>(value: T | null | undefined): T | null {
+function toPlainObject<T extends Record<string, any>>(
+  value: T | null | undefined
+): T | null {
   if (!value) {
     return null;
   }
 
   if (typeof (value as any).toObject === 'function') {
-    return (value as any).toObject({ getters: false, virtuals: false });
+    return (value as any).toObject({
+      getters: false,
+      virtuals: false,
+    });
   }
 
   return value;
@@ -42,7 +62,7 @@ export function formatJob(job: any) {
     return null;
   }
 
-  const id = toId(plainJob._id ?? plainJob.id);
+  const id = toId(plainJob._id);
 
   return {
     ...plainJob,
@@ -62,7 +82,7 @@ export function formatApplication(application: any) {
     return null;
   }
 
-  const id = toId(plainApplication._id ?? plainApplication.id);
+  const id = toId(plainApplication._id);
 
   return {
     ...plainApplication,

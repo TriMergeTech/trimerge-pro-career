@@ -59,22 +59,33 @@ export const handler = async (event: unknown) => {
   if (status) payload.status = status;
 
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`
+    }
+
     const response = await fetch(`${process.env.BASEURL}/api/v1/jobs`, {
       method: 'POST',
-      headers: {
-        Authorization: token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
-    if (!response.ok) {
-      console.log(data)
-      throw new Error(data?.message || data?.error || 'Failed to create job');
+    const rawBody = await response.text();
+    let data: unknown = rawBody;
+
+    try {
+      data = rawBody ? JSON.parse(rawBody) : {};
+    } catch {
+      // Keep raw text when the upstream response isn't JSON.
     }
 
-    return { statusCode: 200, body: JSON.stringify(data) };
+    return {
+      statusCode: response.status,
+      body: typeof data === 'string' ? JSON.stringify({ error: data }) : JSON.stringify(data),
+    };
   } catch (err: unknown) {
     console.log('createJob error:', err);
     const message = err instanceof Error ? err.message : String(err);

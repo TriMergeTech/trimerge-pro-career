@@ -1,14 +1,11 @@
 "use client"
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { ArrowRight, BadgeCheck, BriefcaseBusiness, CheckCircle2, ChevronRight, CloudCog, Code2, Compass, Database, ShieldCheck, Sparkles, Star, Target, Users, Workflow, BrainCircuit } from 'lucide-react'
+import { useGetPublicJobs } from '@/hooks/useGetPublicJobs'
 
-const highlights = [
-  { value: '22+', label: 'years of delivery', icon: ShieldCheck },
-  { value: '94%', label: 'client satisfaction', icon: Star },
-  { value: '5', label: 'language support', icon: Users },
-  { value: '2', label: 'offices across the US', icon: Compass },
-]
+
 
 const tracks = [
   { name: 'Cloud & DevOps', icon: CloudCog, tone: 'rgba(29,78,216,0.12)' },
@@ -19,28 +16,50 @@ const tracks = [
   { name: 'AI & Product', icon: BrainCircuit, tone: 'rgba(234,179,8,0.14)' },
 ]
 
-const featuredRoles = [
-  { title: 'Frontend Developer', company: 'TriMergePro', location: 'Lagos, Nigeria', salary: '$90k - $120k', tags: ['React', 'TypeScript', 'Remote'] },
-  { title: 'Backend Engineer', company: 'TriMergePro', location: 'Austin, TX', salary: '$110k - $145k', tags: ['Node.js', 'APIs', 'Cloud'] },
-  { title: 'Product Manager', company: 'TriMergePro', location: 'Miami, FL', salary: '$120k - $160k', tags: ['Strategy', 'Delivery', 'Stakeholders'] },
-]
+// featuredRoles will be populated from the public jobs API
+type SimpleJob = { title?: string; company?: string; location?: string; salary?: string; tags?: string[], _id?: string }
+const featuredRoles: SimpleJob[] = []
 
 const steps = [
   {
     title: 'Create your account',
-    text: 'Choose Candidate or Employer, confirm your email, and keep your profile connected to the backend onboarding flow.',
+    text: 'Pick Candidate or Employer, confirm your email, and get ready to apply or post jobs.',
   },
   {
     title: 'Complete guided onboarding',
-    text: 'Progress through the right steps for your role so the API receives exactly the data it expects.',
+    text: 'Finish a short set of steps so your profile and applications match what employers expect.',
   },
   {
     title: 'Apply or hire with clarity',
-    text: 'Search jobs, apply, manage postings, and keep each action aligned with the current authenticated session.',
+    text: 'Search roles, apply quickly, and track your applications in one place.',
   },
 ]
 
 export default function Home() {
+  const { fetchJobs } = useGetPublicJobs()
+  const [publicJobs, setPublicJobs] = useState<SimpleJob[] | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    const load = async () => {
+      const res = await fetchJobs({ page: 1, limit: 3 })
+      if (!mounted) return
+      const r = res as unknown
+      let payload: unknown = res
+      if (r && typeof r === 'object') {
+        const obj = r as Record<string, unknown>
+        if (Array.isArray(obj.data)) payload = obj.data
+        else if (Array.isArray(obj.jobs)) payload = obj.jobs
+        else if (Array.isArray(obj.items)) payload = obj.items
+      }
+      if (Array.isArray(payload)) setPublicJobs(payload)
+    }
+    load()
+    return () => { mounted = false }
+  }, [fetchJobs])
+
+  const displayed: SimpleJob[] = (publicJobs ?? featuredRoles)
+
   return (
     <div className="tp-shell" style={{ overflow: 'hidden' }}>
       <section style={{ padding: '3rem 0 5rem' }}>
@@ -55,12 +74,12 @@ export default function Home() {
 
               <div style={{ display: 'grid', gap: '1.5rem', position: 'relative', zIndex: 1, paddingTop: '2rem' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.55rem' }}>
-                  <span className="tp-chip"><BadgeCheck size={16} /> TriMergePro Careers</span>
+                  <span className="tp-chip"><BadgeCheck size={16} /> TriMerge Careers</span>
                 </div>
 
                 <div style={{ maxWidth: '46rem' }}>
                   <h1 className="tp-title" style={{ fontSize: 'clamp(3rem, 7vw, 5.25rem)', margin: 0 }}>
-                    Find work that feels precise, human, and high-impact.
+                    Find jobs, apply fast, and grow your career with TriMerge.
                   </h1>
                   <p className="tp-lead" style={{ fontSize: '1.08rem', marginTop: '1.2rem', maxWidth: '40rem' }}>
                     A focused careers platform for candidates and employers, with polished onboarding, job discovery, and applicant review built around the workflows the product already supports.
@@ -174,7 +193,7 @@ export default function Home() {
           </div>
 
           <div style={{ display: 'grid', gap: '1rem' }}>
-            {featuredRoles.map((job) => (
+            {displayed.map((job) => (
               <article key={job.title} className="tp-card" style={{ padding: '1.25rem' }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'center' }}>
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
@@ -189,13 +208,13 @@ export default function Home() {
                         <span>{job.salary}</span>
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.9rem' }}>
-                        {job.tags.map((tag) => (
+                        {(job.tags ?? []).map((tag: string) => (
                           <span key={tag} style={{ padding: '0.4rem 0.75rem', borderRadius: '999px', background: 'rgba(29,78,216,0.08)', color: 'var(--tp-primary)', fontWeight: 700, fontSize: '0.85rem' }}>{tag}</span>
                         ))}
                       </div>
                     </div>
                   </div>
-                  <Link href="/browse-jobs" className="tp-btn-secondary">
+                  <Link href={`/browse-jobs?details=${encodeURIComponent(String(job._id ?? ''))}`} className="tp-btn-secondary">
                     View details
                   </Link>
                 </div>

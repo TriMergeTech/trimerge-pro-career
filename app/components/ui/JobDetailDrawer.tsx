@@ -1,3 +1,5 @@
+"use client"
+
 import { X, MapPin, Briefcase, Calendar, DollarSign } from 'lucide-react';
 
 interface Job {
@@ -35,6 +37,7 @@ interface JobDetailDrawerProps {
 
 export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
   const { state } = useUser();
+  // Note: we can't call hooks conditionally; we'll use a simple window.location fallback for now.
   const [visible, setVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(!!job);
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -210,7 +213,7 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
 
       <div style={{ padding: 24 }}>
         {isNew && (
-          <span style={{ display: 'inline-block', background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)', color: '#fff', padding: '8px 16px', borderRadius: 9999, fontSize: '0.875rem', marginBottom: 16, boxShadow: '0 10px 20px rgba(37,99,235,0.16)' }}>
+          <span style={{ display: 'inline-block', background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)', color: '#fff', padding: '8px 16px', borderRadius: 9999, fontSize: '0.875rem', marginBottom: 16, boxShadow: '0 10px 20px rgba(59,130,246,0.16)' }}>
             New Posting
           </span>
         )}
@@ -263,7 +266,7 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
             <h3 style={{ marginBottom: 12, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Skills</h3>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               {job.skills.map((s, idx) => (
-                <span key={idx} style={{ background: '#EEF6FF', padding: '8px 12px', borderRadius: 9999, color: '#1E40AF', fontSize: 12, fontWeight: 600, border: '1px solid #DBEAFE' }}>{s}</span>
+                <span key={idx} style={{ background: '#EEF6FF', padding: '8px 12px', borderRadius: 9999, color: '#1D4ED8', fontSize: 12, fontWeight: 600, border: '1px solid #DBEAFE' }}>{s}</span>
               ))}
             </div>
           </div>
@@ -375,6 +378,29 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
               {/* "new ai check" */}
               {/* "new ai check" */}
             </>
+          )}
+          {!state.user && (
+            <div style={{ marginTop: 12 }}>
+              {/* When not logged in, offer to go to login. Temporarry function below logs out and redirects. */}
+              <button
+                onClick={() => {
+                  // Temporarry function: clear client-side auth/local storage and redirect to /login
+                  // NOTE: Replace this with real auth sign-out once auth context is available.
+                  try {
+                    // Example cleanup: remove token/local state used by the app
+                    localStorage.removeItem('auth_token')
+                    localStorage.removeItem('user')
+                  } catch (e) {
+                    // ignore (server environments won't have localStorage)
+                  }
+                  // Navigate to login page
+                  if (typeof window !== 'undefined') window.location.href = '/login'
+                }}
+                style={{ marginTop: 8, padding: '10px 12px', borderRadius: 8, background: '#fff', border: '1px solid #E2E8F0', cursor: 'pointer' }}
+              >
+                Go to login page
+              </button>
+            </div>
           )}
             {applyError && <div style={{ color: '#fecaca', marginTop: 8 }}>{applyError}</div>}
             {successMessage && <div style={{ color: '#16A34A', marginTop: 8 }}>{successMessage}</div>}

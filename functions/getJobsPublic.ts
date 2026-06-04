@@ -33,13 +33,11 @@ export const handler = async (event: unknown) => {
   if (qs.location) params.append('location', qs.location);
   if (qs.search) params.append('search', qs.search);
 
-  const url = `${process.env.BASEURL}/api/v1/jobs${params.toString() ? `?${params.toString()}` : ''}`;
+  const url = `${process.env.BASEURL}/api/v1/public/jobs${params.toString() ? `?${params.toString()}` : ''}`;
 
   try {
-    const token = ev.headers?.authorization?.replace?.('Bearer ', '') || '';
 
     const fetchOpts: RequestInit = { method: 'GET', headers: {} };
-    if (token) (fetchOpts.headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
 
     const response = await fetch(url, fetchOpts);
 

@@ -37,7 +37,7 @@ export function AuthShell({ eyebrow, title, subtitle, bullets, children, footer 
                 ))}
               </div>
               <div style={{ padding: '1rem 1.1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.82)', lineHeight: 1.7 }}>
-                Built to stay aligned with the backend APIs we already have, while giving the journey a much cleaner and more premium feel.
+                We are builded to give the best experience in the applying proccess, and using AI we are changing the AI of how employer have to decide.
               </div>
             </div>
           </div>

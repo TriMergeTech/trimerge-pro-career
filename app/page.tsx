@@ -281,7 +281,7 @@ export default function Home() {
             <div className="tp-kicker">Ready to experience the TriMerge difference?</div>
             <h2 style={{ margin: '0.45rem 0 0', fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.04em' }}>A careers portal that feels polished from landing to onboarding.</h2>
             <p className="tp-lead" style={{ maxWidth: '42rem', margin: '0.9rem auto 0' }}>
-              Join now as a candidate or employer, verify your account, and move through onboarding with a cleaner interface that respects the backend APIs already in place.
+              Join now as a candidate or employer, verify your account, and move through onboarding and start looking the new future we have with AI.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.85rem', marginTop: '1.25rem' }}>
               <Link href="/join-now" className="tp-btn-primary">

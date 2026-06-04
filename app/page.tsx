@@ -77,24 +77,6 @@ export default function Home() {
                   </Link>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.85rem' }}>
-                  {highlights.map((item) => {
-                    const Icon = item.icon
-                    return (
-                      <div key={item.label} className="tp-card" style={{ padding: '1rem 1.05rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-                          <div>
-                            <div style={{ fontSize: '1.9rem', lineHeight: 1, fontWeight: 900, color: 'var(--tp-ink)' }}>{item.value}</div>
-                            <div style={{ marginTop: '0.35rem', color: 'var(--tp-muted)', fontWeight: 700, fontSize: '0.9rem' }}>{item.label}</div>
-                          </div>
-                          <div style={{ width: '2.8rem', height: '2.8rem', borderRadius: '18px', display: 'grid', placeItems: 'center', background: 'linear-gradient(135deg, rgba(29,78,216,0.12), rgba(245,166,35,0.12))' }}>
-                            <Icon size={18} color="var(--tp-primary)" />
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
               </div>
             </div>
           </div>
@@ -123,7 +105,7 @@ export default function Home() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
                 {[
-                  { label: 'Location', value: 'Lagos, Nigeria' },
+                  { label: 'Location', value: 'Remote' },
                   { label: 'Type', value: 'Full-time' },
                   { label: 'Salary', value: '$90k - $120k' },
                 ].map((field) => (

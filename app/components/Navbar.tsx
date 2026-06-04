@@ -44,6 +44,7 @@ function Navbar() {
             {navLinks.map((link) => {
               // If the link is the Join Now route and the user is logged in,
               // show a Log out button instead of the Join Now link.
+
               if (link.href === '/join-now' && user) {
                 return (
                   <button
@@ -63,6 +64,11 @@ function Navbar() {
                 </Link>
               );
             })}
+            {isEmployer && (
+              <Link href={employerLink.href} className="tp-nav-link">
+                {employerLink.label}
+              </Link>
+            )}
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

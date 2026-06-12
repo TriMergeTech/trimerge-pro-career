@@ -14,7 +14,8 @@ export const swaggerSpec = swaggerJsdoc({
         description: 'Local development server',
       },
       {
-        url: 'https://trimerge-pro-career-uaun.onrender.com',
+      //url: 'https://trimerge-pro-career-uaun.onrender.com',
+        url: 'https://trimerge-pro-career.onrender.com',
         description: 'Production server (Render)',
       },
     ],

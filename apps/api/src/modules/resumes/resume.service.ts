@@ -33,10 +33,16 @@ function uploadBufferToCloudinary(file: Express.Multer.File): Promise<Cloudinary
         overwrite: false,
       },
       (error, result) => {
-        if (error) {
-          reject(error);
-          return;
-        }
+  if (error) {
+    console.error('Cloudinary callback error:', error);
+    reject(error);
+    return;
+  }
+
+  console.log('Cloudinary upload success:', result);
+
+  resolve(result as CloudinaryUploadResult);
+}
 
         if (!result) {
           reject(new Error('Cloudinary upload failed'));

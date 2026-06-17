@@ -18,7 +18,9 @@ export const useGetUser = () => {
       setError(null)
       try {
         const token = localStorage.getItem('tm_token')
-        const res = await fetch('/.netlify/functions/getUser', {
+        // const res = await fetch('/.netlify/functions/getUser', {
+      const res = await fetch('https://trimerge-pro-career.onrender.com/api/v1/auth/me', {
+
           method: 'GET',
           headers: {
             Authorization: token ? `Bearer ${token}` : '',
@@ -38,7 +40,7 @@ export const useGetUser = () => {
         if (res.status === 401) {
           const refreshed = await refresh()
           if (refreshed) {
-            const retry = await fetch('/.netlify/functions/getUser', {
+            const retry = await fetch('https://trimerge-pro-career.onrender.com/api/v1/auth/me', {
               method: 'GET',
               headers: { Authorization: `Bearer ${localStorage.getItem('tm_token')}` },
             })

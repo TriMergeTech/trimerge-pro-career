@@ -13,7 +13,7 @@ export const useCandidateOnboardingStepThree = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/.netlify/functions/candidateOnboardingStepThree`, {
+      const response = await fetch(`https://trimerge-pro-career.onrender.com/api/v1/onboarding/candidate/step-3`, {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${localStorage.getItem("tm_token")}`,

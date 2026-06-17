@@ -17,7 +17,7 @@ export default function useApplyForJob() {
     setLoading(true);
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('tm_token') : null;
-      const url = '/.netlify/functions/applyForJob';
+      const url = 'https://trimerge-pro-career.onrender.com/api/v1/applications';
 
       let res: Response;
       if (params.file) {

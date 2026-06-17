@@ -64,11 +64,11 @@ export default function JoinNowClient() {
         }
 
         const data = {
-            name: trimmedName,
+            fullName: trimmedName,
             email: trimmedEmail,
             password,
             confirmPassword,
-            terms,
+            agreeToTerms: terms,
             updates,
             role,
         } as const;

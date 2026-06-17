@@ -6,11 +6,11 @@ export const useRegister = () => {
   const [error, setError] = useState<string | null>(null);
 
   const register = async (data: {
-    name: string;
+    fullName: string;
     email: string;
     password: string;
     confirmPassword: string;
-    terms: boolean;
+    agreeToTerms: boolean;
     updates: boolean;
     role: 'Candidate' | 'Recruiter';
   }) => {
@@ -20,7 +20,7 @@ export const useRegister = () => {
     try {
       // Call the local Netlify function directly. In production on Netlify
       // the function is available at /.netlify/functions/registerCandidate
-      const response = await fetch(`/.netlify/functions/register`, {
+      const response = await fetch(`https://trimerge-pro-career.onrender.com/api/v1/onboarding/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

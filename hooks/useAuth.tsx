@@ -15,7 +15,7 @@ export const useMe = () => {
     setError(null)
     try {
       const token = localStorage.getItem('tm_token')
-      const res = await fetch('/.netlify/functions/checkAuth', {
+      const res = await fetch('https://trimerge-pro-career.onrender.com/api/v1/auth/me', {
         method: 'GET',
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
@@ -58,7 +58,7 @@ export const useRefreshToken = () => {
         return null
       }
 
-      const res = await fetch('/.netlify/functions/refreshToken', {
+      const res = await fetch('https://trimerge-pro-career.onrender.com/api/v1/auth/refresh-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),

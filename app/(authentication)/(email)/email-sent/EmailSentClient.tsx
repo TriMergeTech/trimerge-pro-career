@@ -9,7 +9,7 @@ import { AuthShell } from '../../../components/ui/AuthShell';
 import { ArrowRight, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 
-export default function EmailSentClient() {
+export default function EmailSentClient()  {
     const [code, setCode] = React.useState(['', '', '', '', '', '']);
     const inputsRef = React.useRef<Array<HTMLInputElement | null>>([]);
     const {setUser } = useUser()

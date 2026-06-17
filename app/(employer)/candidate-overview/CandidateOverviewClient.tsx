@@ -170,7 +170,7 @@ export default function CandidateOverviewClient({ jobId: jobIdOverride }: { jobI
   const filteredApplicants = sourceApplicants
     .filter((app) => {
       const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           app.email.toLowerCase().includes(searchQuery.toLowerCase());
+        app.email.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesRecommendation = filterRecommendation === "all" || app.recommendation === filterRecommendation;
       const matchesConfidence = filterConfidence === "all" || app.confidence === filterConfidence;
       const matchesAIStatus = filterAIStatus === "all" || app.aiStatus === filterAIStatus;
@@ -466,6 +466,25 @@ export default function CandidateOverviewClient({ jobId: jobIdOverride }: { jobI
                     <p style={{ color: "#475569", margin: 0 }}>{selectedApplicant!.email}</p>
                   </div>
                   <a
+                    href={selectedApplicant!.resumeUrl ?? "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "6px 12px",
+                      backgroundColor: "#f1f5f9",
+                      color: "#334155",
+                      borderRadius: "6px",
+                      textDecoration: "none",
+                      fontSize: "14px"
+                    }}
+                  >
+                    <ExternalLink style={{ width: "16px", height: "16px" }} />
+                    Open Resume
+                  </a>
+                  {/* <a
                     href={selectedApplicant!.resumeUrl ?? '#'}
                     style={{
                       display: "inline-flex",
@@ -481,7 +500,7 @@ export default function CandidateOverviewClient({ jobId: jobIdOverride }: { jobI
                   >
                     <ExternalLink style={{ width: "16px", height: "16px" }} />
                     View Resume
-                  </a>
+                  </a> */}
                 </div>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "4px 12px", backgroundColor: "#dbeafe", color: "#1e40af", borderRadius: "6px", fontSize: "14px" }}>
                   Under Review
@@ -558,7 +577,7 @@ export default function CandidateOverviewClient({ jobId: jobIdOverride }: { jobI
               <div style={{ background: "linear-gradient(to bottom right, #eef2ff, #f3e8ff)", borderRadius: "8px", border: "1px solid #c7d2fe", padding: "24px" }}>
                 <h3 style={{ margin: "0 0 16px 0", fontSize: "14px", fontWeight: 500, color: "#334155" }}>AI Match Overview</h3>
                 <div style={{ display: "flex", alignItems: "center", gap: "24px", marginBottom: "16px" }}>
-                    <div style={{ textAlign: "center" }}>
+                  <div style={{ textAlign: "center" }}>
                     <div style={{ fontSize: "36px", fontWeight: 700, color: "#4f46e5", marginBottom: "4px" }}>{selectedApplicant!.aiScore}%</div>
                     <div style={{ fontSize: "12px", color: "#475569" }}>AI Match Score</div>
                   </div>

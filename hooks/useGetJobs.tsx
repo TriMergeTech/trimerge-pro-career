@@ -28,7 +28,7 @@ export const useGetJobs = () => {
       if (params.location) qs.append('location', params.location)
       if (params.search) qs.append('search', params.search)
 
-      const url = `/.netlify/functions/getJobs${qs.toString() ? `?${qs.toString()}` : ''}`
+      const url = `https://trimerge-pro-career.onrender.com/api/v1/jobs${qs.toString() ? `?${qs.toString()}` : ''}`
       const token = typeof window !== 'undefined' ? localStorage.getItem('tm_token') : null
       const headers: Record<string, string> = {}
 

@@ -14,7 +14,7 @@ export const useVerifyEmail = () => {
     setError(null);
 
     try {
-      const response = await fetch(`/.netlify/functions/verifyEmail`, {
+      const response = await fetch(`https://trimerge-pro-career.onrender.com/api/v1/onboarding/verify-email`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

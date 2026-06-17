@@ -26,7 +26,7 @@ export const useGetPublicJobs = () => {
       if (params.location) qs.append('location', params.location)
       if (params.search) qs.append('search', params.search)
 
-      const url = `/.netlify/functions/getJobsPublic${qs.toString() ? `?${qs.toString()}` : ''}`
+      const url = `https://trimerge-pro-career.onrender.com/api/v1/public/jobs/${qs.toString() ? `?${qs.toString()}` : ''}`
 
       const response = await fetch(url, { method: 'GET' })
       const raw = await response.text()

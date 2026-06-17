@@ -13,7 +13,7 @@ export const useLogin = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/.netlify/functions/login", {
+      const res = await fetch("https://trimerge-pro-career.onrender.com/api/v1/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

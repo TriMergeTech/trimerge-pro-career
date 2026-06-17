@@ -15,7 +15,7 @@ export const useForgotPassword = () => {
     setSuccess(null);
 
     try {
-      const response = await fetch(`/.netlify/functions/forgotPassword`, {
+      const response = await fetch(`https://trimerge-pro-career.onrender.com/api/v1/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

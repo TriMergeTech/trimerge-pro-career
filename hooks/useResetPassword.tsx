@@ -17,7 +17,7 @@ export const useResetPassword = () => {
     setSuccess(null);
 
     try {
-      const response = await fetch(`/.netlify/functions/resetPassword`, {
+      const response = await fetch(`https://trimerge-pro-career.onrender.com/api/v1/auth/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

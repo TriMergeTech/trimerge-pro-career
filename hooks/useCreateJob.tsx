@@ -31,7 +31,7 @@ export const useCreateJob = () => {
         headers.Authorization = `Bearer ${token}`
       }
 
-      const response = await fetch('/.netlify/functions/createJob', {
+      const response = await fetch('https://trimerge-pro-career.onrender.com/api/v1/jobs', {
         method: 'POST',
         headers,
         body: JSON.stringify(payload),

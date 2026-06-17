@@ -24,7 +24,7 @@ export const useCandidateOnboardingStepTwo = () => {
     try {
       let response: Response;
       if (data instanceof FormData) {
-        response = await fetch(`/.netlify/functions/candidateOnboardingStepTwo`, {
+        response = await fetch(`https://trimerge-pro-career.onrender.com/api/v1/onboarding/candidate/step-2`, {
             headers:{
                 Authorization: `Bearer ${localStorage.getItem("tm_token")}`
             },
@@ -32,7 +32,7 @@ export const useCandidateOnboardingStepTwo = () => {
           body: data, // browser sets multipart/form-data boundary
         });
       } else {
-        response = await fetch(`/.netlify/functions/candidateOnboardingStepTwo`, {
+        response = await fetch(`https://trimerge-pro-career.onrender.com/api/v1/onboarding/candidate/step-2`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),

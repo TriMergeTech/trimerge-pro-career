@@ -26,9 +26,12 @@ export const useGetApplicationsForJob = (jobId?: string, params?: ApplicationsFo
     if (p?.confidenceLevel) qs.set('confidenceLevel', p.confidenceLevel)
     if (p?.aiMatchStatus) qs.set('aiMatchStatus', p.aiMatchStatus)
     if (p?.staleOnly !== undefined) qs.set('staleOnly', String(Boolean(p.staleOnly)))
-    const base = '/.netlify/functions/applicationsForJob'
+    // const base = '/.netlify/functions/applicationsForJob'
+    // const q = qs.toString()
+    // return `${base}?jobId=${encodeURIComponent(jobIdParam)}${q ? `&${q}` : ''}`
+   const base = 'https://trimerge-pro-career.onrender.com/api/v1/applications/job'
     const q = qs.toString()
-    return `${base}?jobId=${encodeURIComponent(jobIdParam)}${q ? `&${q}` : ''}`
+    return `${base}/${encodeURIComponent(jobIdParam)}${q ? `?${q}` : ''}`
   }
 
   const fetchApplications = useCallback(async (overrideJobId?: string, overrideParams?: ApplicationsForJobParams) => {

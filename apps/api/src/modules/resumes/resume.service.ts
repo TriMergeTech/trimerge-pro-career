@@ -22,7 +22,9 @@ function sanitizeOriginalName(filename: string) {
     .replace(/[^a-zA-Z0-9.\-_]/g, '');
 }
 
-function uploadBufferToCloudinary(file: Express.Multer.File): Promise<CloudinaryUploadResult> {
+function uploadBufferToCloudinary(
+  file: Express.Multer.File
+): Promise<CloudinaryUploadResult> {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       {
@@ -33,21 +35,18 @@ function uploadBufferToCloudinary(file: Express.Multer.File): Promise<Cloudinary
         overwrite: false,
       },
       (error, result) => {
-  if (error) {
-    console.error('Cloudinary callback error:', error);
-    reject(error);
-    return;
-  }
-
-  console.log('Cloudinary upload success:', result);
-
-  resolve(result as CloudinaryUploadResult);
-}
+        if (error) {
+          console.error('Cloudinary callback error:', error);
+          reject(error);
+          return;
+        }
 
         if (!result) {
           reject(new Error('Cloudinary upload failed'));
           return;
         }
+
+        console.log('Cloudinary upload success:', result);
 
         resolve(result as CloudinaryUploadResult);
       }

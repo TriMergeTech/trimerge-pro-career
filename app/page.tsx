@@ -69,7 +69,8 @@ export default function Home() {
               <div style={{ position: 'absolute', inset: 'auto -4rem -4rem auto', width: '16rem', height: '16rem', borderRadius: '999px', background: 'radial-gradient(circle, rgba(245,166,35,0.18), rgba(245,166,35,0) 70%)', filter: 'blur(10px)' }} />
               <div style={{ position: 'absolute', inset: '1.25rem 1.25rem auto auto', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.55rem 0.9rem', borderRadius: '999px', background: 'rgba(255,255,255,0.88)', border: '1px solid rgba(148,163,184,0.18)', color: 'var(--tp-muted)', fontWeight: 700 }}>
                 <Sparkles size={15} color="var(--tp-accent)" />
-                Driving quality and innovation forward
+                {/* Driving quality and innovation forward */}
+                Find Your Next Opportunity
               </div>
 
               <div style={{ display: 'grid', gap: '1.5rem', position: 'relative', zIndex: 1, paddingTop: '2rem' }}>
@@ -82,7 +83,8 @@ export default function Home() {
                     Find jobs, apply fast, and grow your career with TriMerge.
                   </h1>
                   <p className="tp-lead" style={{ fontSize: '1.08rem', marginTop: '1.2rem', maxWidth: '40rem' }}>
-                    A focused careers platform for candidates and employers, with polished onboarding, job discovery, and applicant review built around the workflows the product already supports.
+                    {/* A focused careers platform for candidates and employers, with polished onboarding, job discovery, and applicant review built around the workflows the product already supports. */}
+                    Connect with employers, discover opportunities, and manage your career journey through a modern workforce platform.
                   </p>
                 </div>
 
@@ -102,7 +104,7 @@ export default function Home() {
 
           <div className="auth-span-5" style={{ display: 'grid', gap: '1rem' }}>
             <div className="tp-card tp-float" style={{ padding: '1.25rem', background: 'linear-gradient(180deg, rgba(7,23,46,0.98), rgba(15,23,42,0.95))', color: 'white' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+              {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
                 <div>
                   <div className="tp-kicker" style={{ color: '#93c5fd' }}>Featured Role</div>
                   <h2 style={{ margin: '0.4rem 0 0', fontSize: '1.6rem', letterSpacing: '-0.04em' }}>Frontend Developer</h2>
@@ -111,10 +113,28 @@ export default function Home() {
                 <div style={{ width: '3.8rem', height: '3.8rem', borderRadius: '22px', display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,0.08)' }}>
                   <BriefcaseBusiness size={20} />
                 </div>
+              </div> */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+                <div>
+                  <div className="tp-kicker" style={{ color: '#93c5fd' }}>Featured Career Areas</div>
+                  {/* <h2 style={{ margin: '0.4rem 0 0', fontSize: '1.6rem', letterSpacing: '-0.04em' }}>Frontend Developer</h2> */}
+                 {/* <h2 style={{ margin: '0.4rem 0 0', fontSize: '1.6rem', letterSpacing: '-0.04em' }}> Talent & Employer Experience</h2> */}
+                  {/* <p style={{ margin: '0.55rem 0 0', color: 'rgba(255,255,255,0.76)', lineHeight: 1.65 }}>Build elegant interfaces for a platform that serves both candidates and the employers reviewing them.</p> */}
+                  {/* <p style={{ margin: '0.55rem 0 0', color: 'rgba(255,255,255,0.76)', lineHeight: 1.65 }}>Create impactful features that improve how talent presents their expertise and how employers identify top candidates.</p> */}
+                </div>
+                {/* <div style={{ width: '3.8rem', height: '3.8rem', borderRadius: '22px', display: 'grid', placeItems: 'center', background: 'rgba(255,255,255,0.08)' }}>
+                  <BriefcaseBusiness size={20} />
+                </div> */}
               </div>
 
               <div style={{ display: 'grid', gap: '0.7rem', marginTop: '1.25rem' }}>
-                {['Remote-friendly setup', 'Modern React and TypeScript', 'Backend-aligned workflows'].map((line) => (
+                {/* {['Remote-friendly setup', 'Modern React and TypeScript', 'Backend-aligned workflows'].map((line) => (
+                  <div key={line} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', padding: '0.8rem 0.95rem', borderRadius: '16px', background: 'rgba(255,255,255,0.06)' }}>
+                    <CheckCircle2 size={16} color="#93c5fd" />
+                    <span style={{ fontWeight: 600 }}>{line}</span>
+                  </div>
+                ))} */}
+                {['Technology & Innovation', 'Accounting & Finance', 'Program Management', 'Data & Analytics', 'Administrative Support', 'Consulting Services'].map((line) => (
                   <div key={line} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', padding: '0.8rem 0.95rem', borderRadius: '16px', background: 'rgba(255,255,255,0.06)' }}>
                     <CheckCircle2 size={16} color="#93c5fd" />
                     <span style={{ fontWeight: 600 }}>{line}</span>
@@ -122,7 +142,7 @@ export default function Home() {
                 ))}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
+              {/* <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: '0.75rem', marginTop: '1rem' }}>
                 {[
                   { label: 'Location', value: 'Remote' },
                   { label: 'Type', value: 'Full-time' },
@@ -133,17 +153,25 @@ export default function Home() {
                     <div style={{ marginTop: '0.35rem', fontWeight: 800 }}>{field.value}</div>
                   </div>
                 ))}
-              </div>
+              </div> */}
             </div>
 
             <div className="tp-card" style={{ padding: '1.25rem' }}>
               <div className="tp-kicker">What makes this different</div>
-              <h3 style={{ margin: '0.4rem 0 0', fontSize: '1.45rem', letterSpacing: '-0.04em' }}>Built to match the flow the product already supports.</h3>
+              <h3 style={{ margin: '0.4rem 0 0', fontSize: '1.45rem', letterSpacing: '-0.04em' }}>
+                {/* Built to match the flow the product already supports. */}
+                Why TriMergePRO Careers
+                </h3>
               <div style={{ display: 'grid', gap: '0.75rem', marginTop: '1rem' }}>
                 {[
-                  'Signup routes cleanly into email verification and role-aware onboarding.',
-                  'Login, jobs, and applications stay aligned with the current API contracts.',
-                  'Reset password, resend email, and session recovery are first-class flows.',
+                  'Streamlined candidate experience',
+                  'Faster application process',
+                  'Employer and candidate dashboards',
+                  'Application tracking',
+                  'Secure account management'
+                  // 'Signup routes cleanly into email verification and role-aware onboarding.',
+                  // 'Login, jobs, and applications stay aligned with the current API contracts.',
+                  // 'Reset password, resend email, and session recovery are first-class flows.',
                 ].map((text) => (
                   <div key={text} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', color: 'var(--tp-muted)', lineHeight: 1.6 }}>
                     <Target size={16} color="var(--tp-primary)" style={{ marginTop: '0.2rem', flexShrink: 0 }} />
@@ -282,7 +310,7 @@ export default function Home() {
             <div className="tp-kicker">Ready to experience the TriMerge difference?</div>
             <h2 style={{ margin: '0.45rem 0 0', fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.04em' }}>A careers portal that feels polished from landing to onboarding.</h2>
             <p className="tp-lead" style={{ maxWidth: '42rem', margin: '0.9rem auto 0' }}>
-              Join now as a candidate or employer, verify your account, and move through onboarding and start looking the new future we have with AI.
+              Join as a candidate or employer, complete onboarding, and explore opportunities through a modern recruiting experience enhanced by technology and innovation.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.85rem', marginTop: '1.25rem' }}>
               <Link href="/join-now" className="tp-btn-primary">

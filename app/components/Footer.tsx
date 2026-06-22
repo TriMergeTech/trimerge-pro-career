@@ -58,7 +58,7 @@ function Footer() {
 
         <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(148, 163, 184, 0.16)', color: 'var(--tp-muted)', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.75rem', fontSize: '0.92rem' }}>
           <span>© {year} TriMergePro Careers. All rights reserved.</span>
-          <span>Powered by clean workflows, thoughtful design, and backend-aligned interactions.</span>
+          <span>TriMergePRO Careers is a workforce and recruiting platform designed to connect talent, employers, and opportunities through technology-driven solutions.</span>
         </div>
       </div>
     </footer>

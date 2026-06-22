@@ -197,7 +197,7 @@ export default function Home() {
                     </div>
                     <div>
                       <div style={{ fontWeight: 800 }}>{track.name}</div>
-                      <div style={{ color: 'var(--tp-muted)', fontSize: '0.88rem' }}>Specialized roles</div>
+                      {/* <div style={{ color: 'var(--tp-muted)', fontSize: '0.88rem' }}>Specialized roles</div> */}
                     </div>
                   </div>
                 )

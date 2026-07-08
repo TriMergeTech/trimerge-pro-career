@@ -2,16 +2,33 @@ import Link from 'next/link'
 import { CheckCircle2, ArrowRight } from 'lucide-react'
 import { AuthShell } from '../components/ui/AuthShell'
 
+// type Props = {
+//   searchParams?: {
+//     email?: string
+//     role?: string
+//   }
+// }
+
 type Props = {
-  searchParams?: {
+  searchParams: Promise<{
     email?: string
     role?: string
-  }
+  }>
 }
 
-export default function Page({ searchParams }: Props) {
-  const email = searchParams?.email || 'your email address'
-  const role = (searchParams?.role || 'Candidate').toLowerCase()
+
+// export default function Page({ searchParams }: Props) {
+//   const email = searchParams?.email || 'your email address'
+//   const role = (searchParams?.role || 'Candidate').toLowerCase()
+//   console.log('Email verified page searchParams:', searchParams?.email, searchParams?.role)
+//   const nextPath = role === 'recruiter' ? '/recruiter-information/step-one' : '/personal-information/step-one'
+export default async function Page({ searchParams }: Props) {
+  const params = await searchParams
+
+  const email = params.email || 'your email address'
+  const role = (params.role || 'Candidate').toLowerCase()
+
+  console.log(params)
   const nextPath = role === 'recruiter' ? '/recruiter-information/step-one' : '/personal-information/step-one'
 
   return (

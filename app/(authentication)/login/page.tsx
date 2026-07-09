@@ -57,12 +57,28 @@ function LoginPage() {
   return (
     <AuthShell
       eyebrow="Welcome back"
-      title="Log in and continue your journey."
-      subtitle="A cleaner sign-in experience that keeps the current backend contract intact while routing users to the right place faster."
-      bullets={[
-        'Email and password sign-in powered by the existing auth endpoint.',
-        'Candidates and employers are redirected based on the account type returned by the API.',
-        'Forgot password, verification, and onboarding stay connected to the current backend flows.',
+      title="Secure Access for Candidates & Employers"
+      subtitle="Sign in to access your personalized dashboard, manage your profile, apply for opportunities, or manage your recruiting activities."
+      groupsTitle="Why Sign In?"
+      groups={[
+        {
+          title: 'Candidates',
+          items: [
+            'Track job applications',
+            'Update your professional profile',
+            'Upload resumes and credentials',
+            'Discover new opportunities',
+          ],
+        },
+        {
+          title: 'Employers',
+          items: [
+            'Post positions',
+            'Review applicants',
+            'Manage recruiting activity',
+            'Connect with qualified talent',
+          ],
+        },
       ]}
       footer={(
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -126,6 +142,13 @@ function LoginPage() {
           {loading ? 'Logging in…' : 'Log in'}
           {!loading && <ArrowRight size={16} />}
         </button>
+
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <span className="tp-chip" style={{ background: 'rgba(22,163,74,0.1)', color: 'var(--tp-success)' }}>
+            <LockKeyhole size={14} />
+            Secure Login
+          </span>
+        </div>
       </form>
     </AuthShell>
   );

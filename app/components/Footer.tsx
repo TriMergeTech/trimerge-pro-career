@@ -1,6 +1,7 @@
+"use client"
 
 import Link from 'next/link'
-import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react'
+import { ArrowUpRight, Globe, Mail, MapPin, Phone } from 'lucide-react'
 
 function Footer() {
   const year = new Date().getFullYear()
@@ -28,9 +29,11 @@ function Footer() {
                 A polished careers experience for talents and employers, built to support fast-moving hiring with a consulting-grade standard of clarity.
               </p>
               <div style={{ display: 'grid', gap: '0.55rem', color: 'var(--tp-muted)', fontSize: '0.95rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}><Mail size={16} /> careers@trimergepro.com</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}><Mail size={16} /> careers@trimergeconsulting.com</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}><Phone size={16} /> (305) 940-5344</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}><MapPin size={16} /> Miami, FL</div>
+                <a href="https://www.trimergeconsulting.com" target="_blank" rel="noopener noreferrer" className="tp-footer-link" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--tp-muted)' }}><Globe size={16} /> www.TriMergeConsulting.com</a>
+                <a href="https://www.trimergepro.com" target="_blank" rel="noopener noreferrer" className="tp-footer-link" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--tp-muted)' }}><Globe size={16} /> www.TriMergePRO.com</a>
               </div>
             </div>
           </div>
@@ -56,7 +59,15 @@ function Footer() {
           </div>
         </div>
 
-        <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(148, 163, 184, 0.16)', color: 'var(--tp-muted)', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.75rem', fontSize: '0.92rem' }}>
+        <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(148, 163, 184, 0.16)', display: 'flex', flexWrap: 'wrap', gap: '1.1rem', fontSize: '0.92rem' }}>
+          {['Privacy Policy', 'Terms of Use', 'Accessibility', 'Contact Us'].map((label) => (
+            <a key={label} href="#" onClick={(e) => e.preventDefault()} className="tp-footer-link">
+              {label}
+            </a>
+          ))}
+        </div>
+
+        <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(148, 163, 184, 0.16)', color: 'var(--tp-muted)', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.75rem', fontSize: '0.92rem' }}>
           <span>© {year} TriMergePro Careers. All rights reserved.</span>
           <span>TriMergePRO Careers is a workforce and recruiting platform designed to connect talent, employers, and opportunities through technology-driven solutions.</span>
         </div>

@@ -1,6 +1,7 @@
 
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import AskTriMergeAI from './components/ui/AskTriMergeAI'
 import './styles/index.css'
 
 import React, { ReactNode } from 'react'
@@ -18,6 +19,7 @@ function Layout({ children }: { children: ReactNode }) {
           <Navbar />
           <main id="content" tabIndex={-1}>{children}</main>
           <Footer />
+          <AskTriMergeAI />
         </UserProvider>
       </body>
     </html>

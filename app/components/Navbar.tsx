@@ -16,7 +16,10 @@ function Navbar() {
 
   const navLinks = [
     { href: '/browse-jobs', label: 'Browse Jobs' },
-    { href: '/about', label: 'About Us' },
+    { href: '/about', label: 'About' },
+    { href: '/#for-employers', label: 'Employers' },
+    { href: '/#for-candidates', label: 'Candidates' },
+    { href: 'mailto:careers@trimergeconsulting.com', label: 'Contact' },
     { href: '/join-now', label: 'Join Now' },
   ]
 

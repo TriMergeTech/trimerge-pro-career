@@ -7,12 +7,14 @@ type AuthShellProps = {
   eyebrow: string
   title: string
   subtitle: string
-  bullets: string[]
+  bullets?: string[]
+  groupsTitle?: string
+  groups?: { title: string; items: string[] }[]
   children: ReactNode
   footer?: ReactNode
 }
 
-export function AuthShell({ eyebrow, title, subtitle, bullets, children, footer }: AuthShellProps) {
+export function AuthShell({ eyebrow, title, subtitle, bullets = [], groupsTitle, groups, children, footer }: AuthShellProps) {
   return (
     <section style={{ padding: '2rem 0 5rem' }}>
       <div className="tp-container" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, minmax(0, 1fr))', gap: '1rem', alignItems: 'stretch' }}>
@@ -28,17 +30,42 @@ export function AuthShell({ eyebrow, title, subtitle, bullets, children, footer 
                 <h1 style={{ margin: 0, fontSize: 'clamp(2.4rem, 5vw, 4.25rem)', lineHeight: 0.96, letterSpacing: '-0.05em' }}>{title}</h1>
                 <p style={{ margin: '1rem 0 0', color: 'rgba(255,255,255,0.82)', lineHeight: 1.8, fontSize: '1.02rem' }}>{subtitle}</p>
               </div>
-              <div style={{ display: 'grid', gap: '0.7rem', marginTop: '0.35rem' }}>
-                {bullets.map((bullet) => (
-                  <div key={bullet} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.9rem 1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.08)' }}>
-                    <CheckCircle2 size={17} color="#93c5fd" style={{ flexShrink: 0, marginTop: '0.1rem' }} />
-                    <span style={{ lineHeight: 1.6, color: 'rgba(255,255,255,0.88)' }}>{bullet}</span>
+              {groups && groups.length > 0 ? (
+                <div style={{ padding: '1.1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.06)' }}>
+                  {groupsTitle && (
+                    <div style={{ fontWeight: 800, fontSize: '0.95rem', letterSpacing: '-0.01em', marginBottom: '0.9rem' }}>{groupsTitle}</div>
+                  )}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '1.1rem' }}>
+                    {groups.map((group) => (
+                      <div key={group.title}>
+                        <div style={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: '0.72rem', fontWeight: 800, color: '#93c5fd', marginBottom: '0.5rem' }}>{group.title}</div>
+                        <div style={{ display: 'grid', gap: '0.45rem' }}>
+                          {group.items.map((item) => (
+                            <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                              <span style={{ width: '0.35rem', height: '0.35rem', borderRadius: '999px', background: '#93c5fd', flexShrink: 0, marginTop: '0.45rem' }} />
+                              <span style={{ lineHeight: 1.45, fontSize: '0.86rem', color: 'rgba(255,255,255,0.85)' }}>{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <div style={{ padding: '1rem 1.1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.82)', lineHeight: 1.7 }}>
-                We are builded to give the best experience in the applying proccess, and using AI we are changing the AI of how employer have to decide.
-              </div>
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: 'grid', gap: '0.7rem', marginTop: '0.35rem' }}>
+                    {bullets.map((bullet) => (
+                      <div key={bullet} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.9rem 1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.08)' }}>
+                        <CheckCircle2 size={17} color="#93c5fd" style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+                        <span style={{ lineHeight: 1.6, color: 'rgba(255,255,255,0.88)' }}>{bullet}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ padding: '1rem 1.1rem', borderRadius: '18px', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.82)', lineHeight: 1.7 }}>
+                    Our platform is designed to provide a seamless experience for both candidates and employers. As we continue to evolve, AI-powered capabilities will help streamline recruiting, improve candidate matching, and support better hiring decisions.
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

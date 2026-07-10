@@ -20,7 +20,6 @@ function Navbar() {
     { href: '/#for-employers', label: 'Employers' },
     { href: '/#for-candidates', label: 'Candidates' },
     { href: 'mailto:careers@trimergeconsulting.com', label: 'Contact' },
-    { href: '/join-now', label: 'Join Now' },
   ]
 
   const employerLink = { href: '/employer-dashboard', label: 'Employer Dashboard' }
@@ -43,7 +42,7 @@ function Navbar() {
             <Image src="/Logo.png" alt="TriMergePro Logo" width={190} height={84} style={{ objectFit: 'contain', height: '2.8rem', width: 'auto' }} />
           </Link>
 
-          <div className="hidden md:flex" style={{ alignItems: 'center', gap: '0.35rem' }}>
+          <div className="tp-nav-links" style={{ alignItems: 'center', gap: '0.35rem' }}>
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} className="tp-nav-link">
                 {link.label}
@@ -74,13 +73,13 @@ function Navbar() {
                   Log In
                 </Link>
                 <Link href="/join-now" className="tp-btn-primary" style={{ padding: '0.8rem 1rem' }}>
-                  Join Now
+                  Sign-up
                   <ChevronRight size={16} />
                 </Link>
               </>
             )}
 
-            <button onClick={() => setOpen((current) => !current)} className="tp-btn-ghost md:hidden" aria-label="Toggle navigation" style={{ padding: '0.75rem' }}>
+            <button onClick={() => setOpen((current) => !current)} className="tp-btn-ghost tp-nav-toggle" aria-label="Toggle navigation" style={{ padding: '0.75rem' }}>
               {open ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>

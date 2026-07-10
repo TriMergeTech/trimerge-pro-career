@@ -311,3 +311,21 @@ select:focus-visible {
     width: min(100% - 1rem, 1180px);
   }
 }
+
+.tp-nav-links {
+  display: none;
+}
+
+.tp-nav-toggle {
+  display: inline-flex;
+}
+
+@media (min-width: 768px) {
+  .tp-nav-links {
+    display: flex;
+  }
+
+  .tp-nav-toggle {
+    display: none;
+  }
+}

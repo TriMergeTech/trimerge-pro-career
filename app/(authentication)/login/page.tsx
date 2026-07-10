@@ -59,7 +59,7 @@ function LoginPage() {
       eyebrow="Welcome back"
       title="Secure Access for Candidates & Employers"
       subtitle="Sign in to access your personalized dashboard, manage your profile, apply for opportunities, or manage your recruiting activities."
-      groupsTitle="Why Sign In?"
+      groupsTitle="Login to Get Started"
       groups={[
         {
           title: 'Candidates',
@@ -96,7 +96,7 @@ function LoginPage() {
     >
       <form onSubmit={onSubmit} style={{ display: 'grid', gap: '1rem' }}>
         <div>
-          <div className="tp-kicker">Sign in</div>
+          <div className="tp-kicker">Log in</div>
           <h2 style={{ margin: '0.35rem 0 0', fontSize: '2rem', letterSpacing: '-0.04em' }}>Access your account</h2>
           <p className="tp-lead" style={{ marginTop: '0.6rem' }}>Use the same email you registered with to continue.</p>
         </div>

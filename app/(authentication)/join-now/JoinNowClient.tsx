@@ -91,12 +91,33 @@ export default function JoinNowClient() {
     return (
         <AuthShell
             eyebrow="Join TriMergePro Careers"
-            title="Build your account in a cleaner, guided flow."
-            subtitle="Choose the path that matches how you work, then continue into verification and onboarding without losing the backend sequence we already have."
+            title="Create your account and get started."
+            subtitle="Choose whether you're looking for opportunities or hiring talent, then create your account to get started."
             bullets={[
                 'Candidate and employer paths stay separate from the first step.',
-                'Email verification is still required before onboarding continues.',
-                'The form maps directly to the current register API contract.',
+                'Email verification is required before onboarding continues.',
+                'Your registration is processed securely.',
+            ]}
+            groupsTitle="Why Sign Up?"
+            groups={[
+                {
+                    title: 'Candidates',
+                    items: [
+                        'Build your professional profile',
+                        'Upload your resume and credentials',
+                        'Apply to opportunities in one click',
+                        'Track every application in one place',
+                    ],
+                },
+                {
+                    title: 'Employers',
+                    items: [
+                        'Post open positions',
+                        'Review and manage applicants',
+                        'Streamline your recruiting activity',
+                        'Connect with qualified talent',
+                    ],
+                },
             ]}
             footer={(
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -288,6 +288,36 @@ select:focus-visible {
   animation: floatSlow 7s ease-in-out infinite;
 }
 
+.tp-sector-tile {
+  cursor: default;
+}
+
+.tp-sector-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 23, 46, 0);
+  transition: background 0.3s ease;
+  pointer-events: none;
+}
+
+.tp-sector-tile:hover .tp-sector-dim {
+  background: rgba(7, 23, 46, 0.4);
+}
+
+.tp-sector-jobs {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-top: 0;
+  transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease;
+}
+
+.tp-sector-tile:hover .tp-sector-jobs {
+  max-height: 10rem;
+  opacity: 1;
+  margin-top: 0.6rem;
+}
+
 .auth-span-5 {
   grid-column: span 12 / span 12;
 }
@@ -309,6 +339,48 @@ select:focus-visible {
 @media (max-width: 640px) {
   .tp-container {
     width: min(100% - 1rem, 1180px);
+  }
+
+  .tp-hero-media {
+    aspect-ratio: auto !important;
+    min-height: 40rem;
+  }
+
+  .tp-hero-overlay {
+    padding: 2.5rem 1.1rem !important;
+  }
+
+  .tp-hero-search {
+    flex-wrap: nowrap;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tp-hero-search input {
+    flex: 0 1 auto !important;
+  }
+
+  .tp-hero-search-divider {
+    display: none;
+  }
+
+  .tp-hero-search-location {
+    flex: 0 1 auto !important;
+    border-top: 1px solid rgba(148, 163, 184, 0.35);
+    padding-top: 0.35rem;
+  }
+
+  .tp-hero-search-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tp-hero-popular {
+    gap: 0.45rem;
+  }
+
+  .tp-hero-popular > span:nth-child(n + 7) {
+    display: none;
   }
 }
 

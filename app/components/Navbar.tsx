@@ -17,8 +17,7 @@ function Navbar() {
   const navLinks = [
     { href: '/browse-jobs', label: 'Browse Jobs' },
     { href: '/about', label: 'About' },
-    { href: '/#for-employers', label: 'Employers' },
-    { href: '/#for-candidates', label: 'Candidates' },
+    { href: '/join-now', label: 'Candidates' },
     { href: 'mailto:careers@trimergeconsulting.com', label: 'Contact' },
   ]
 
@@ -56,6 +55,11 @@ function Navbar() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {!isEmployer && (
+              <Link href="/employers" className="tp-nav-link hidden sm:inline-flex">
+                Employers / Post Job
+              </Link>
+            )}
             {user ? (
               <>
                 <div style={{ display: 'none', alignItems: 'center', gap: '0.65rem', padding: '0.55rem 0.8rem', borderRadius: '999px', background: 'rgba(29,78,216,0.08)', color: 'var(--tp-primary-dark)' }} className="md:flex">
@@ -93,9 +97,13 @@ function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              {isEmployer && (
+              {isEmployer ? (
                 <Link href={employerLink.href} className="tp-nav-link" onClick={() => setOpen(false)}>
                   {employerLink.label}
+                </Link>
+              ) : (
+                <Link href="/employers" className="tp-nav-link" onClick={() => setOpen(false)}>
+                  Employers / Post Job
                 </Link>
               )}
               {!user && (

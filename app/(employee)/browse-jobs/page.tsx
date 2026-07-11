@@ -548,6 +548,14 @@ function BrowseJobs() {
     return () => { mounted = false }
   }, [state.user, fetchJobs, fetchPublicJobs])
 
+  // If a q query param is present (from the homepage hero search), prefill the keyword search
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const q = params.get('q')
+    if (q) setSearchTerm(q)
+  }, [])
+
   // If a details query param is present, open that job (when jobs load)
   useEffect(() => {
     // Read details param from the URL directly to avoid CSR bailout from next/navigation

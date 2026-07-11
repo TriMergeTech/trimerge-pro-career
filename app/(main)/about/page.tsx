@@ -1,11 +1,11 @@
 "use client"
 
 import Link from 'next/link';
-import { 
-  Search,  Briefcase, 
-   DollarSign, CheckCircle, Users, Award, 
+import {
+  Search, Briefcase,
+  DollarSign, CheckCircle, Users, Award,
   Heart, Lightbulb, Trophy,
-  GraduationCap,  
+  GraduationCap,
 } from 'lucide-react';
 
 const jobListings = [
@@ -63,6 +63,23 @@ export default function AboutPage() {
       </section>
 
       <section style={{ paddingTop: '4.5rem', paddingBottom: '5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', backgroundColor: 'white' }}>
+        <div style={{ maxWidth: '80rem', marginLeft: 'auto', marginRight: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+            <div style={{ padding: '0.5rem', backgroundColor: '#2563eb', borderRadius: '0.5rem' }}>
+              <Award style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
+            </div>
+            <h2 style={{ fontSize: '1.875rem', fontWeight: 700 }}>Why TriMerge?</h2>
+          </div>
+          <p style={{ color: '#4b5563', fontSize: '1.05rem', lineHeight: 1.75, maxWidth: '48rem' }}>
+            TriMerge Consulting Group is a consulting, accounting, staffing, and technology solutions firm serving government, nonprofit, and commercial clients.
+          </p>
+          <p style={{ color: '#4b5563', fontSize: '1.05rem', lineHeight: 1.75, maxWidth: '48rem', marginTop: '0.85rem' }}>
+            For more than two decades we have helped organizations solve business challenges while connecting talented professionals with meaningful opportunities.
+          </p>
+        </div>
+      </section>
+
+      <section style={{ paddingTop: '0', paddingBottom: '5rem', paddingLeft: '1.5rem', paddingRight: '1.5rem', backgroundColor: 'white' }}>
         <div style={{ maxWidth: '80rem', marginLeft: 'auto', marginRight: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
             <div style={{ padding: '0.5rem', backgroundColor: '#2563eb', borderRadius: '0.5rem' }}>

@@ -5,14 +5,13 @@ import { X, MapPin, Briefcase, Calendar, DollarSign } from 'lucide-react';
 interface Job {
   // support both server _id and client id
   _id?: string;
-  id?: number | string;
+  id?: string;
   employerId?: string;
   title?: string;
   department?: string;
   location?: string;
-  status?: string; // OPEN/CLOSED
+  status?: string; // OPEN/CLOSED/DRAFT
   description?: string;
-  fullDescription?: string;
   requirements?: string;
   employmentType?: string;
   salary?: string;

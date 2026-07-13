@@ -3,7 +3,9 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useRecruiterOnboardingStepTwo } from '@/hooks/useRecruiterOnboardingStepTwo'
 import { AuthShell } from '../../../../components/ui/AuthShell'
+import { Select } from '../../../../components/ui/Select'
 import { ArrowRight, Building2, Globe, MapPin, UserCircle2 } from 'lucide-react'
+import { COMPANY_SIZE_OPTIONS, US_STATES } from './constants'
 
 function Page() {
   const router = useRouter()
@@ -13,13 +15,22 @@ function Page() {
   const [companyWebsite, setCompanyWebsite] = useState('')
   const [industry, setIndustry] = useState('')
   const [companySize, setCompanySize] = useState('')
-  const [location, setLocation] = useState('')
+  const [city, setCity] = useState('')
+  const [state, setState] = useState('')
+  const [locationError, setLocationError] = useState<string | null>(null)
   const [yourRole, setYourRole] = useState('')
   const [jobTitle, setJobTitle] = useState('')
 
+  const combinedLocation = city.trim() && state ? `${city.trim()}, ${state}` : city.trim()
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const payload = { companyName, companyWebsite, industry, companySize, location, yourRole, jobTitle }
+    if (!state) {
+      setLocationError('Please select a state')
+      return
+    }
+    setLocationError(null)
+    const payload = { companyName, companyWebsite, industry, companySize, location: combinedLocation, yourRole, jobTitle }
     const result = await submit(payload)
     if (result) {
       // proceed to next step or dashboard
@@ -59,7 +70,7 @@ function Page() {
                         <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Company website</span>
                         <div style={{ position: 'relative' }}>
                             <Globe size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                            <input required value={companyWebsite} onChange={(e) => setCompanyWebsite(e.target.value)} type="text" placeholder="Company website *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                            <input required value={companyWebsite} onChange={(e) => setCompanyWebsite(e.target.value)} type="text" placeholder="https://www.company.com" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
                         </div>
                     </label>
 
@@ -70,15 +81,37 @@ function Page() {
 
                     <label style={{ display: 'grid', gap: '0.45rem' }}>
                         <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Company size</span>
-                        <input value={companySize} onChange={(e) => setCompanySize(e.target.value)} type="text" placeholder="Company size" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                        <Select
+                            value={companySize}
+                            onValueChange={setCompanySize}
+                            ariaLabel="Company size"
+                            placeholder="Select company size"
+                            options={COMPANY_SIZE_OPTIONS.map((v) => ({ value: v, label: `${v} employees` }))}
+                            triggerClassName="tp-card"
+                            triggerStyle={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }}
+                        />
                     </label>
 
                     <label style={{ display: 'grid', gap: '0.45rem' }}>
-                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Location</span>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>City</span>
                         <div style={{ position: 'relative' }}>
                             <MapPin size={16} color="var(--tp-muted)" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                            <input required value={location} onChange={(e) => setLocation(e.target.value)} type="text" placeholder="Location *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                            <input required value={city} onChange={(e) => setCity(e.target.value)} type="text" placeholder="City *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem 0.95rem 2.5rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
                         </div>
+                    </label>
+
+                    <label style={{ display: 'grid', gap: '0.45rem' }}>
+                        <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>State</span>
+                        <Select
+                            value={state}
+                            onValueChange={setState}
+                            ariaLabel="State"
+                            placeholder="Select state"
+                            options={US_STATES.map((s) => ({ value: s.code, label: s.name }))}
+                            triggerClassName="tp-card"
+                            triggerStyle={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }}
+                        />
+                        {locationError && <div style={{ color: '#b91c1c', fontWeight: 700 }}>{locationError}</div>}
                     </label>
 
                     <label style={{ display: 'grid', gap: '0.45rem' }}>

@@ -2,7 +2,7 @@ import { useUser } from '@/contexts/userContext/userContext';
 import { MapPin, Briefcase, ArrowRight } from 'lucide-react';
 
 interface JobCardProps {
-  id: number;
+  id: string | number;
   title: string;
   department: string;
   location: string;

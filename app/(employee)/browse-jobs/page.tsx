@@ -22,40 +22,40 @@ function BrowseJobs() {
 
 
 
-  // Job shape coming from the API - using the fields you specified
+  // Job shape as actually returned by the public/authenticated jobs APIs
   interface Job {
-    id: number | string;
-    _id?: string;
+    _id: string;
+    id?: string;
+    employerId?: string;
     title: string;
     description: string;
     requirements?: string;
     location?: string;
-    employmentType?: string;
+    employmentType?: 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP' | string;
     salaryMin?: number;
     salaryMax?: number;
     currency?: string;
     skills?: string[];
-    status?: string;
+    status?: 'OPEN' | 'CLOSED' | 'DRAFT' | string;
     // department will be shown with a default for now
-    department?: string;
+    department?: 'ENGINEERING' | 'MARKETING' | 'HR' | 'SALES' | 'DESIGN' | string;
     // Optional display fields used by the detail drawer
     isNew?: boolean;
     salary?: string;
-    postedDate?: string;
-    fullDescription?: string;
+    createdAt?: string;
+    updatedAt?: string;
   }
 
   // Type for the detail drawer (subset/overlap of API job)
   type DrawerJob = {
     _id?: string;
-    id?: number | string;
+    id?: string;
     employerId?: string;
     title?: string;
     department?: string;
     location?: string;
     status?: string;
     description?: string;
-    fullDescription?: string;
     requirements?: string;
     employmentType?: string;
     salary?: string;
@@ -111,11 +111,11 @@ function BrowseJobs() {
   };
 
   const [searchTerm, setSearchTerm] = useState('');
-  // department/location filters reserved for later
+  const [locationTerm, setLocationTerm] = useState('');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [activeCategory, setActiveCategory] = useState('All');
   const { fetchJobs } = useGetJobs()
-  const { fetchJobs: fetchPublicJobs } = useGetPublicJobs()
+  const { fetchJobs: fetchPublicJobs, fetchJobById } = useGetPublicJobs()
 
   const [jobs, setJobs] = useState<Job[] | null>(null)
   const [loadingJobs, setLoadingJobs] = useState(true)
@@ -361,42 +361,6 @@ function BrowseJobs() {
   const [showSkillInput, setShowSkillInput] = useState(false)
   const [statusInput, setStatusInput] = useState<'OPEN' | 'CLOSED' | 'DRAFT' | string>('OPEN')
 
-  useEffect(() => {
-    let mounted = true
-    const load = async () => {
-      const res = await fetchJobs({ page: 1, limit: 50 })
-      if (!mounted) return
-
-      // Be defensive about response shape. Backend may return array directly
-      // or an envelope like { data: [...] }, { jobs: [...] }, { items: [...] }
-      try {
-        if (!res) {
-          setJobs([])
-          return
-        }
-
-        let payload: unknown = null
-        if (Array.isArray(res)) payload = res
-        else if (Array.isArray((res as any).data)) payload = (res as any).data
-        else if (Array.isArray((res as any).jobs)) payload = (res as any).jobs
-        else if (Array.isArray((res as any).items)) payload = (res as any).items
-        else if (Array.isArray((res as any).results)) payload = (res as any).results
-
-        if (Array.isArray(payload)) {
-          setJobs(payload as Job[])
-        } else {
-          const maybeArray = (res as any).data?.jobs ?? (res as any).data?.items ?? null
-          if (Array.isArray(maybeArray)) setJobs(maybeArray as Job[])
-          else setJobs([])
-        }
-      } finally {
-        setLoadingJobs(false)
-      }
-    }
-    load()
-    return () => { mounted = false }
-  }, [])
-
   // Ensure activeThumb is cleared if mouseup happens outside the input
   useEffect(() => {
     const onUp = () => setActiveThumb(null)
@@ -471,13 +435,12 @@ function BrowseJobs() {
 
     const res = await createJob(payload)
     if (res) {
-      // refresh jobs
-  const refreshed = await fetchJobs({ page: 1, limit: 50 })
-  // `fetchJobs` can return several shapes depending on the adapter (array, { data: [...] }, { jobs: [...] }, etc.).
-  // Cast to `any` for property access so TypeScript doesn't complain while keeping runtime behavior.
-  const r = refreshed as { data?: unknown; jobs?: unknown; items?: unknown } | undefined
-  const payloadJobs = r?.data ?? r?.jobs ?? r?.items ?? refreshed
-      if (Array.isArray(payloadJobs)) setJobs(payloadJobs as Job[])
+      // refresh jobs — the authenticated jobs endpoint returns { jobs, pagination }
+      const refreshed = await fetchJobs({ page: 1, limit: 50 })
+      const payloadJobs = (refreshed && typeof refreshed === 'object' && Array.isArray((refreshed as { jobs?: unknown }).jobs))
+        ? (refreshed as { jobs: unknown[] }).jobs
+        : []
+      if (payloadJobs.length > 0) setJobs(payloadJobs as Job[])
       closeCreateModal()
     }
   }
@@ -495,83 +458,98 @@ function BrowseJobs() {
     const matchesSearch = (job.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (job.description || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDepartment = true; // department filter not wired yet
-    const matchesLocation = true; // location filter not wired yet
-    const matchesCategory = activeCategory === 'All' || (job.department ?? 'General') === activeCategory;
+    const matchesLocation = !locationTerm.trim() ||
+      (job.location ?? '').toLowerCase().includes(locationTerm.trim().toLowerCase());
+    const matchesCategory = activeCategory === 'All' || (job.department ?? '').toUpperCase() === activeCategory.toUpperCase();
 
     return matchesSearch && matchesDepartment && matchesLocation && matchesCategory;
   });
 
   // If there's no logged-in user, load public jobs. Otherwise use authenticated fetchJobs.
+  // Re-runs whenever the search/location terms change so the homepage hero search
+  // (q/where) and any in-page edits actually reach the server.
   useEffect(() => {
     let mounted = true
     const load = async () => {
+      setLoadingJobs(true)
+      const commonParams = {
+        page: 1,
+        limit: 50,
+        search: searchTerm.trim() || undefined,
+        location: locationTerm.trim() || undefined,
+      }
       let res
       if (!state.user) {
-        res = await fetchPublicJobs({ page: 1, limit: 50 })
+        res = await fetchPublicJobs(commonParams)
       } else {
-        res = await fetchJobs({ page: 1, limit: 50 })
+        res = await fetchJobs(commonParams)
       }
       if (!mounted) return
 
-      // Be defensive about response shape — backend may return array or envelope
-      const r = res as unknown
-      let payload: unknown = res
-      if (r && typeof r === 'object') {
-        const obj = r as Record<string, unknown>
-        if (Array.isArray(obj.data)) payload = obj.data
-        else if (Array.isArray(obj.jobs)) payload = obj.jobs
-        else if (Array.isArray(obj.items)) payload = obj.items
-      }
-      // If we got nothing for authenticated fetch, fall back to public jobs
-      if (Array.isArray(payload) && (payload as unknown[]).length > 0) {
+      // Both the authenticated and public jobs endpoints return { jobs, pagination }.
+      const payload = (res && typeof res === 'object' && Array.isArray((res as { jobs?: unknown }).jobs))
+        ? (res as { jobs: unknown[] }).jobs
+        : []
+
+      if (payload.length > 0) {
         setJobs(payload as Job[])
-      } else {
-        // Try to fetch public jobs as a fallback (covers empty or unexpected auth responses)
-        try {
-          const pub = await fetchPublicJobs({ page: 1, limit: 50 })
-          const pr = pub as unknown
-          let pubPayload: unknown = pub
-          if (pr && typeof pr === 'object') {
-            const pobj = pr as Record<string, unknown>
-            if (Array.isArray(pobj.data)) pubPayload = pobj.data
-            else if (Array.isArray(pobj.jobs)) pubPayload = pobj.jobs
-            else if (Array.isArray(pobj.items)) pubPayload = pobj.items
-          }
-          if (Array.isArray(pubPayload)) setJobs(pubPayload as Job[])
-          else setJobs([])
-        } catch (err) {
-          setJobs([])
-        }
+        setLoadingJobs(false)
+        return
       }
+
+      if (state.user) {
+        // Authenticated call returned nothing — fall back to public jobs.
+        const pub = await fetchPublicJobs(commonParams)
+        const pubPayload = (pub && typeof pub === 'object' && Array.isArray((pub as { jobs?: unknown }).jobs))
+          ? (pub as { jobs: unknown[] }).jobs
+          : []
+        if (!mounted) return
+        setJobs(pubPayload as Job[])
+      } else {
+        setJobs([])
+      }
+      setLoadingJobs(false)
     }
     load()
     return () => { mounted = false }
-  }, [state.user, fetchJobs, fetchPublicJobs])
+  }, [state.user, searchTerm, locationTerm, fetchJobs, fetchPublicJobs])
 
-  // If a q query param is present (from the homepage hero search), prefill the keyword search
+  // If q/where query params are present (from the homepage hero search), prefill
+  // the keyword and location search so they reach the server-side filter above.
   useEffect(() => {
     if (typeof window === 'undefined') return
     const params = new URLSearchParams(window.location.search)
     const q = params.get('q')
+    const where = params.get('where')
     if (q) setSearchTerm(q)
+    if (where) setLocationTerm(where)
   }, [])
 
-  // If a details query param is present, open that job (when jobs load)
+  // If a details query param is present, open that job once the list has loaded.
+  // Falls back to fetching it directly by id if it isn't in the loaded batch
+  // (e.g. it's outside the first page, or excluded by the current filters).
   useEffect(() => {
     // Read details param from the URL directly to avoid CSR bailout from next/navigation
     if (typeof window === 'undefined') return
     const params = new URLSearchParams(window.location.search)
     const details = params.get('details')
     if (!details) return
-    if (!jobs || jobs.length === 0) return
+    if (jobs === null) return // list fetch hasn't resolved yet
 
-    // Try to match by id/_id/title
-    const found = jobs.find(j => String(j.id ?? j._id ?? j.title) === details || String(j._id ?? j.id ?? j.title) === details)
+    const found = jobs.find(j => String(j._id ?? j.id ?? j.title) === details)
     if (found) {
       // Defer to avoid synchronous setState inside effect (keeps parity with other effects)
       setTimeout(() => setSelectedJob(found), 0)
+      return
     }
-  }, [jobs])
+
+    let cancelled = false
+    fetchJobById(details).then((job) => {
+      if (cancelled || !job) return
+      setSelectedJob(job as Job)
+    })
+    return () => { cancelled = true }
+  }, [jobs, fetchJobById])
 
   const displayedJobs = filteredJobs
 
@@ -659,15 +637,12 @@ function BrowseJobs() {
               displayedJobs.map((job, index) => (
                 // Map the API job object to the JobCard props. JobCard expects a few fields; ensure defaults.
                 (() => {
-                  const jobKey = String(job.id ?? job._id ?? `${job.title ?? 'job'}-${index}`)
-                  const jobId = typeof job.id === 'number'
-                    ? job.id
-                    : Number(job.id ?? job._id ?? index + 1) || index + 1
+                  const jobKey = String(job._id ?? job.id ?? `${job.title ?? 'job'}-${index}`)
 
                   return (
                 <JobCard
                   key={jobKey}
-                  id={jobId}
+                  id={job._id ?? job.id ?? jobKey}
                   title={job.title}
                   department={job.department ?? 'General'}
                   location={job.location ?? 'Remote'}

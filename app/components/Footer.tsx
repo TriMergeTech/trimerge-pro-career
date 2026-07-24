@@ -2,9 +2,27 @@
 
 import Link from 'next/link'
 import { Globe, Mail, MapPin, Phone } from 'lucide-react'
+import { useUser } from '@/contexts/userContext/userContext'
 
 function Footer() {
   const year = new Date().getFullYear()
+  const { state } = useUser()
+  const isRecruiter = state.user?.accountType === 'EMPLOYER'
+
+  const isLoggedInCandidate = !!state.user && !isRecruiter
+
+  if (isLoggedInCandidate) return null
+
+  if (isRecruiter) {
+    return (
+      <footer style={{ borderTop: '1px solid rgba(148, 163, 184, 0.18)', background: 'rgba(255,255,255,0.72)' }}>
+        <div className="tp-container" style={{ padding: '0.85rem 0', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '0.5rem', fontSize: '0.82rem', color: 'var(--tp-muted)' }}>
+          <span>© {year} TriMergePro Careers. All rights reserved.</span>
+          <span>TriMergePRO Careers is a workforce and recruiting platform designed to connect talent, employers, and opportunities through technology-driven solutions.</span>
+        </div>
+      </footer>
+    )
+  }
 
   return (
     <footer style={{ marginTop: '4rem', borderTop: '1px solid rgba(148, 163, 184, 0.18)', background: 'rgba(255,255,255,0.72)', backdropFilter: 'blur(18px)' }}>

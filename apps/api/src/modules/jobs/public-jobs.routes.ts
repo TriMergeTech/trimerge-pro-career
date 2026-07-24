@@ -29,7 +29,7 @@ const router = Router();
  *         name: department
  *         schema:
  *           type: string
- *           enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN]
+ *           enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN, OPERATIONS]
  *       - in: query
  *         name: location
  *         schema:

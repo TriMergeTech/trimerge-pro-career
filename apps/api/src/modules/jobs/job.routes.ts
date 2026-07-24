@@ -48,7 +48,7 @@ const router = Router();
  *                 enum: [FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP]
  *               department:
  *                 type: string
- *                 enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN]
+ *                 enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN, OPERATIONS]
  *               salaryMin:
  *                 type: number
  *               salaryMax:
@@ -105,7 +105,7 @@ router.post(
  *         name: department
  *         schema:
  *           type: string
- *           enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN]
+ *           enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN, OPERATIONS]
  *       - in: query
  *         name: location
  *         schema:
@@ -220,7 +220,7 @@ router.get('/:id', requireAuth, getJobById);
  *                 enum: [FULL_TIME, PART_TIME, CONTRACT, INTERNSHIP]
  *               department:
  *                 type: string
- *                 enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN]
+ *                 enum: [ENGINEERING, MARKETING, HR, SALES, DESIGN, OPERATIONS]
  *               salaryMin:
  *                 type: number
  *               salaryMax:

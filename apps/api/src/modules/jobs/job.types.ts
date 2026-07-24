@@ -2,7 +2,7 @@ import { Document, Types } from 'mongoose';
 
 export type JobStatus = 'OPEN' | 'CLOSED' | 'DRAFT';
 export type EmploymentType = 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP';
-export type JobDepartment = 'ENGINEERING' | 'MARKETING' | 'HR' | 'SALES' | 'DESIGN';
+export type JobDepartment = 'ENGINEERING' | 'MARKETING' | 'HR' | 'SALES' | 'DESIGN' | 'OPERATIONS';
 
 export interface Job {
   employerId: Types.ObjectId;

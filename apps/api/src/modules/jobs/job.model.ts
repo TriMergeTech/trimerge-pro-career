@@ -15,7 +15,7 @@ const jobSchema = new Schema<JobDocument>(
     },
     department: {
       type: String,
-      enum: ['ENGINEERING', 'MARKETING', 'HR', 'SALES', 'DESIGN'],
+      enum: ['ENGINEERING', 'MARKETING', 'HR', 'SALES', 'DESIGN', 'OPERATIONS'],
       required: true,
       index: true,
     },

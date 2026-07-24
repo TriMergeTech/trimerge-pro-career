@@ -5,7 +5,7 @@ import { useRecruiterOnboardingStepTwo } from '@/hooks/useRecruiterOnboardingSte
 import { AuthShell } from '../../../../components/ui/AuthShell'
 import { Select } from '../../../../components/ui/Select'
 import { ArrowRight, Building2, Globe, MapPin, UserCircle2 } from 'lucide-react'
-import { COMPANY_SIZE_OPTIONS, US_STATES } from './constants'
+import { COMPANY_INDUSTRY_OPTIONS, COMPANY_SIZE_OPTIONS, US_STATES } from './constants'
 
 function Page() {
   const router = useRouter()
@@ -76,7 +76,15 @@ function Page() {
 
                     <label style={{ display: 'grid', gap: '0.45rem' }}>
                         <span style={{ fontWeight: 800, color: 'var(--tp-ink)' }}>Industry</span>
-                        <input required value={industry} onChange={(e) => setIndustry(e.target.value)} type="text" placeholder="Industry *" className="tp-card" style={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }} />
+                        <Select
+                            value={industry}
+                            onValueChange={setIndustry}
+                            ariaLabel="Company industry"
+                            placeholder="Select industry *"
+                            options={COMPANY_INDUSTRY_OPTIONS.map((v) => ({ value: v, label: v }))}
+                            triggerClassName="tp-card"
+                            triggerStyle={{ width: '100%', boxSizing: 'border-box', padding: '0.95rem 1rem', borderRadius: '16px', border: '1px solid rgba(148,163,184,0.2)' }}
+                        />
                     </label>
 
                     <label style={{ display: 'grid', gap: '0.45rem' }}>

@@ -6,14 +6,14 @@ import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
 import { AuthShell } from '../../components/ui/AuthShell';
-import { CheckCircle2, ChevronRight, Eye, EyeOff, Mail, Users } from 'lucide-react';
+import { ChevronRight, Eye, EyeOff, Mail } from 'lucide-react';
 
 export default function JoinNowClient() {
     const { register, loading, error, setError } = useRegister();
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const initialRole = searchParams?.get('role')?.toLowerCase() === 'recruiter' ? 'Recruiter' : 'Candidate';
+    const initialRole: 'Candidate' = 'Candidate';
 
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -21,20 +21,11 @@ export default function JoinNowClient() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [terms, setTerms] = useState(false);
     const [updates, setUpdates] = useState(false);
-    const [role, setRole] = useState<'Candidate' | 'Recruiter'>(initialRole);
+    const [role] = useState<'Candidate'>('Candidate');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [localError, setLocalError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const queryRole = searchParams?.get('role')?.toLowerCase();
-        // defer state updates to avoid synchronous setState inside effect
-        const t = setTimeout(() => {
-            if (queryRole === 'recruiter') setRole('Recruiter');
-            if (queryRole === 'candidate') setRole('Candidate');
-        }, 0);
-        return () => clearTimeout(t);
-    }, [searchParams]);
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -173,34 +164,6 @@ export default function JoinNowClient() {
                 </div>
 
                 <div style={{ display: 'grid', gap: '0.8rem' }}>
-                    <div style={{ display: 'grid', gap: '0.65rem' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.75rem' }}>
-                            {([
-                                { value: 'Candidate', title: 'Candidate', text: 'Find roles and build your profile', icon: Users },
-                                { value: 'Recruiter', title: 'Recruiter', text: 'Hire talent and manage openings', icon: CheckCircle2 },
-                            ] as const).map((item) => {
-                                const Icon = item.icon
-                                const active = role === item.value
-                                return (
-                                    <button key={item.value} type="button" onClick={(e) => { e.preventDefault(); setRole(item.value) }} style={{ textAlign: 'left', borderRadius: '20px', border: active ? '1px solid rgba(29,78,216,0.3)' : '1px solid rgba(148,163,184,0.2)', background: active ? 'rgba(29,78,216,0.08)' : 'white', padding: '1rem', cursor: 'pointer', boxShadow: active ? '0 18px 35px -28px rgba(29,78,216,0.8)' : 'none' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-                                            <div style={{ width: '2.6rem', height: '2.6rem', borderRadius: '16px', background: active ? 'linear-gradient(135deg, var(--tp-primary), #0b3aa7)' : 'rgba(148,163,184,0.1)', color: active ? 'white' : 'var(--tp-primary)', display: 'grid', placeItems: 'center' }}>
-                                                <Icon size={16} />
-                                            </div>
-                                            <div>
-                                                <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--tp-ink)' }}>{item.title}</div>
-                                                <div style={{ color: 'var(--tp-muted)', fontSize: '0.9rem', lineHeight: 1.5 }}>{item.text}</div>
-                                            </div>
-                                        </div>
-                                        <div style={{ marginTop: '0.65rem', fontSize: '0.85rem', fontWeight: 700, color: active ? 'var(--tp-primary)' : 'var(--tp-muted)' }}>
-                                            {active ? 'Selected' : 'Select this path'}
-                                        </div>
-                                    </button>
-                                )
-                            })}
-                        </div>
-                    </div>
-
                     <label style={{ display: 'flex', gap: '0.7rem', alignItems: 'flex-start', color: 'var(--tp-muted)', fontSize: '0.95rem', lineHeight: 1.55 }}>
                         <input type='checkbox' id='terms' name='terms' checked={terms} onChange={(e) => setTerms(e.target.checked)} style={{ marginTop: '0.2rem' }} />
                         I agree to the Terms and Conditions.

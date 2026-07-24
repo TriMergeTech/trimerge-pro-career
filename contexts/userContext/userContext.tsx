@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useReducer } from "react";
+import { useRouter } from "next/navigation";
 
 // Types
 type Profile = {
@@ -98,6 +99,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   // Do not access localStorage synchronously to avoid SSR/runtime errors.
   // Restore session on the client inside useEffect below.
   const [state, dispatch] = useReducer(reducer, initialState);
+  const router = useRouter();
 
   // Restore session from localStorage (simple example)
   useEffect(() => {
@@ -126,7 +128,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   function logout() {
     localStorage.removeItem("tm_token");
     localStorage.removeItem("tm_user");
+    localStorage.removeItem("tm_refresh");
     dispatch({ type: "LOGOUT" });
+    router.push("/login");
   }
 
   function updateProfile(patch: Partial<User>) {

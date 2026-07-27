@@ -46,7 +46,7 @@ function Footer() {
                 { title: 'Employers', links: [{ href: '/employers', label: 'Post a Job' }, { href: '/login', label: 'Employer Log In' }] },
                 { title: 'Job Seekers', links: [{ href: '/browse-jobs', label: 'Browse Jobs' }, { href: '/join-now', label: 'Create Profile' }, { href: '/login', label: 'Log In' }] },
                 { title: 'Company', links: [{ href: '/about', label: 'About Us' }, { href: 'mailto:careers@trimergeconsulting.com', label: 'Contact Us' }] },
-                { title: 'Support', links: [{ href: '/forgot-password', label: 'Forgot Password' }, { href: '#', label: 'Privacy Policy' }, { href: '#', label: 'Terms of Use' }, { href: '#', label: 'Accessibility' }] },
+                { title: 'Support', links: [{ href: '/forgot-password', label: 'Forgot Password' }, { href: 'privacy-policy', label: 'Privacy Policy' }, { href: 'terms-of-use', label: 'Terms of Use' }, { href: 'accessibility-statement', label: 'Accessibility' }] },
               ].map((column) => (
                 <div key={column.title}>
                   <div className="tp-kicker" style={{ marginBottom: '0.8rem' }}>{column.title}</div>

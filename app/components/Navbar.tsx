@@ -97,25 +97,25 @@ function Navbar() {
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            {!isCandidate && (
+            {/* {!isCandidate && (
               <Link href="/employers" className="tp-nav-link hidden sm:inline-flex">
                 Employers / Post Job
               </Link>
-            )}
+            )} */}
             {isCandidate ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <Link href="/help" className="tp-nav-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.875rem', color: '#475569' }}>
+                {/* <Link href="/help" className="tp-nav-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.875rem', color: '#475569' }}>
                   <HelpCircle size={15} />
                   Help
-                </Link>
+                </Link> */}
 
-                <button type="button" title="Notifications" style={{ padding: '0.5rem', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569', display: 'grid', placeItems: 'center' }}>
+                {/* <button type="button" title="Notifications" style={{ padding: '0.5rem', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569', display: 'grid', placeItems: 'center' }}>
                   <Bell size={17} />
-                </button>
+                </button> */}
 
-                <button type="button" title="Messages" style={{ padding: '0.5rem', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569', display: 'grid', placeItems: 'center' }}>
+                {/* <button type="button" title="Messages" style={{ padding: '0.5rem', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569', display: 'grid', placeItems: 'center' }}>
                   <MessageSquare size={17} />
-                </button>
+                </button> */}
 
                 <div style={{ width: '1px', height: '1.5rem', background: 'rgba(148,163,184,0.25)', margin: '0 0.25rem' }} />
 

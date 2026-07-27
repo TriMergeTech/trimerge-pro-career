@@ -1,8 +1,9 @@
 "use client"
 
 import Link from 'next/link'
-import { Globe, Mail, MapPin, Phone } from 'lucide-react'
+import { Globe, Mail, MapPin, Phone } from "lucide-react";
 import { useUser } from '@/contexts/userContext/userContext'
+import { FaLinkedin } from 'react-icons/fa'
 
 function Footer() {
   const year = new Date().getFullYear()
@@ -36,6 +37,21 @@ function Footer() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}><MapPin size={16} /> Miami, FL</div>
                 <a href="https://www.trimergeconsulting.com" target="_blank" rel="noopener noreferrer" className="tp-footer-link" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--tp-muted)' }}><Globe size={16} /> www.TriMergeConsulting.com</a>
                 <a href="https://www.trimergepro.com" target="_blank" rel="noopener noreferrer" className="tp-footer-link" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--tp-muted)' }}><Globe size={16} /> www.TriMergePRO.com</a>
+                <a
+                  href="https://www.linkedin.com/showcase/trimergepro/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="tp-footer-link"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    color: 'var(--tp-muted)'
+                  }}
+                >
+                  <FaLinkedin size={16} />
+                  Follow TriMergePRO on LinkedIn
+                </a>
               </div>
             </div>
           </div>
@@ -43,7 +59,7 @@ function Footer() {
           <div className="auth-span-7">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(9rem, 1fr))', gap: '1.5rem' }}>
               {[
-                { title: 'Employers', links: [{ href: '/employers', label: 'Post a Job' }, { href: '/login', label: 'Employer Log In' }] },
+                // { title: 'Employers', links: [{ href: '/employers', label: 'Post a Job' }, { href: '/login', label: 'Employer Log In' }] },
                 { title: 'Job Seekers', links: [{ href: '/browse-jobs', label: 'Browse Jobs' }, { href: '/join-now', label: 'Create Profile' }, { href: '/login', label: 'Log In' }] },
                 { title: 'Company', links: [{ href: '/about', label: 'About Us' }, { href: 'mailto:careers@trimergeconsulting.com', label: 'Contact Us' }] },
                 { title: 'Support', links: [{ href: '/forgot-password', label: 'Forgot Password' }, { href: 'privacy-policy', label: 'Privacy Policy' }, { href: 'terms-of-use', label: 'Terms of Use' }, { href: 'accessibility-statement', label: 'Accessibility' }] },

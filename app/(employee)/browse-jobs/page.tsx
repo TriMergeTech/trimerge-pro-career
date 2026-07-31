@@ -11,6 +11,7 @@ import React, { useState, useEffect, useRef } from 'react';
 // avoid useSearchParams (requires Suspense boundary) — read from window.location in effects instead
 import { JobCard } from '@/app/components/ui/JobCard';
 import { JobDetailDrawer } from '@/app/components/ui/JobDetailDrawer';
+import { ApplicationWizard } from '@/app/components/ui/ApplicationWizard';
 import { useGetJobs } from '@/hooks/useGetJobs';
 import { useGetPublicJobs } from '@/hooks/useGetPublicJobs';
 import { useCreateJob } from '@/hooks/useCreateJob';
@@ -35,6 +36,8 @@ function BrowseJobs() {
     salaryMax?: number;
     currency?: string;
     skills?: string[];
+    benefits?: string[];
+    applicationQuestions?: string[];
     status?: 'OPEN' | 'CLOSED' | 'DRAFT' | string;
     // department will be shown with a default for now
     department?: 'ENGINEERING' | 'MARKETING' | 'HR' | 'SALES' | 'DESIGN' | string;
@@ -62,6 +65,8 @@ function BrowseJobs() {
     salaryMax?: number;
     currency?: string;
     skills?: string[];
+    benefits?: string[];
+    applicationQuestions?: string[];
     createdAt?: string;
     updatedAt?: string;
   };
@@ -112,8 +117,20 @@ function BrowseJobs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [locationTerm, setLocationTerm] = useState('');
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [applyingToJob, setApplyingToJob] = useState<Job | null>(null);
   const { fetchJobs } = useGetJobs()
   const { fetchJobs: fetchPublicJobs, fetchJobById } = useGetPublicJobs()
+
+  // Fetch full job detail before opening wizard so applicationQuestions are present
+  async function handleApply() {
+    if (!selectedJob) return;
+    const jobId = String((selectedJob as { _id?: string; id?: string })._id ?? (selectedJob as { id?: string }).id ?? '');
+    if (jobId) {
+      const full = await fetchJobById(jobId);
+      if (full) { setApplyingToJob(full as Job); return; }
+    }
+    setApplyingToJob(selectedJob);
+  }
 
   const [jobs, setJobs] = useState<Job[] | null>(null)
   const [loadingJobs, setLoadingJobs] = useState(true)
@@ -295,6 +312,10 @@ function BrowseJobs() {
         const states = json?.data?.states ?? json?.data ?? null
         if (Array.isArray(states) && states.length > 0) {
           const names = states.map((s: any) => (typeof s === 'string' ? s : s.name || s.state || ''))
+          if (country === 'United States' && !names.includes('District of Columbia')) {
+            names.push('District of Columbia')
+            names.sort()
+          }
           setStatesForCountry(names)
           setStateProvince(names[0] ?? '')
         } else {
@@ -318,6 +339,11 @@ function BrowseJobs() {
   useEffect(() => {
     if (!showCreateModal || !country) return
     if (!stateProvince) return
+    if (stateProvince === 'District of Columbia') {
+      setCitiesForState(['District of Columbia'])
+      setCity('District of Columbia')
+      return
+    }
   setTimeout(() => setCitiesLoading(true), 0)
   setCitiesForState(null)
 
@@ -595,7 +621,7 @@ function BrowseJobs() {
             </div>
           </div>
 
-          <div className="flex gap-10 flex-col overflow-y-scroll max-h-[70vh] hide-scrollbar" style={{ rowGap: 20, paddingBottom: "5rem" }}>
+          <div className="flex gap-10 flex-col overflow-y-scroll max-h-[70vh] tp-job-scroll" style={{ rowGap: 20, paddingBottom: "5rem", paddingRight: '0.5rem' }}>
             {/* top-match card removed — anonymous users now see public jobs, and personalized top-match is hidden */}
             {loadingJobs ? (
               <div style={{ padding: 32, textAlign: 'center', color: '#64748B' }}>Loading jobs...</div>
@@ -656,11 +682,20 @@ function BrowseJobs() {
             <JobDetailDrawer
               job={selectedJob as DrawerJob}
               onClose={() => setSelectedJob(null)}
+              onApply={() => { void handleApply(); }}
             />
           </div>
         )}
         </div>
       </div>
+
+      {applyingToJob && (
+        <ApplicationWizard
+          job={applyingToJob as { _id?: string; id?: string; title?: string; department?: string; location?: string; applicationQuestions?: string[] }}
+          onClose={() => setApplyingToJob(null)}
+        />
+      )}
+
       {showCreateModal && (
         <div style={{ position: 'fixed', top: '60px', inset: 0, background: 'rgba(2,6,23,0.48)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '2rem', zIndex: 2000 }}>
           <div className="tp-card-soft" role="dialog" aria-modal="true" style={{ width: 820, background: 'linear-gradient(180deg, #ffffff, #fbfdff)', borderRadius: 20, padding: 28, maxHeight: '86vh', overflowY: 'auto', boxShadow: '0 40px 100px rgba(2,6,23,0.26)', border: '1px solid rgba(15,23,42,0.04)' }}>

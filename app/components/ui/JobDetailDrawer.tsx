@@ -1,6 +1,6 @@
 "use client"
 
-import { X, MapPin, Briefcase, Calendar, DollarSign } from 'lucide-react';
+import { X, MapPin, Briefcase, Calendar, DollarSign, Building2 } from 'lucide-react';
 
 interface Job {
   // support both server _id and client id
@@ -14,106 +14,47 @@ interface Job {
   description?: string;
   requirements?: string;
   employmentType?: string;
+  workArrangement?: string;
+  workSchedule?: string;
   salary?: string;
   salaryMin?: number;
   salaryMax?: number;
+  hourlyMin?: number;
+  hourlyMax?: number;
+  salaryType?: string;
   currency?: string;
   skills?: string[];
+  benefits?: string[];
+  applicationQuestions?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
 
 import React, { useEffect, useRef, useState } from 'react';
-import useApplyForJob from '../../../hooks/useApplyForJob';
-import useApplicationAIMatch from '../../../hooks/useApplicationAIMatch';
+
 import { useUser } from '@/contexts/userContext/userContext';
-import Link from 'next/link';
+
+const isHtml = (text: string) => /<[a-z][\s\S]*>/i.test(text);
+
+function RteContent({ content, style }: { content: string; style?: React.CSSProperties }) {
+  if (!content) return null;
+  return isHtml(content)
+    ? <div className="rte-display" dangerouslySetInnerHTML={{ __html: content }} style={style} />
+    : <p style={{ ...style, whiteSpace: 'pre-line', margin: 0 }}>{content}</p>;
+}
 
 interface JobDetailDrawerProps {
   job: Job | null;
   onClose: () => void;
+  onApply?: () => void;
 }
 
-export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
+export function JobDetailDrawer({ job, onClose, onApply }: JobDetailDrawerProps) {
   const { state } = useUser();
   // Note: we can't call hooks conditionally; we'll use a simple window.location fallback for now.
   const [visible, setVisible] = useState(false);
   const [shouldRender, setShouldRender] = useState(!!job);
   const drawerRef = useRef<HTMLDivElement>(null);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [coverError, setCoverError] = useState<string | null>(null);
-  const [coverType, setCoverType] = useState<'file' | 'text'>('file');
-  const [coverText, setCoverText] = useState<string>('');
-  const { apply, loading: applying, error: applyError } = useApplyForJob();
-  const { runMatch, loading: aiLoading, data: aiData, error: aiError } = useApplicationAIMatch();
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
-  const candidateSkills = Array.isArray(state.user?.profile?.skills)
-    ? state.user?.profile?.skills
-        .map((skill) => String(skill).trim())
-        .filter(Boolean)
-    : typeof state.user?.profile?.skills === 'string'
-      ? String(state.user.profile.skills)
-          .split(',')
-          .map((skill) => skill.trim())
-          .filter(Boolean)
-      : [];
-
-  const jobSkills = Array.isArray(job?.skills)
-    ? job.skills.map((skill) => String(skill).trim()).filter(Boolean)
-    : [];
-
-  const matchedSkills = jobSkills.filter((skill) =>
-    candidateSkills.some((candidateSkill) => candidateSkill.toLowerCase() === skill.toLowerCase())
-  );
-
-  const missingSkills = jobSkills.filter((skill) =>
-    !candidateSkills.some((candidateSkill) => candidateSkill.toLowerCase() === skill.toLowerCase())
-  );
-
-  const matchScore = jobSkills.length > 0
-    ? Math.round((matchedSkills.length / jobSkills.length) * 100)
-    : 0;
-
-  // Submission logic separated from UI
-  async function onSubmit() {
-    setSuccessMessage(null);
-    setCoverError(null);
-    if (!job) {
-      setCoverError('Missing job id');
-      return;
-    }
-
-    const jobId = String(job._id ?? job.id ?? '');
-    if (!jobId) {
-      setCoverError('Missing job id');
-      return;
-    }
-
-    try {
-      if (coverType === 'file') {
-        if (!coverFile) {
-          setCoverError('Please upload a PDF cover letter');
-          return;
-        }
-        await apply({ jobId, file: coverFile });
-      } else {
-        if (!coverText.trim()) {
-          setCoverError('Please write a cover letter');
-          return;
-        }
-        await apply({ jobId, coverLetter: coverText.trim() });
-      }
-
-      setSuccessMessage('Application submitted successfully');
-      setCoverFile(null);
-      setCoverText('');
-    } catch (err) {
-      // Hook exposes error via applyError; additional handling can be added here if desired
-      console.error('Apply error', err);
-    }
-  }
-
   // When job changes, show the drawer
   useEffect(() => {
     if (job) {
@@ -147,30 +88,44 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
   if (!shouldRender || !job) return null;
 
   const department = job.department ?? 'General';
-  const isNew = job.status === 'OPEN';
-  const salaryDisplay = job.salary ?? ((job.salaryMin || job.salaryMax) ? `$${job.salaryMin ?? 0} - $${job.salaryMax ?? 0} ${job.currency ?? ''}`.trim() : undefined);
   const posted = job.createdAt ?? job.updatedAt;
 
-  // prettify employment type enums like FULL_TIME -> "Full time"
-  const formatEmploymentType = (raw?: string): string | undefined => {
-    if (!raw) return undefined;
-    const map: Record<string, string> = {
-      FULL_TIME: 'Full time',
-      PART_TIME: 'Part time',
-      CONTRACT: 'Contract',
-      INTERNSHIP: 'Internship',
-      TEMPORARY: 'Temporary',
-      REMOTE: 'Remote',
-    };
-    const key = String(raw).toUpperCase();
-    if (map[key]) return map[key];
-    // fallback: convert snake_case or kebab-case or uppercase words into Title Case
-    return String(raw)
-      .toLowerCase()
-      .replace(/[_-]+/g, ' ')
-      .split(' ')
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
+  // Build formatted compensation display based on salaryType
+  const annualComp = (job.salaryMin || job.salaryMax)
+    ? `$${(job.salaryMin ?? 0).toLocaleString()}–$${(job.salaryMax ?? 0).toLocaleString()} annually`
+    : null;
+  const hourlyComp = (job.hourlyMin || job.hourlyMax)
+    ? `$${(job.hourlyMin ?? 0).toLocaleString()}–$${(job.hourlyMax ?? 0).toLocaleString()} per hour`
+    : null;
+  const salaryDisplay: string | undefined =
+    job.salary ??
+    (job.salaryType === 'HOURLY' ? (hourlyComp ?? undefined) :
+     job.salaryType === 'BOTH' ? ([annualComp, hourlyComp].filter(Boolean).join(' / ') || undefined) :
+     job.salaryType === 'ANNUAL' ? (annualComp ?? undefined) :
+     (annualComp ?? hourlyComp ?? undefined));
+
+  // Parse structured description sections
+  const parseSection = (text: string, marker: string): string | null => {
+    const idx = text.indexOf(marker);
+    if (idx === -1) return null;
+    const start = idx + marker.length;
+    const nextMarkerIdx = text.indexOf('[', start);
+    return (nextMarkerIdx === -1 ? text.slice(start) : text.slice(start, nextMarkerIdx)).trim() || null;
+  };
+
+  const rawDesc = job.description ?? '';
+  const rawReq = job.requirements ?? '';
+  const hasKeyResp = rawDesc.includes('[KEY RESPONSIBILITIES]');
+  const positionSummary = hasKeyResp ? rawDesc.slice(0, rawDesc.indexOf('[KEY RESPONSIBILITIES]')).trim() : rawDesc;
+  const keyResponsibilities = parseSection(rawDesc, '[KEY RESPONSIBILITIES]');
+  const minQualifications = parseSection(rawReq, '[MINIMUM QUALIFICATIONS]');
+  const preferredQualifications = parseSection(rawReq, '[PREFERRED QUALIFICATIONS]');
+  const hasStructured = hasKeyResp || rawReq.includes('[MINIMUM QUALIFICATIONS]');
+
+  const formatArrangement = (raw?: string): string => {
+    if (!raw) return '';
+    const map: Record<string, string> = { ONSITE: 'Onsite', HYBRID: 'Hybrid', REMOTE: 'Remote' };
+    return map[raw.toUpperCase()] ?? raw;
   };
 
   return (
@@ -211,53 +166,100 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
       </div>
 
       <div style={{ padding: 24 }}>
-        {isNew && (
-          <span style={{ display: 'inline-block', background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)', color: '#fff', padding: '8px 16px', borderRadius: 9999, fontSize: '0.875rem', marginBottom: 16, boxShadow: '0 10px 20px rgba(59,130,246,0.16)' }}>
-            New Posting
-          </span>
-        )}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Briefcase size={15} style={{ color: '#2563EB', flexShrink: 0 }} />
+            <span style={{ fontSize: '0.78rem', color: '#6B7280', minWidth: 110 }}>Department</span>
+            <span style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.92rem' }}>{department}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <MapPin size={15} style={{ color: '#2563EB', flexShrink: 0, marginTop: 2 }} />
+            <span style={{ fontSize: '0.78rem', color: '#6B7280', minWidth: 110, paddingTop: 2 }}>Location</span>
+            <span style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.92rem', lineHeight: 1.4 }}>{job.location}</span>
+          </div>
+          {salaryDisplay && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <DollarSign size={15} style={{ color: '#2563EB', flexShrink: 0 }} />
+              <span style={{ fontSize: '0.78rem', color: '#6B7280', minWidth: 110 }}>Compensation</span>
+              <span style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.92rem' }}>{salaryDisplay}</span>
+            </div>
+          )}
+          {job.workArrangement && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Building2 size={15} style={{ color: '#2563EB', flexShrink: 0 }} />
+              <span style={{ fontSize: '0.78rem', color: '#6B7280', minWidth: 110 }}>Work Arrangement</span>
+              <span style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.92rem' }}>{formatArrangement(job.workArrangement)}</span>
+            </div>
+          )}
+          {job.workSchedule && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Calendar size={15} style={{ color: '#2563EB', flexShrink: 0 }} />
+              <span style={{ fontSize: '0.78rem', color: '#6B7280', minWidth: 110 }}>Work Schedule</span>
+              <span style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.92rem' }}>{job.workSchedule}</span>
+            </div>
+          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Calendar size={15} style={{ color: '#2563EB', flexShrink: 0 }} />
+            <span style={{ fontSize: '0.78rem', color: '#6B7280', minWidth: 110 }}>Posted</span>
+            <span style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.92rem' }}>{posted ? new Date(posted).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }) : 'Unknown'}</span>
+          </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 14, marginBottom: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-            <Briefcase className="w-5 h-5 text-[#2563EB]" />
-            <div>
-              <div style={{ fontSize: 12, color: '#6B7280' }}>Department</div>
-              <div style={{ fontWeight: 600, color: '#0F172A' }}>{department}</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-            <MapPin className="w-5 h-5 text-[#2563EB]" />
-            <div>
-              <div style={{ fontSize: 12, color: '#6B7280' }}>Location</div>
-              <div style={{ fontWeight: 600, color: '#0F172A' }}>{job.location}</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-            <DollarSign className="w-5 h-5 text-[#2563EB]" />
-            <div>
-              <div className="text-xs text-gray-500">Salary Range</div>
-              <div style={{ fontWeight: 600, color: '#0F172A' }}>{salaryDisplay ?? '$0 - $0'}</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: '#F8FAFC', borderRadius: 16, border: '1px solid #E2E8F0' }}>
-            <Calendar className="w-5 h-5 text-[#2563EB]" />
-            <div>
-              <div style={{ fontSize: 12, color: '#6B7280' }}>Posted</div>
-              <div style={{ fontWeight: 600, color: '#0F172A' }}>{posted ? new Date(posted).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }) : 'Unknown'}</div>
-            </div>
-          </div>
+          {state.user?.accountType !== 'EMPLOYER' && (
+            <button
+              onClick={() =>
+                state.user?.accountType === 'TALENT'
+                  ? onApply?.()
+                  : (window.location.href = '/login')
+              }
+              style={{ marginTop: 6, padding: '0.55rem 1.4rem', borderRadius: 10, background: 'linear-gradient(135deg, #1d4ed8, #2563EB)', color: 'white', fontWeight: 600, fontSize: '0.88rem', border: 'none', cursor: 'pointer', alignSelf: 'flex-start' }}
+            >
+              Apply Now
+            </button>
+          )}
         </div>
 
-        <div style={{ marginBottom: 24, padding: 20, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20, boxShadow: '0 8px 24px rgba(15,23,42,0.04)' }}>
-          <h3 style={{ marginBottom: 14, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Job Description</h3>
-          <p style={{ color: '#374151', lineHeight: 1.75, marginBottom: 0 }}>{job.description}</p>
-        </div>
-
-        {job.requirements && (
-          <div style={{ marginBottom: 24, padding: 20, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20 }}>
-            <h3 style={{ marginBottom: 14, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Requirements</h3>
-            <p style={{ color: '#374151', lineHeight: 1.7, marginBottom: 0 }}>{job.requirements}</p>
-          </div>
+        {hasStructured ? (
+          <>
+            {positionSummary && (
+              <div style={{ marginBottom: 24, padding: 20, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20, boxShadow: '0 8px 24px rgba(15,23,42,0.04)' }}>
+                <h3 style={{ marginBottom: 14, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Position Summary</h3>
+                <RteContent content={positionSummary} style={{ color: '#374151', lineHeight: 1.75 }} />
+              </div>
+            )}
+            {keyResponsibilities && (
+              <div style={{ marginBottom: 24, padding: 20, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20 }}>
+                <h3 style={{ marginBottom: 14, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Key Responsibilities</h3>
+                <RteContent content={keyResponsibilities} style={{ color: '#374151', lineHeight: 1.75 }} />
+              </div>
+            )}
+            {minQualifications && (
+              <div style={{ marginBottom: 24, padding: 20, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20 }}>
+                <h3 style={{ marginBottom: 14, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Minimum Qualifications</h3>
+                <RteContent content={minQualifications} style={{ color: '#374151', lineHeight: 1.75 }} />
+              </div>
+            )}
+            {preferredQualifications && (
+              <div style={{ marginBottom: 24, padding: 20, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20 }}>
+                <h3 style={{ marginBottom: 14, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Preferred Qualifications</h3>
+                <RteContent content={preferredQualifications} style={{ color: '#374151', lineHeight: 1.75 }} />
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {rawDesc && (
+              <div style={{ marginBottom: 24, padding: 20, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20, boxShadow: '0 8px 24px rgba(15,23,42,0.04)' }}>
+                <h3 style={{ marginBottom: 14, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Job Description</h3>
+                <RteContent content={rawDesc} style={{ color: '#374151', lineHeight: 1.75 }} />
+              </div>
+            )}
+            {rawReq && (
+              <div style={{ marginBottom: 24, padding: 20, background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 20 }}>
+                <h3 style={{ marginBottom: 14, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Requirements</h3>
+                <RteContent content={rawReq} style={{ color: '#374151', lineHeight: 1.7 }} />
+              </div>
+            )}
+          </>
         )}
 
         {Array.isArray(job.skills) && job.skills.length > 0 && (
@@ -271,152 +273,49 @@ export function JobDetailDrawer({ job, onClose }: JobDetailDrawerProps) {
           </div>
         )}
 
-        <div style={{ marginBottom: 24, padding: 20, background: '#F8FAFC', borderRadius: 20, border: '1px solid #E2E8F0' }}>
-            <h3 style={{ marginBottom: 8, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Meta</h3>
-          <div style={{ color: '#374151', display: 'grid', gap: 8 }}>
-            <div><strong>Employment Type:</strong> {job.employmentType ? formatEmploymentType(job.employmentType) : 'N/A'}</div>
-            <div><strong>Status:</strong> {job.status ?? 'N/A'}</div>
-          </div>
-        </div>
-
-
-        <div style={{ display: 'flex', gap: 12 }}>
-          <div style={{ flex: 1 }}>
-
-          {state.user?.accountType === "TALENT" && (
-            <>
-              <div style={{ marginBottom: 12 }}>
-                <h4 style={{ margin: 0, marginBottom: 8 }}>Cover Letter</h4>
-
-                <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-                  <button
-                    type="button"
-                    onClick={() => { setCoverType('file'); setCoverText(''); setCoverError(null); }}
-                    style={{ padding: '8px 12px', borderRadius: 8, border: coverType === 'file' ? '2px solid #2563EB' : '1px solid #E5E7EB', background: coverType === 'file' ? '#EEF6FF' : '#fff' }}
-                  >
-                    Upload PDF
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setCoverType('text'); setCoverFile(null); setCoverError(null); }}
-                    style={{ padding: '8px 12px', borderRadius: 8, border: coverType === 'text' ? '2px solid #2563EB' : '1px solid #E5E7EB', background: coverType === 'text' ? '#EEF6FF' : '#fff' }}
-                  >
-                    Write cover letter
-                  </button>
-                </div>
-
-                {coverType === 'file' && (
-                  <div>
-                    <input
-                      id="cover-letter-upload"
-                      type="file"
-                      accept="application/pdf"
-                      style={{ display: 'none'}}
-                      onChange={(e) => {
-                        const f = (e.target as HTMLInputElement).files?.[0] ?? null;
-                        if (!f) {
-                          setCoverFile(null);
-                          setCoverError(null);
-                          return;
-                        }
-                        // basic PDF validation
-                        const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
-                        if (!isPdf) {
-                          setCoverFile(null);
-                          setCoverError('Please upload a PDF file');
-                          (e.target as HTMLInputElement).value = '';
-                          return;
-                        }
-                        setCoverFile(f);
-                        setCoverError(null);
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('cover-letter-upload')?.click()}
-                      style={{ padding: '10px 16px', borderRadius: 8, border: '1px dashed #CBD5E1', background: '#fff',  cursor: 'pointer' }}
-                    >
-                      {coverFile ? 'Replace cover letter' : 'Upload cover letter (PDF)'}
-                    </button>
-                    {coverFile && <div style={{ marginTop: 8 }}>{coverFile.name}</div>}
-                    {coverError && <div style={{ color: '#fecaca', marginTop: 8 }}>{coverError}</div>}
+        {Array.isArray(job.benefits) && job.benefits.length > 0 && (() => {
+          const BENEFIT_VARIES = 'Benefits Vary by Position';
+          const varies = job.benefits.includes(BENEFIT_VARIES);
+          const grouped: Record<string, string[]> = {};
+          for (const b of job.benefits) {
+            if (b === BENEFIT_VARIES) continue;
+            const group =
+              ['Medical Insurance','Dental Insurance','Vision Insurance','Prescription Drug Coverage','Health Savings Account (HSA)','Flexible Spending Account (FSA)','Employee Assistance Program (EAP)','Wellness Program'].includes(b) ? 'Health & Wellness' :
+              ['401(k) Retirement Plan','Employer 401(k) Match','Life Insurance','Short-Term Disability Insurance','Long-Term Disability Insurance','Performance Bonus','Referral Bonus'].includes(b) ? 'Financial Benefits' :
+              ['Paid Time Off (PTO)','Paid Holidays','Sick Leave','Bereavement Leave','Jury Duty Leave','Military Leave','Parental Leave'].includes(b) ? 'Paid Time Off' :
+              ['Tuition Reimbursement','Professional Development Assistance','Certification Reimbursement','Continuing Education Support','Conference Attendance'].includes(b) ? 'Professional Development' :
+              ['Flexible Work Schedule','Hybrid Work Environment','Remote Work Opportunities','Flexible Hours'].includes(b) ? 'Work-Life Balance' : 'Additional Benefits';
+            if (!grouped[group]) grouped[group] = [];
+            grouped[group].push(b);
+          }
+          return (
+            <div style={{ marginBottom: 24, padding: 20, background: '#ffffff', border: '1px solid #E2E8F0', borderRadius: 20 }}>
+              <h3 style={{ marginBottom: 16, fontSize: 18, fontWeight: 700, color: '#0F172A' }}>Benefits &amp; Perks</h3>
+              <div style={{ display: 'grid', gap: 16 }}>
+                {Object.entries(grouped).map(([group, items]) => (
+                  <div key={group}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{group}</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {items.map((item) => (
+                        <span key={item} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 999, padding: '5px 12px', fontSize: 12, fontWeight: 600, color: '#15803d' }}>
+                          ✓ {item}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                )}
-
-                {coverType === 'text' && (
-                  <div>
-                    <textarea
-                      value={coverText}
-                      onChange={(e) => { setCoverText(e.target.value); if (e.target.value.trim().length > 0) setCoverError(null); }}
-                      placeholder="Write your cover letter here..."
-                      rows={8}
-                      style={{ width: '100%', padding: 12, borderRadius: 8, border: '1px solid #E5E7EB', resize: 'vertical' }}
-                    />
-                    <div style={{ fontSize: 12, color: '#6B7280', marginTop: 6 }}>You can paste plain text; we will send it as part of your application.</div>
-                    {coverError && <div style={{ color: '#fecaca', marginTop: 8 }}>{coverError}</div>}
+                ))}
+                {varies && (
+                  <div style={{ marginTop: 4, padding: '10px 14px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, fontSize: '0.82rem', color: '#92400e', fontWeight: 600 }}>
+                    ⚠ Benefits Vary by Position — specific benefits depend on contract, position type, or collective bargaining agreement.
                   </div>
                 )}
               </div>
-              <button
-                disabled={applying || !(coverType === 'file' ? !!coverFile : coverText.trim().length > 0)}
-                style={{
-                  width: '100%',
-                  background: (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? '#2563EB' : '#93C5FD',
-                  color: '#fff',
-                  padding: '16px 24px',
-                  borderRadius: 12,
-                  transition: 'background 0.2s',
-                  cursor: applying ? 'wait' : (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? 'pointer' : 'not-allowed',
-                  border: 'none',
-                  opacity: (coverType === 'file' ? !!coverFile : coverText.trim().length > 0) ? 1 : 0.7,
-                }}
-                onClick={onSubmit}
-              >
-                {applying ? 'Applying...' : 'Apply for This Position'}
-              </button>
-              {/* "new ai check" */}
-              {/* "new ai check" */}
-            </>
-          )}
-          {!state.user && (
-            <div style={{ marginTop: 12 }}>
-              {/* When not logged in, offer to go to login. Temporarry function below logs out and redirects. */}
-              <button
-                onClick={() => {
-                  // Temporarry function: clear client-side auth/local storage and redirect to /login
-                  // NOTE: Replace this with real auth sign-out once auth context is available.
-                  try {
-                    // Example cleanup: remove token/local state used by the app
-                    localStorage.removeItem('auth_token')
-                    localStorage.removeItem('user')
-                  } catch (e) {
-                    // ignore (server environments won't have localStorage)
-                  }
-                  // Navigate to login page
-                  if (typeof window !== 'undefined') window.location.href = '/login'
-                }}
-                style={{ marginTop: 8, padding: '10px 12px', borderRadius: 8, background: '#fff', border: '1px solid #E2E8F0', cursor: 'pointer' }}
-              >
-                Go to login page
-              </button>
             </div>
-          )}
-            {applyError && <div style={{ color: '#fecaca', marginTop: 8 }}>{applyError}</div>}
-            {successMessage && <div style={{ color: '#16A34A', marginTop: 8 }}>{successMessage}</div>}
-            
-            {/* Link to employer candidate overview for this job (includes jobId query param) */}
-            {job && state.user?.accountType !== 'TALENT' && (
-              <div style={{ marginTop: 12 }}>
-                <Link
-                  href={`/candidate-overview?jobId=${encodeURIComponent(String(job._id ?? job.id ?? ''))}`}
-                  style={{ color: '#2563EB', textDecoration: 'underline', fontWeight: 600 }}
-                >
-                  View applicants for this job
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
+          );
+        })()}
+
+
+
       </div>
     </div>
   );

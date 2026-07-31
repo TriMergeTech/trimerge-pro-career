@@ -453,3 +453,74 @@ select:focus-visible {
     display: none;
   }
 }
+
+/* ── Job list scrollbar ──────────────────────────────────────────────────── */
+.tp-job-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(29, 78, 216, 0.25) transparent;
+}
+
+.tp-job-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.tp-job-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tp-job-scroll::-webkit-scrollbar-thumb {
+  background: rgba(29, 78, 216, 0.25);
+  border-radius: 999px;
+}
+
+.tp-job-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(29, 78, 216, 0.5);
+}
+
+/* ── Rich Text Editor + Display ─────────────────────────────────────────── */
+.rte-editor ul,
+.rte-display ul {
+  list-style: disc !important;
+  padding-left: 1.5em !important;
+  margin: 0.35em 0 !important;
+}
+
+.rte-editor ol,
+.rte-display ol {
+  list-style: decimal !important;
+  padding-left: 1.5em !important;
+  margin: 0.35em 0 !important;
+}
+
+.rte-editor li,
+.rte-display li {
+  margin: 0.18em 0 !important;
+  display: list-item !important;
+}
+
+.rte-editor p,
+.rte-display p {
+  margin: 0 0 0.45em !important;
+}
+
+.rte-editor strong,
+.rte-display strong {
+  font-weight: 700 !important;
+}
+
+.rte-editor em,
+.rte-display em {
+  font-style: italic !important;
+}
+
+.rte-editor u,
+.rte-display u {
+  text-decoration: underline !important;
+}
+
+.rte-editor h3,
+.rte-display h3 {
+  font-size: 1.05em !important;
+  font-weight: 700 !important;
+  margin: 0.5em 0 0.25em !important;
+}

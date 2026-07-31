@@ -2,8 +2,10 @@ import { useState } from 'react';
 
 type ApplyParams = {
   jobId: string;
-  file?: File | null;
-  coverLetter?: string;
+  resumeFile?: File | null;
+  file?: File | null;          // cover letter PDF
+  coverLetter?: string;        // cover letter text
+  answers?: Record<string, string>;
 };
 
 export default function useApplyForJob() {
@@ -20,27 +22,18 @@ export default function useApplyForJob() {
       const url = 'https://trimerge-pro-career.onrender.com/api/v1/applications';
 
       let res: Response;
-      if (params.file) {
-        const fd = new FormData();
-        fd.append('jobId', params.jobId);
-        // backend will expect a file field for the cover letter; use 'coverLetter' to match JSON fallback
-        fd.append('coverLetterFile', params.file, params.file.name);
+      const fd = new FormData();
+      fd.append('jobId', params.jobId);
+      if (params.resumeFile) fd.append('resumeFile', params.resumeFile, params.resumeFile.name);
+      if (params.file) fd.append('coverLetterFile', params.file, params.file.name);
+      if (params.coverLetter) fd.append('coverLetter', params.coverLetter);
+      if (params.answers) fd.append('answers', JSON.stringify(params.answers));
 
-        res = await fetch(url, {
-          method: 'POST',
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-          body: fd,
-        });
-      } else {
-        res = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({ jobId: params.jobId, coverLetter: params.coverLetter ?? '' }),
-        });
-      }
+      res = await fetch(url, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        body: fd,
+      });
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {

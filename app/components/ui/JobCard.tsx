@@ -1,5 +1,4 @@
-import { useUser } from '@/contexts/userContext/userContext';
-import { MapPin, Briefcase, ArrowRight } from 'lucide-react';
+import { MapPin, Briefcase } from 'lucide-react';
 
 interface JobCardProps {
   id: string | number;
@@ -15,8 +14,6 @@ interface JobCardProps {
 }
 
 export function JobCard({ title, department, location, isNew, description, onClick, fullWidth, matchScore, isTopMatch }: JobCardProps) {
-  const { state } = useUser();
-
   return (
     <div
       onClick={onClick}
@@ -93,19 +90,6 @@ export function JobCard({ title, department, location, isNew, description, onCli
           <span>{location}</span>
         </div>
       </div>
-      <p style={{ color: '#64748B', fontSize: '0.97rem', marginBottom: 16, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', fontWeight: 400 }}>{description}</p>
-      <button
-        type="button"
-        onClick={e => {
-          e.stopPropagation();
-          onClick();
-        }}
-  style={{ width: '100%', background: 'linear-gradient(135deg, #3C64DC 0%, #5A84E6 100%)', color: '#fff', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 24, paddingRight: 24, paddingTop: 13, paddingBottom: 13, gap: 8, transition: 'transform 0.2s ease, box-shadow 0.2s ease, background 0.2s', fontWeight: 600, fontSize: '1rem', boxShadow: '0 10px 22px rgba(60,100,220,0.18)' }}
-  className="group-hover:bg-[#345bd1]"
-      >
-        {state.user?.accountType === 'EMPLOYER' ?  'View Job Details' : 'Apply Now'}
-        <ArrowRight className="w-4 h-4" />
-      </button>
     </div>
   );
 }

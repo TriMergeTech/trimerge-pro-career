@@ -24,6 +24,8 @@ export type PublicJob = {
   salaryMax?: number
   currency?: string
   skills?: string[]
+  benefits?: string[]
+  applicationQuestions?: string[]
   status?: 'OPEN' | 'CLOSED' | 'DRAFT'
   createdAt?: string
   updatedAt?: string

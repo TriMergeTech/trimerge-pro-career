@@ -118,7 +118,7 @@ function handleCoverLetterUpload(req: any, res: any, next: any) {
 router.post(
   '/',
   // requireAuth,
-  requireRole('TALENT'),
+  //requireRole('TALENT'),
   handleCoverLetterUpload,
   validateRequest(createApplicationSchema),
   createApplication

@@ -2,7 +2,34 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../utils/app-error';
 import { applicationService } from './application.service';
 
-export const createApplication = async (req: Request, res: Response, next: NextFunction) => {
+export const createApplication = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const files = req.files as {
+      resumeFile?: Express.Multer.File[];
+      coverLetterFile?: Express.Multer.File[];
+    };
+
+    const resumeFile = files?.resumeFile?.[0];
+    const coverLetterFile = files?.coverLetterFile?.[0];
+
+    const result = await applicationService.create(
+      req.user?.userId ?? null,
+      req.body,
+      resumeFile,
+      coverLetterFile
+    );
+
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createApplicationOld = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await applicationService.create(
       req.user!.userId,

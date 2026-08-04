@@ -120,6 +120,35 @@ function uploadCoverLetterToCloudinary(file: Express.Multer.File): Promise<Cloud
   });
 }
 
+function uploadResumeToCloudinary(file: Express.Multer.File): Promise<CloudinaryUploadResult> {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'trimerge/resumes',
+        resource_type: 'raw',
+        use_filename: true,
+        unique_filename: true,
+        overwrite: false,
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        if (!result) {
+          reject(new Error('Cloudinary upload failed'));
+          return;
+        }
+
+        resolve(result as CloudinaryUploadResult);
+      }
+    );
+
+    streamifier.createReadStream(file.buffer).pipe(uploadStream);
+  });
+}
+
 function buildFinalCoverLetterText(input: {
   plainText?: string;
   extractedText?: string;
@@ -139,6 +168,199 @@ function buildFinalCoverLetterText(input: {
 
 export const applicationService = {
   async create(
+  candidateId: string | null,
+  input: CreateApplicationInput,
+  resumeFile?: Express.Multer.File,
+  coverLetterFile?: Express.Multer.File
+) {
+  if (!candidateId) {
+    throw new AppError('Authentication required', 401);
+  }
+
+  const user = await UserModel.findById(candidateId);
+
+  if (!user) {
+    throw new AppError('User not found', 404);
+  }
+
+  if (user.accountType !== 'TALENT') {
+    throw new AppError('Forbidden', 403);
+  }
+
+  const job = await JobModel.findById(input.jobId);
+
+  if (!job) {
+    throw new AppError('Job not found', 404);
+  }
+
+  if (job.status !== 'OPEN') {
+    throw new AppError('Job is not open for applications', 400);
+  }
+
+  const existing = await ApplicationModel.findOne({
+    jobId: input.jobId,
+    candidateId,
+  });
+
+  if (existing) {
+    throw new AppError('You have already applied to this job', 409);
+  }
+
+  //
+  // Resume
+  //
+  let resumeFileUrl: string | undefined;
+  let resumePublicId: string | undefined;
+  let resumeOriginalName: string | undefined;
+  let resumeMimeType: string | undefined;
+  let resumeSize: number | undefined;
+  let resumeExtension: string | undefined;
+
+  if (resumeFile) {
+    resumeOriginalName = sanitizeOriginalName(resumeFile.originalname);
+    resumeMimeType = resumeFile.mimetype;
+    resumeSize = resumeFile.size;
+    resumeExtension = path.extname(resumeFile.originalname).toLowerCase();
+
+    try {
+      const uploadedResume = await uploadResumeToCloudinary(resumeFile);
+
+      resumeFileUrl = uploadedResume.secure_url;
+      resumePublicId = uploadedResume.public_id;
+    } catch {
+      throw new AppError('Failed to upload resume', 500);
+    }
+  }
+
+  //
+  // Cover Letter
+  //
+  let coverLetterFileUrl: string | undefined;
+  let coverLetterPublicId: string | undefined;
+  let coverLetterOriginalName: string | undefined;
+  let coverLetterMimeType: string | undefined;
+  let coverLetterSize: number | undefined;
+  let coverLetterExtension: string | undefined;
+  let coverLetterExtractedText: string | undefined;
+  let coverLetterTextExtractedAt: Date | undefined;
+  let coverLetterParsingStatus: 'NOT_PROVIDED' | 'SUCCESS' | 'FAILED' =
+    input.coverLetter ? 'SUCCESS' : 'NOT_PROVIDED';
+  let coverLetterParsingError: string | undefined;
+
+  if (coverLetterFile) {
+    coverLetterOriginalName = sanitizeOriginalName(
+      coverLetterFile.originalname
+    );
+
+    coverLetterMimeType = coverLetterFile.mimetype;
+    coverLetterSize = coverLetterFile.size;
+    coverLetterExtension = path
+      .extname(coverLetterFile.originalname)
+      .toLowerCase();
+
+    try {
+      const uploadedCoverLetter =
+        await uploadCoverLetterToCloudinary(coverLetterFile);
+
+      coverLetterFileUrl = uploadedCoverLetter.secure_url;
+      coverLetterPublicId = uploadedCoverLetter.public_id;
+    } catch {
+      throw new AppError(
+        'Failed to upload cover letter to cloud storage',
+        500
+      );
+    }
+
+    try {
+      coverLetterExtractedText =
+        await extractResumeText(coverLetterFile);
+
+      coverLetterTextExtractedAt = new Date();
+      coverLetterParsingStatus = 'SUCCESS';
+    } catch (error) {
+      coverLetterParsingStatus = input.coverLetter
+        ? 'SUCCESS'
+        : 'FAILED';
+
+      coverLetterParsingError =
+        error instanceof Error
+          ? error.message
+          : 'Cover letter text extraction failed';
+    }
+  }
+
+  const finalCoverLetter = buildFinalCoverLetterText({
+    plainText: input.coverLetter,
+    extractedText: coverLetterExtractedText,
+  });
+
+  const application = await ApplicationModel.create({
+    jobId: input.jobId,
+    candidateId,
+    coverLetter: finalCoverLetter,
+    status: 'PENDING',
+
+    // Resume
+    resumeFileUrl,
+    resumePublicId,
+    resumeOriginalName,
+    resumeMimeType,
+    resumeSize,
+    resumeExtension,
+
+    // Cover letter
+    coverLetterFileUrl,
+    coverLetterPublicId,
+    coverLetterOriginalName,
+    coverLetterMimeType,
+    coverLetterSize,
+    coverLetterExtension,
+    coverLetterTextExtractedAt,
+    coverLetterParsingStatus,
+    coverLetterParsingError,
+
+    aiMatchStatus: 'NOT_STARTED',
+  });
+
+  let aiEvaluation = null;
+
+  try {
+    aiEvaluation = await aiMatchService.evaluateApplication(
+      application._id.toString()
+    );
+  } catch (error) {
+    console.error('Failed to evaluate application with AI:', error);
+  }
+
+  try {
+    const employer = await UserModel.findById(job.employerId);
+
+    if (employer?.email) {
+      await sendNewApplicationNotificationEmail({
+        to: employer.email,
+        jobTitle: job.title,
+        candidateEmail: user.email,
+      });
+    }
+  } catch (error) {
+    console.error(
+      'Failed to send new application notification email:',
+      error
+    );
+  }
+
+  return {
+    application: {
+      ...formatApplication(application),
+      jobId: input.jobId,
+      employerId: job.employerId.toString(),
+      job: formatJob(job),
+    },
+    aiEvaluation,
+  };
+},
+
+  async createold(
     candidateId: string,
     input: CreateApplicationInput,
     coverLetterFile?: Express.Multer.File

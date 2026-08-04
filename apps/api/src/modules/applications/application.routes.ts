@@ -54,7 +54,30 @@ const coverLetterUpload = multer({
   },
 });
 
-function handleCoverLetterUpload(req: any, res: any, next: any) {
+function handleApplicationUpload(req: any, res: any, next: any) {
+  coverLetterUpload.fields([
+    { name: 'resumeFile', maxCount: 1 },
+    { name: 'coverLetterFile', maxCount: 1 },
+  ])(req, res, (err: any) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return next(
+          new AppError('Uploaded files must be 5 MB or smaller', 400)
+        );
+      }
+
+      return next(new AppError(`Upload error: ${err.message}`, 400));
+    }
+
+    if (err) {
+      return next(err);
+    }
+
+    next();
+  });
+}
+
+function handleCoverLetterUploadold(req: any, res: any, next: any) {
   coverLetterUpload.single('coverLetterFile')(req, res, (err: any) => {
     if (err instanceof multer.MulterError) {
       if (err.code === 'LIMIT_FILE_SIZE') {
@@ -119,7 +142,8 @@ router.post(
   '/',
   // requireAuth,
   //requireRole('TALENT'),
-  handleCoverLetterUpload,
+  //handleCoverLetterUpload,
+  handleApplicationUpload,
   validateRequest(createApplicationSchema),
   createApplication
 );

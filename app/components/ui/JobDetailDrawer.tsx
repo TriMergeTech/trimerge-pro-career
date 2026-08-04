@@ -206,10 +206,12 @@ export function JobDetailDrawer({ job, onClose, onApply }: JobDetailDrawerProps)
 
           {state.user?.accountType !== 'EMPLOYER' && (
             <button
-              onClick={() =>
-                state.user?.accountType === 'TALENT'
-                  ? onApply?.()
-                  : (window.location.href = '/login')
+              // onClick={() =>
+              //   state.user?.accountType === 'TALENT'
+              //     ? onApply?.()
+              //     : (window.location.href = '/login')
+              // }
+               onClick={() => onApply?.()
               }
               style={{ marginTop: 6, padding: '0.55rem 1.4rem', borderRadius: 10, background: 'linear-gradient(135deg, #1d4ed8, #2563EB)', color: 'white', fontWeight: 600, fontSize: '0.88rem', border: 'none', cursor: 'pointer', alignSelf: 'flex-start' }}
             >

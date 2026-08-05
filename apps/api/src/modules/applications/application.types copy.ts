@@ -14,7 +14,7 @@ export type AiMatchStatus =
   | 'FAILED'
   | 'SKIPPED';
 
-export type FileParsingStatus =
+export type CoverLetterParsingStatus =
   | 'NOT_PROVIDED'
   | 'SUCCESS'
   | 'FAILED';
@@ -24,7 +24,6 @@ export interface Application {
   candidateId: Types.ObjectId;
   status: ApplicationStatus;
 
-  // Cover letter
   coverLetter?: string;
 
   coverLetterFileUrl?: string;
@@ -34,22 +33,9 @@ export interface Application {
   coverLetterSize?: number;
   coverLetterExtension?: string;
   coverLetterTextExtractedAt?: Date;
-  coverLetterParsingStatus?: FileParsingStatus;
+  coverLetterParsingStatus?: CoverLetterParsingStatus;
   coverLetterParsingError?: string;
 
-  // Resume
-  resumeFileUrl?: string;
-  resumePublicId?: string;
-  resumeOriginalName?: string;
-  resumeMimeType?: string;
-  resumeSize?: number;
-  resumeExtension?: string;
-  resumeText?: string;
-  resumeTextExtractedAt?: Date;
-  resumeParsingStatus?: FileParsingStatus;
-  resumeParsingError?: string;
-
-  // AI evaluation
   aiMatchStatus?: AiMatchStatus;
   aiEvaluationId?: Types.ObjectId;
   aiOverallScore?: number;

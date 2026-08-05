@@ -168,7 +168,7 @@ function buildFinalCoverLetterText(input: {
 
 export const applicationService = {
   async create(
-  candidateId: string | null,
+   candidateId: string | null,
   input: CreateApplicationInput,
   resumeFile?: Express.Multer.File,
   coverLetterFile?: Express.Multer.File
@@ -177,7 +177,7 @@ export const applicationService = {
   //   throw new AppError('Authentication required', 401);
   // }
 
-  const user = await UserModel.findById(candidateId);
+  // const user = await UserModel.findById(candidateId);
 
   // if (!user) {
   //   throw new AppError('User not found', 404);
@@ -296,7 +296,7 @@ export const applicationService = {
 
   const application = await ApplicationModel.create({
     jobId: input.jobId,
-    candidateId,
+    //candidateId,
     coverLetter: finalCoverLetter,
     status: 'PENDING',
 

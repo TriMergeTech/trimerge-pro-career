@@ -5,17 +5,14 @@ const applicationSchema = new Schema<ApplicationDocument>(
   {
     jobId: { type: Schema.Types.ObjectId, ref: 'Job', required: true, index: true },
     candidateId: { type: Schema.Types.ObjectId, ref: 'User', required: false, index: true },
-
     status: {
       type: String,
       enum: ['PENDING', 'REVIEWED', 'SHORTLISTED', 'REJECTED', 'HIRED'],
       default: 'PENDING',
     },
 
-    // Optional text cover letter
     coverLetter: { type: String, trim: true },
 
-    // Cover letter file metadata
     coverLetterFileUrl: { type: String, trim: true },
     coverLetterPublicId: { type: String, trim: true },
     coverLetterOriginalName: { type: String, trim: true },
@@ -30,36 +27,14 @@ const applicationSchema = new Schema<ApplicationDocument>(
     },
     coverLetterParsingError: { type: String, trim: true },
 
-    // Resume file metadata
-    resumeFileUrl: { type: String, trim: true },
-    resumePublicId: { type: String, trim: true },
-    resumeOriginalName: { type: String, trim: true },
-    resumeMimeType: { type: String, trim: true },
-    resumeSize: { type: Number },
-    resumeExtension: { type: String, trim: true },
-    resumeTextExtractedAt: { type: Date },
-    resumeParsingStatus: {
-      type: String,
-      enum: ['NOT_PROVIDED', 'SUCCESS', 'FAILED'],
-      default: 'NOT_PROVIDED',
-    },
-    resumeParsingError: { type: String, trim: true },
-
     aiMatchStatus: {
       type: String,
       enum: ['NOT_STARTED', 'PENDING', 'COMPLETED', 'FAILED', 'SKIPPED'],
       default: 'NOT_STARTED',
       index: true,
     },
-    aiEvaluationId: {
-      type: Schema.Types.ObjectId,
-      ref: 'AiMatchEvaluation',
-    },
-    aiOverallScore: {
-      type: Number,
-      min: 0,
-      max: 100,
-    },
+    aiEvaluationId: { type: Schema.Types.ObjectId, ref: 'AiMatchEvaluation' },
+    aiOverallScore: { type: Number, min: 0, max: 100 },
     aiRecommendation: {
       type: String,
       enum: ['STRONG_MATCH', 'GOOD_MATCH', 'PARTIAL_MATCH', 'LOW_MATCH'],
@@ -75,7 +50,4 @@ applicationSchema.index({ candidateId: 1, createdAt: -1 });
 applicationSchema.index({ jobId: 1, createdAt: -1 });
 applicationSchema.index({ jobId: 1, aiOverallScore: -1 });
 
-export const ApplicationModel = model<ApplicationDocument>(
-  'Application',
-  applicationSchema
-);
+export const ApplicationModel = model<ApplicationDocument>('Application', applicationSchema);

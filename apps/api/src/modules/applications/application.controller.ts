@@ -32,7 +32,7 @@ export const createApplication = async (
 export const createApplicationOld = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await applicationService.create(
-      req.user!.userId,
+      req.user?.userId ?? null,
       req.body,
       req.file as Express.Multer.File | undefined
     );
@@ -47,6 +47,7 @@ export const getMyApplications = async (req: Request, res: Response, next: NextF
   try {
     const page = Number(req.query.page ?? 1);
     const limit = Number(req.query.limit ?? 10);
+   // const result = await applicationService.getMyApplications(req.user?.userId ?? null, page, limit);
     const result = await applicationService.getMyApplications(req.user!.userId, page, limit);
     res.status(200).json(result);
   } catch (error) {

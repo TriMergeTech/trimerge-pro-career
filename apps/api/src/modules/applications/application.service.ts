@@ -232,7 +232,7 @@ export const applicationService = {
     }
   }
 
-  //
+  
   // Cover Letter
   //
   let coverLetterFileUrl: string | undefined;

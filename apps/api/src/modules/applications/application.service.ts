@@ -179,13 +179,13 @@ export const applicationService = {
 
   const user = await UserModel.findById(candidateId);
 
-  if (!user) {
-    throw new AppError('User not found', 404);
-  }
+  // if (!user) {
+  //   throw new AppError('User not found', 404);
+  // }
 
-  if (user.accountType !== 'TALENT') {
-    throw new AppError('Forbidden', 403);
-  }
+  // if (user.accountType !== 'TALENT') {
+  //   throw new AppError('Forbidden', 403);
+  // }
 
   const job = await JobModel.findById(input.jobId);
 
@@ -339,7 +339,6 @@ export const applicationService = {
       await sendNewApplicationNotificationEmail({
         to: employer.email,
         jobTitle: job.title,
-        candidateEmail: user.email,
       });
     }
   } catch (error) {
@@ -476,7 +475,7 @@ export const applicationService = {
         await sendNewApplicationNotificationEmail({
           to: employer.email,
           jobTitle: job.title,
-          candidateEmail: user.email,
+          //candidateEmail: user.email,
         });
       }
     } catch (error) {

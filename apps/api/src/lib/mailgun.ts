@@ -51,6 +51,22 @@ export async function sendResetPasswordEmail(to: string, otp: string): Promise<v
 export async function sendNewApplicationNotificationEmail(params: {
   to: string;
   jobTitle: string;
+}): Promise<void> {
+  await sendEmail({
+    to: params.to,
+    subject: 'New application received for your job posting',
+    text:
+      `A new application has been submitted for your job posting.\n\n` +
+      `Job Title: ${params.jobTitle}\n`,
+    html:
+      `<p>A new application has been submitted for your job posting.</p>` +
+      `<p><b>Job Title:</b> ${params.jobTitle}</p>`,
+  });
+}
+
+export async function sendNewApplicationNotificationEmailOld(params: {
+  to: string;
+  jobTitle: string;
   candidateEmail: string;
 }): Promise<void> {
   await sendEmail({
